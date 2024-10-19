@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio</title>
+    <script defer src="script.js"></script>
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+
+<body>
+    <header>
+        <img src="imgs/LogoRestaurante.png" alt="Logo do Restaurante" class="logo">
+        <div class="search-bar">
+            <input type="text" placeholder="Pesquisar...">
+        </div>
+        <img src="https://via.placeholder.com/30" alt="Ícone de Login" class="login-icon">
+        <div class="login-area">
+            <button id="login-btn">Login</button>
+            <button id="logout-btn" style="display:none;">Logout</button>
+        </div>
+    </header>
+    <nav>
+        <a href="#hamburguer">Hambúrguer</a>
+        <a href="#sobremesas">Sobremesas</a>
+        <a href="#bebidas">Bebidas</a>
+    </nav>
+    <main>
+        <div class="category">Hambúrguer</div>
+        <section id="hamburguer">
+            <div class="card" onclick="showDetails('Cheeseburger')">
+                <div class="description">
+                    <div class="item">Cheeseburger</div>
+                    <div class="price">R$15,00</div>
+                    <div class="desc">Pão, carne, queijo, alface e tomate.</div>
+                </div>
+                <img src="imgs/lanche.jpeg" alt="Cheeseburger">
+            </div>
+            <div class="card" onclick="showDetails('Cheeseburger')">
+                <div class="description">
+                    <div class="item">Cheeseburger</div>
+                    <div class="price">R$15,00</div>
+                    <div class="desc">Pão, carne, queijo, alface e tomate.</div>
+                </div>
+                <img src="imgs/lanche.jpeg" alt="Cheeseburger">
+            </div>
+            <div class="card" onclick="showDetails('Cheeseburger')">
+                <div class="description">
+                    <div class="item">Cheeseburger</div>
+                    <div class="price">R$15,00</div>
+                    <div class="desc">Pão, carne, queijo, alface e tomate.</div>
+                </div>
+                <img src="imgs/lanche.jpeg" alt="Cheeseburger">
+            </div>
+            <div class="card" onclick="showDetails('Cheeseburger')">
+                <div class="description">
+                    <div class="item">Cheeseburger</div>
+                    <div class="price">R$15,00</div>
+                    <div class="desc">Pão, carne, queijo, alface e tomate.</div>
+                </div>
+                <img src="imgs/lanche.jpeg" alt="Cheeseburger">
+            </div>
+            <div class="card" onclick="showDetails('Cheeseburger')">
+                <div class="description">
+                    <div class="item">Cheeseburger</div>
+                    <div class="price">R$15,00</div>
+                    <div class="desc">Pão, carne, queijo, alface e tomate.</div>
+                </div>
+                <img src="imgs/lanche.jpeg" alt="Cheeseburger">
+            </div>
+            <div class="card" onclick="showDetails('Cheeseburger')">
+                <div class="description">
+                    <div class="item">Cheeseburger</div>
+                    <div class="price">R$15,00</div>
+                    <div class="desc">Pão, carne, queijo, alface e tomate.</div>
+                </div>
+                <img src="imgs/lanche.jpeg" alt="Cheeseburger">
+            </div>
+
+        </section>
+        <div class="category">Sobremesas</div>
+        <section id="sobremesas">
+            <div class="card" onclick="showDetails('Sorvete')">
+                <div class="description">
+                    <div class="item">Sorvete</div>
+                    <div class="price">R$10,00</div>
+                    <div class="desc">Sorvete de creme com cobertura de chocolate.</div>
+                </div>
+                <img src="imgs/pudim.jpg" alt="Sorvete">
+            </div>
+            <div class="card" onclick="showDetails('Sorvete')">
+                <div class="description">
+                    <div class="item">Sorvete</div>
+                    <div class="price">R$10,00</div>
+                    <div class="desc">Sorvete de creme com cobertura de chocolate.</div>
+                </div>
+                <img src="imgs/pudim.jpg" alt="Sorvete">
+            </div>
+            <div class="card" onclick="showDetails('Sorvete')">
+                <div class="description">
+                    <div class="item">Sorvete</div>
+                    <div class="price">R$10,00</div>
+                    <div class="desc">Sorvete de creme com cobertura de chocolate.</div>
+                </div>
+                <img src="imgs/pudim.jpg" alt="Sorvete">
+            </div>
+            <div class="card" onclick="showDetails('Sorvete')">
+                <div class="description">
+                    <div class="item">Sorvete</div>
+                    <div class="price">R$10,00</div>
+                    <div class="desc">Sorvete de creme com cobertura de chocolate.</div>
+                </div>
+                <img src="imgs/pudim.jpg" alt="Sorvete">
+            </div>
+            <div class="card" onclick="showDetails('Sorvete')">
+                <div class="description">
+                    <div class="item">Sorvete</div>
+                    <div class="price">R$10,00</div>
+                    <div class="desc">Sorvete de creme com cobertura de chocolate.</div>
+                </div>
+                <img src="imgs/pudim.jpg" alt="Sorvete">
+            </div>
+            <div class="card" onclick="showDetails('Sorvete')">
+                <div class="description">
+                    <div class="item">Sorvete</div>
+                    <div class="price">R$10,00</div>
+                    <div class="desc">Sorvete de creme com cobertura de chocolate.</div>
+                </div>
+                <img src="imgs/pudim.jpg" alt="Sorvete">
+            </div>
+
+        </section>
+        <div class="category">Bebidas</div>
+        <section id="bebidas">
+            <div class="card" onclick="showDetails('Refrigerante')">
+                <div class="description">
+                    <div class="item">Refrigerante</div>
+                    <div class="price">R$5,00</div>
+                    <div class="desc">Refrigerante de cola, laranja ou limão.</div>
+                </div>
+                <img src="imgs/bebidas.jpeg" alt="Refrigerante">
+            </div>
+            <div class="card" onclick="showDetails('Refrigerante')">
+                <div class="description">
+                    <div class="item">Refrigerante</div>
+                    <div class="price">R$5,00</div>
+                    <div class="desc">Refrigerante de cola, laranja ou limão.</div>
+                </div>
+                <img src="imgs/bebidas.jpeg" alt="Refrigerante">
+            </div>
+            <div class="card" onclick="showDetails('Refrigerante')">
+                <div class="description">
+                    <div class="item">Refrigerante</div>
+                    <div class="price">R$5,00</div>
+                    <div class="desc">Refrigerante de cola, laranja ou limão.</div>
+                </div>
+                <img src="imgs/bebidas.jpeg" alt="Refrigerante">
+            </div>
+            <div class="card" onclick="showDetails('Refrigerante')">
+                <div class="description">
+                    <div class="item">Refrigerante</div>
+                    <div class="price">R$5,00</div>
+                    <div class="desc">Refrigerante de cola, laranja ou limão.</div>
+                </div>
+                <img src="imgs/bebidas.jpeg" alt="Refrigerante">
+            </div>
+            <div class="card" onclick="showDetails('Refrigerante')">
+                <div class="description">
+                    <div class="item">Refrigerante</div>
+                    <div class="price">R$5,00</div>
+                    <div class="desc">Refrigerante de cola, laranja ou limão.</div>
+                </div>
+                <img src="imgs/bebidas.jpeg" alt="Refrigerante">
+            </div>
+            <div class="card" onclick="showDetails('Refrigerante')">
+                <div class="description">
+                    <div class="item">Refrigerante</div>
+                    <div class="price">R$5,00</div>
+                    <div class="desc">Refrigerante de cola, laranja ou limão.</div>
+                </div>
+                <img src="imgs/bebidas.jpeg" alt="Refrigerante">
+            </div>
+
+        </section>
+    </main>
+
+    <div id="modal" class="modal">
+        <div class="modal-content" id="modal-content">
+            <span class="close" onclick="closeModal()">×</span>
+        </div>
+    </div>
+</body>
+
+</html>
