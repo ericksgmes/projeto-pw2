@@ -18,14 +18,14 @@ if (method("GET")) {
                 throw new Exception("Mesa não encontrada", 404);
             }
             $mesa = Mesa::getById($_GET["id"]);
-            output(200, $mesa);
+            output(200, ["status" => "success", "data" => $data]);
         } else {
             $list = Mesa::listar();
-            output(200, $list);
+            output(200, ["status" => "success", "data" => $list]);
         }
     } catch (Exception $e) {
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
-        output($code, ["msg" => $e->getMessage()]);
+        output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
 
@@ -52,10 +52,10 @@ if (method("POST")) {
             throw new Exception("Não foi possível criar a mesa", 500);
         }
 
-        output(201, ["msg" => "Mesa criada com sucesso"]);
+        output(201, ["status" => "success", "data" => $res]);
     } catch (Exception $e) {
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
-        output($code, ["msg" => $e->getMessage()]);
+        output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
 
@@ -86,9 +86,30 @@ if (method("PUT")) {
             throw new Exception("Não foi possível atualizar a mesa", 500);
         }
 
-        output(200, ["msg" => "Mesa editada com sucesso"]);
+        output(200, ["status" => "success", "data" => $res]);
     } catch (Exception $e) {
-        output($e->getCode(), ["msg" => $e->getMessage()]);
+        output($e->getCode(), ["status" => "error", "message" => $e->getMessage()]);
+    }
+
+    if (method("DELETE")) {
+        try {
+            if (!valid($_GET, ["id"])) {
+                throw new Exception("ID não enviado", 400);
+            }
+            if (!Mesa::exist($_GET["id"])) {
+                throw new Exception("Mesa não encontrada", 404);
+            }
+
+            $res = Mesa::deleteById($_GET["id"]);
+            if (!$res) {
+                throw new Exception("Não foi possível deletar a mesa", 500);
+            }
+
+            output(200, ["status" => "success", "data" => $res]);
+        } catch (Exception $e) {
+            $code = $e->getCode() > 100 ? $e->getCode() : 500;
+            output($code, ["status" => "error", "message" => $e->getMessage()]);
+        }
     }
 }
 
