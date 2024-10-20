@@ -87,6 +87,14 @@ if(method("PUT")) {
         if(!Funcionario::exist($_GET["id"])) {
             throw new Exception("Usuário não encontrado", 400);
         }
+
+        $nome = $data["nome"];
+        $username = $data["username"];
+        $res = Funcionario::atualizar($_GET["id"], $nome, $username);
+        if (!$res) {
+            throw new Exception("Não foi possível atualizar o funcionário", 500);
+        }
+
         output(200, ["msg" => "Usuário editado com sucesso"]);
     } catch (Exception $e) {
         output($e->getCode(), ["msg" => $e->getMessage()]);
