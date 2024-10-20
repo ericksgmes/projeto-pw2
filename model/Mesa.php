@@ -5,6 +5,7 @@ require_once(__DIR__ . "/../config/utils.php");
 
 class Mesa
 {
+
     public static function listar() {
         try {
             $connection = Connection::getConnection();
@@ -76,4 +77,5 @@ class Mesa
             output(500, ["msg" => $e->getMessage()]);
         }
     }
+
 }
