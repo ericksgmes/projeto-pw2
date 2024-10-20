@@ -75,4 +75,16 @@ class Produto
         }
     }
 
+    public static function atualizar($id, $nome, $preco) {
+        try {
+            $connection = Connection::getConnection();
+            $sql = $connection->prepare("UPDATE Produto SET nome = ?, preco = ? WHERE id = ?");
+            $sql->execute([$nome, $preco, $id]);
+
+            return $sql->rowCount();
+        } catch (Exception $e) {
+            output(500, ["msg" => $e->getMessage()]);
+        }
+    }
+
 }
