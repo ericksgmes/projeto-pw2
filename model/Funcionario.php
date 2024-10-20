@@ -84,7 +84,7 @@ class Funcionario
 
             return $sql->fetchColumn();
         } catch (Exception $e) {
-            output(500, ["msg" => $e-getMessage()]);
+            output(500, ["msg" => $e->getMessage()]);
         }
     }
 
