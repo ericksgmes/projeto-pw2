@@ -76,4 +76,17 @@ class Pagamento
         }
     }
 
+    public static function atualizar($id, paymentMethodEnum $metodo, $valor) {
+        try {
+            $connection = Connection::getConnection();
+            $data = self::dataAtual();
+            $sql = $connection->prepare("UPDATE Pagamento SET metodo = ?, valor = ?, data = ? WHERE id = ?");
+            $sql->execute([$metodo, $valor, $data, $id]);
+
+            return $sql->rowCount();
+        } catch (Exception $e) {
+            output(500, ["msg" => $e->getMessage()]);
+        }
+    }
+
 }
