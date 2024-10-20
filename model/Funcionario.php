@@ -99,4 +99,16 @@ class Funcionario
         }
     }
 
+    public static function atualizar($id, $nome, $username) {
+        try {
+            $connection = Connection::getConnection();
+            $sql = $connection->prepare("UPDATE Funcionario SET nome = ?, username = ? WHERE id = ?");
+            $sql->execute([$nome, $username, $id]);
+
+            return $sql->rowCount();
+        } catch (Exception $e) {
+            output(500, ["msg" => $e->getMessage()]);
+        }
+    }
+
 }
