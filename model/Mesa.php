@@ -78,4 +78,16 @@ class Mesa
         }
     }
 
+    public static function atualizar($id, $numero) {
+        try {
+            $connection = Connection::getConnection();
+            $sql = $connection->prepare("UPDATE Mesa SET numero = ? WHERE id = ?");
+            $sql->execute([$numero, $id]);
+
+            return $sql->rowCount();
+        } catch (Exception $e) {
+            output(500, ["msg" => $e->getMessage()]);
+        }
+    }
+
 }
