@@ -14,22 +14,18 @@ $data = handleJsonInput();
 if (method("GET")) {
     try {
         if (valid($_GET, ["id"])) {
-            // Verifica se o funcionário existe
             if (!Funcionario::exist($_GET["id"])) {
                 throw new Exception("Funcionário não encontrado", 404);
             }
-            // Busca funcionário por ID
             $funcionario = Funcionario::getById($_GET["id"]);
-            output(200, $funcionario);
+            output(200, ["status" => "success", "data" => $funcionario]);
         } else {
-            // Lista todos os funcionários
             $list = Funcionario::listar();
-            output(200, $list);
+            output(200, ["status" => "success", "data" => $list]);
         }
     } catch (Exception $e) {
-        // Se o código for 0, define como 500 (erro interno)
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
-        output($code, ["msg" => $e->getMessage()]);
+        output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
 
@@ -39,38 +35,34 @@ if (method("POST")) {
             throw new Exception("Nenhuma informação encontrada", 404);
         }
 
-        // Verifica se os campos "nome", "username", "senha" estão presentes
         if (!valid($data, ["nome", "username", "senha"])) {
             throw new Exception("Nome, username e/ou senha não encontrados", 400);
         }
 
-        // Garante que apenas os 3 campos esperados estão presentes
         if (count(array_keys($data)) !== 3) {
             throw new Exception("Foram enviados dados desconhecidos", 400);
         }
 
-        // Verifica se o username já existe
         if (Funcionario::existsByUsername($data["username"])) {
             throw new Exception("O username já existe. Tente outro.", 409);
         }
 
-        // Cadastra o funcionário
         $res = Funcionario::cadastrar($data["nome"], $data["username"], $data["senha"]);
         if (!$res) {
             throw new Exception("Não foi possível cadastrar o funcionário", 500);
         }
 
-        output(201, ["msg" => "Funcionário criado com sucesso"]);
+        output(201, ["status" => "success", "data" => $res]);
     } catch (Exception $e) {
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
-        output($code, ["msg" => $e->getMessage()]);
+        output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
 
 if(method("PUT")) {
     try {
         if(!$data) {
-            throw new Exception("Nenhuma informação encontrada", 404);
+            throw new Exception("Nenhuma informação encontrada", 400);
         }
         if(!valid($_GET, ["id"])) {
             throw new Exception("ID não enviado", 404);
@@ -95,9 +87,9 @@ if(method("PUT")) {
             throw new Exception("Não foi possível atualizar o funcionário", 500);
         }
 
-        output(200, ["msg" => "Usuário editado com sucesso"]);
+        output(200, ["status" => "success", "data" => $res]);
     } catch (Exception $e) {
-        output($e->getCode(), ["msg" => $e->getMessage()]);
+        output($e->getCode(), ["status" => "error", "message" => $e->getMessage()]);
     }
 }
 
