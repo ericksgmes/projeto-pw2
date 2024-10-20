@@ -17,10 +17,24 @@ if (method("GET")) {
                 throw new Exception("Produto não encontrado", 404);
             }
             $produto = Produto::getById($_GET["id"]);
-            output(200, ["status" => "success", "data" => $produto]);
+            output(200, [
+                "status" => "success",
+                "data" => $produto,
+                "links" => [
+                    ["rel" => "self", "href" => "/produtos?id=" . $_GET["id"]],
+                    ["rel" => "update", "href" => "/produtos?id=" . $_GET["id"]],
+                    ["rel" => "delete", "href" => "/produtos?id=" . $_GET["id"]]
+                ]
+            ]);
         } else {
             $list = Produto::listar();
-            output(200, ["status" => "success", "data" => $list]);
+            output(200, [
+                "status" => "success",
+                "data" => $list,
+                "links" => [
+                    ["rel" => "create", "href" => "/produtos"]
+                ]
+            ]);
         }
     } catch (Exception $e) {
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
@@ -50,7 +64,15 @@ if (method("POST")) {
             throw new Exception("Não foi possível criar o produto", 500);
         }
 
-        output(201, ["status" => "success", "data" => $res]);
+        output(201, [
+            "status" => "success",
+            "data" => $res,
+            "links" => [
+                ["rel" => "self", "href" => "/produtos?id=" . $res],
+                ["rel" => "update", "href" => "/produtos?id=" . $res],
+                ["rel" => "delete", "href" => "/produtos?id=" . $res]
+            ]
+        ]);
     } catch (Exception $e) {
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
         output($code, ["status" => "error", "message" => $e->getMessage()]);
@@ -71,7 +93,10 @@ if (method("DELETE")) {
             throw new Exception("Não foi possível deletar o produto", 500);
         }
 
-        output(200, ["status" => "success", "data" => $res]);
+        output(200, [
+            "status" => "success",
+            "data" => $res
+        ]);
     } catch (Exception $e) {
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
         output($code, ["status" => "error", "message" => $e->getMessage()]);
@@ -104,7 +129,14 @@ if (method("PUT")) {
             throw new Exception("Não foi possível atualizar o produto", 500);
         }
 
-        output(200, ["status" => "success", "data" => $res]);
+        output(200, [
+            "status" => "success",
+            "data" => $res,
+            "links" => [
+                ["rel" => "self", "href" => "/produtos?id=" . $_GET["id"]],
+                ["rel" => "delete", "href" => "/produtos?id=" . $_GET["id"]]
+            ]
+        ]);
     } catch (Exception $e) {
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
         output($code, ["status" => "error", "message" => $e->getMessage()]);

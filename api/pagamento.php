@@ -19,10 +19,24 @@ if (method("GET")) {
                 throw new Exception("Pagamento não encontrado", 404);
             }
             $pagamento = Pagamento::getById($_GET["id"]);
-            output(200, ["status" => "success", "data" => $pagamento]);
+            output(200, [
+                "status" => "success",
+                "data" => $pagamento,
+                "links" => [
+                    ["rel" => "self", "href" => "/pagamentos?id=" . $_GET["id"]],
+                    ["rel" => "update", "href" => "/pagamentos?id=" . $_GET["id"]],
+                    ["rel" => "delete", "href" => "/pagamentos?id=" . $_GET["id"]]
+                ]
+            ]);
         } else {
             $list = Pagamento::listar();
-            output(200, ["status" => "success", "data" => $list]);
+            output(200, [
+                "status" => "success",
+                "data" => $list,
+                "links" => [
+                    ["rel" => "create", "href" => "/pagamentos"]
+                ]
+            ]);
         }
     } catch (Exception $e) {
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
@@ -48,7 +62,15 @@ if (method("POST")) {
             throw new Exception("Não foi possível criar o pagamento", 500);
         }
 
-        output(201, ["status" => "success", "data" => $res]);
+        output(201, [
+            "status" => "success",
+            "data" => $res,
+            "links" => [
+                ["rel" => "self", "href" => "/pagamentos?id=" . $res],
+                ["rel" => "update", "href" => "/pagamentos?id=" . $res],
+                ["rel" => "delete", "href" => "/pagamentos?id=" . $res]
+            ]
+        ]);
     } catch (Exception $e) {
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
         output($code, ["status" => "error", "message" => $e->getMessage()]);
@@ -69,7 +91,10 @@ if (method("DELETE")) {
             throw new Exception("Não foi possível deletar o pagamento", 500);
         }
 
-        output(200, ["status" => "success", "data" => $res]);
+        output(200, [
+            "status" => "success",
+            "data" => $res
+        ]);
     } catch (Exception $e) {
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
         output($code, ["status" => "error", "message" => $e->getMessage()]);
@@ -98,10 +123,16 @@ if (method("PUT")) {
             throw new Exception("Não foi possível atualizar o pagamento", 500);
         }
 
-        output(200, ["status" => "success", "data" => $res]);
+        output(200, [
+            "status" => "success",
+            "data" => $res,
+            "links" => [
+                ["rel" => "self", "href" => "/pagamentos?id=" . $_GET["id"]],
+                ["rel" => "delete", "href" => "/pagamentos?id=" . $_GET["id"]]
+            ]
+        ]);
     } catch (Exception $e) {
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
         output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
-

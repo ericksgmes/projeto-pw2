@@ -18,10 +18,24 @@ if (method("GET")) {
                 throw new Exception("Funcionário não encontrado", 404);
             }
             $funcionario = Funcionario::getById($_GET["id"]);
-            output(200, ["status" => "success", "data" => $funcionario]);
+            output(200, [
+                "status" => "success",
+                "data" => $funcionario,
+                "links" => [
+                    ["rel" => "self", "href" => "/funcionarios?id=" . $_GET["id"]],
+                    ["rel" => "update", "href" => "/funcionarios?id=" . $_GET["id"]],
+                    ["rel" => "delete", "href" => "/funcionarios?id=" . $_GET["id"]]
+                ]
+            ]);
         } else {
             $list = Funcionario::listar();
-            output(200, ["status" => "success", "data" => $list]);
+            output(200, [
+                "status" => "success",
+                "data" => $list,
+                "links" => [
+                    ["rel" => "create", "href" => "/funcionarios"]
+                ]
+            ]);
         }
     } catch (Exception $e) {
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
@@ -52,7 +66,15 @@ if (method("POST")) {
             throw new Exception("Não foi possível cadastrar o funcionário", 500);
         }
 
-        output(201, ["status" => "success", "data" => $res]);
+        output(201, [
+            "status" => "success",
+            "data" => $res,
+            "links" => [
+                ["rel" => "self", "href" => "/funcionarios?id=" . $res],
+                ["rel" => "update", "href" => "/funcionarios?id=" . $res],
+                ["rel" => "delete", "href" => "/funcionarios?id=" . $res]
+            ]
+        ]);
     } catch (Exception $e) {
         $code = $e->getCode() > 100 ? $e->getCode() : 500;
         output($code, ["status" => "error", "message" => $e->getMessage()]);
@@ -87,9 +109,15 @@ if(method("PUT")) {
             throw new Exception("Não foi possível atualizar o funcionário", 500);
         }
 
-        output(200, ["status" => "success", "data" => $res]);
+        output(200, [
+            "status" => "success",
+            "data" => $res,
+            "links" => [
+                ["rel" => "self", "href" => "/funcionarios?id=" . $_GET["id"]],
+                ["rel" => "delete", "href" => "/funcionarios?id=" . $_GET["id"]]
+            ]
+        ]);
     } catch (Exception $e) {
         output($e->getCode(), ["status" => "error", "message" => $e->getMessage()]);
     }
 }
-
