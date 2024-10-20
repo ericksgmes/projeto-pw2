@@ -89,6 +89,9 @@ if (method("PUT")) {
         if (!valid($data, ["nome", "preco"])) {
             throw new Exception("Nome ou preço não encontrado", 400);
         }
+        if ($data["preco"] < 0) {
+            throw new Exception("Preço deve ser positivo", 400);
+        }
         if (!Produto::exist($_GET["id"])) {
             throw new Exception("Produto não encontrado", 404);
         }
