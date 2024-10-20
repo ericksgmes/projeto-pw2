@@ -93,9 +93,10 @@ class Funcionario
             $connection = Connection::getConnection();
             $sql = $connection->prepare("SELECT id FROM Funcionario WHERE username = ?");
             $sql->execute([$username]);
-            return $sql->fetch() ? true : false;
+            return (bool)$sql->fetch();
         } catch (Exception $e) {
             output(500, ["msg" => $e->getMessage()]);
         }
     }
+
 }
