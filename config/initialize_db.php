@@ -2,7 +2,7 @@
 
 require_once(__DIR__ . "/../config/database.php");
 
-function initializeDatabase()
+function initializeDatabase(): void
 {
     try {
         $connection = new PDO("mysql:host=localhost", "root", "");
