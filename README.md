@@ -46,7 +46,6 @@ For detailed route information, please refer to the **`rotas.html`** file.
 ├── rotas.html         # Documentation for available API routes
 ├── LICENSE            # Project license
 └── README.md          # Project documentation
-
 ```
 
 ### Notes
