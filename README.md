@@ -44,7 +44,9 @@ For detailed route information, please refer to the **`rotas.html`** file.
 ├── frontend/          # Frontend files (not yet integrated)
 ├── model/             # Database models for different entities
 ├── rotas.html         # Documentation for available API routes
+├── LICENSE            # Project license
 └── README.md          # Project documentation
+
 ```
 
 ### Notes
