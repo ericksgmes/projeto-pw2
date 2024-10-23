@@ -10,7 +10,7 @@ class Pagamento
     private static function dataAtual() {
         $dataAtual = new DateTime();
         $dataAtual->setTimezone(new DateTimeZone("America/Sao_Paulo"));
-        return $dataAtual->format('d-m-Y H:i:s');
+        return $dataAtual->format('Y-m-d H:i:s');
     }
 
 
@@ -31,7 +31,7 @@ class Pagamento
             $connection = Connection::getConnection();
             $data = self::dataAtual();
             $sql = $connection->prepare("INSERT INTO Pagamento(metodo, valor, data) VALUES (?,?,?)");
-            $sql->execute([$metodo, $valor, $data]);
+            $sql->execute([$metodo->value, $valor, $data]);
 
             return $sql->rowCount();
         } catch (Exception $e) {
@@ -81,7 +81,7 @@ class Pagamento
             $connection = Connection::getConnection();
             $data = self::dataAtual();
             $sql = $connection->prepare("UPDATE Pagamento SET metodo = ?, valor = ?, data = ? WHERE id = ?");
-            $sql->execute([$metodo, $valor, $data, $id]);
+            $sql->execute([$metodo->value, $valor, $data, $id]);
 
             return $sql->rowCount();
         } catch (Exception $e) {
