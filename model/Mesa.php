@@ -42,7 +42,7 @@ class Mesa
         }
     }
 
-    public function deleteById($id){
+    public static function deleteById($id){
         try {
             $connection = Connection::getConnection();
             $sql = $connection->prepare("DELETE FROM Mesa WHERE id = ?");
