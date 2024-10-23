@@ -63,7 +63,7 @@ class Funcionario
         }
     }
 
-    public function deleteById($id){
+    public static function deleteById($id){
         try {
             $connection = Connection::getConnection();
             $sql = $connection->prepare("DELETE FROM Funcionario WHERE id = ?");
