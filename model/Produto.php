@@ -27,7 +27,7 @@ class Produto
         }
     }
 
-    public function getById($id) {
+    public static function getById($id) {
         try {
             $connection = Connection::getConnection();
             $sql = $connection->prepare("SELECT * FROM Produto WHERE id = ?");
@@ -39,7 +39,7 @@ class Produto
         }
     }
 
-    public function deleteById($id){
+    public static function deleteById($id){
         try {
             $connection = Connection::getConnection();
             $sql = $connection->prepare("DELETE FROM Produto WHERE id = ?");
