@@ -39,7 +39,7 @@ class Pagamento
         }
     }
 
-    public function getById($id) {
+    public static function getById($id) {
         try {
             $connection = Connection::getConnection();
             $sql = $connection->prepare("SELECT * FROM Pagamento WHERE id = ?");
@@ -51,7 +51,7 @@ class Pagamento
         }
     }
 
-    public function deleteById($id){
+    public static function deleteById($id){
         try {
             $connection = Connection::getConnection();
             $sql = $connection->prepare("DELETE FROM Pagamento WHERE id = ?");
