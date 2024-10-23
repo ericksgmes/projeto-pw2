@@ -11,20 +11,27 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
 $data = handleJsonInput();
 
+$requestUri = $_SERVER['REQUEST_URI'];
+$basePath = "/projeto-pw2/api/mesa.php";
+$relativeUri = str_replace($basePath, '', $requestUri);
+$uriSegments = array_filter(explode('/', $relativeUri));
+
+$id = isset($uriSegments[1]) ? $uriSegments[1] : null;
+
 if (method("GET")) {
     try {
-        if (valid($_GET, ["id"])) {
-            if (!Mesa::exist($_GET["id"])) {
+        if ($id) {
+            if (!Mesa::exist($id)) {
                 throw new Exception("Mesa não encontrada", 404);
             }
-            $mesa = Mesa::getById($_GET["id"]);
+            $mesa = Mesa::getById($id);
             output(200, [
                 "status" => "success",
                 "data" => $mesa,
                 "links" => [
-                    ["rel" => "self", "href" => "/mesas?id=" . $_GET["id"]],
-                    ["rel" => "update", "href" => "/mesas?id=" . $_GET["id"]],
-                    ["rel" => "delete", "href" => "/mesas?id=" . $_GET["id"]]
+                    ["rel" => "self", "href" => "/mesas/" . $id],
+                    ["rel" => "update", "href" => "/mesas/" . $id],
+                    ["rel" => "delete", "href" => "/mesas/" . $id]
                 ]
             ]);
         } else {
@@ -70,9 +77,9 @@ if (method("POST")) {
             "status" => "success",
             "data" => $res,
             "links" => [
-                ["rel" => "self", "href" => "/mesas?id=" . $res],
-                ["rel" => "update", "href" => "/mesas?id=" . $res],
-                ["rel" => "delete", "href" => "/mesas?id=" . $res]
+                ["rel" => "self", "href" => "/mesas/" . $res],
+                ["rel" => "update", "href" => "/mesas/" . $res],
+                ["rel" => "delete", "href" => "/mesas/" . $res]
             ]
         ]);
     } catch (Exception $e) {
@@ -86,11 +93,8 @@ if (method("PUT")) {
         if (!$data) {
             throw new Exception("Nenhuma informação encontrada", 404);
         }
-        if (!valid($_GET, ["id"])) {
+        if (!$id) {
             throw new Exception("ID não enviado", 404);
-        }
-        if (count($_GET) != 1) {
-            throw new Exception("Foram enviados dados desconhecidos", 400);
         }
         if (!valid($data, ["numero"])) {
             throw new Exception("Número não encontrado", 404);
@@ -98,12 +102,12 @@ if (method("PUT")) {
         if (count($data) != 1) {
             throw new Exception("Foram enviados dados desconhecidos", 400);
         }
-        if (!Mesa::exist($_GET["id"])) {
+        if (!Mesa::exist($id)) {
             throw new Exception("Mesa não encontrada", 400);
         }
 
         $numero = $data["numero"];
-        $res = Mesa::atualizar($_GET["id"], $numero);
+        $res = Mesa::atualizar($id, $numero);
         if (!$res) {
             throw new Exception("Não foi possível atualizar a mesa", 500);
         }
@@ -112,8 +116,8 @@ if (method("PUT")) {
             "status" => "success",
             "data" => $res,
             "links" => [
-                ["rel" => "self", "href" => "/mesas?id=" . $_GET["id"]],
-                ["rel" => "delete", "href" => "/mesas?id=" . $_GET["id"]]
+                ["rel" => "self", "href" => "/mesas/" . $id],
+                ["rel" => "delete", "href" => "/mesas/" . $id]
             ]
         ]);
     } catch (Exception $e) {
@@ -123,16 +127,16 @@ if (method("PUT")) {
 
 if (method("DELETE")) {
     try {
-        if (!valid($_GET, ["id"])) {
+        if (!$id) {
             throw new Exception("ID não enviado", 400);
         }
-        if (!Mesa::exist($_GET["id"])) {
+        if (!Mesa::exist($id)) {
             throw new Exception("Mesa não encontrada", 404);
         }
 
-        $res = Mesa::deleteById($_GET["id"]);
+        $res = Mesa::deleteById($id);
         if (!$res) {
-            throw new Exception("Não foi possível deletar a mesa", 500);
+            throw new Exception("Não foi possível deletar a mesa", 404);
         }
 
         output(200, [

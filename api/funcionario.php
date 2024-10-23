@@ -11,6 +11,14 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
 $data = handleJsonInput();
 
+$requestUri = $_SERVER['REQUEST_URI'];
+$basePath = "/projeto-pw2/api/funcionario.php";
+$relativeUri = str_replace($basePath, '', $requestUri);
+$uriSegments = array_filter(explode('/', $relativeUri));
+
+$id = isset($uriSegments[1]) ? $uriSegments[1] : null;
+
+
 if (method("GET")) {
     try {
         if (valid($_GET, ["id"])) {
@@ -81,30 +89,27 @@ if (method("POST")) {
     }
 }
 
-if(method("PUT")) {
+if (method("PUT")) {
     try {
-        if(!$data) {
+        if (!$data) {
             throw new Exception("Nenhuma informação encontrada", 400);
         }
-        if(!valid($_GET, ["id"])) {
+        if (!$id) {
             throw new Exception("ID não enviado", 404);
         }
-        if(count($_GET) != 1) {
-            throw new Exception("Foram enviados dados desconhecidos", 400);
-        }
-        if(!valid($data,["nome", "username"])) {
+        if (!valid($data, ["nome", "username"])) {
             throw new Exception("Nome e/ou username não encontrados", 404);
         }
-        if(count($data) != 2) {
+        if (count($data) != 2) {
             throw new Exception("Foram enviados dados desconhecidos", 400);
         }
-        if(!Funcionario::exist($_GET["id"])) {
+        if (!Funcionario::exist($id)) {
             throw new Exception("Usuário não encontrado", 400);
         }
 
         $nome = $data["nome"];
         $username = $data["username"];
-        $res = Funcionario::atualizar($_GET["id"], $nome, $username);
+        $res = Funcionario::atualizar($id, $nome, $username);
         if (!$res) {
             throw new Exception("Não foi possível atualizar o funcionário", 500);
         }
@@ -113,11 +118,35 @@ if(method("PUT")) {
             "status" => "success",
             "data" => $res,
             "links" => [
-                ["rel" => "self", "href" => "/funcionarios?id=" . $_GET["id"]],
-                ["rel" => "delete", "href" => "/funcionarios?id=" . $_GET["id"]]
+                ["rel" => "self", "href" => "/funcionarios/" . $id],
+                ["rel" => "delete", "href" => "/funcionarios/" . $id . "/deletar"]
             ]
         ]);
     } catch (Exception $e) {
         output($e->getCode(), ["status" => "error", "message" => $e->getMessage()]);
+    }
+}
+
+if (method("DELETE")) {
+    try {
+        if (!$id) {
+            throw new Exception("ID não enviado", 404);
+        }
+        if (!Funcionario::exist($id)) {
+            throw new Exception("Funcionário não encontrado", 404);
+        }
+
+        $res = Funcionario::deleteById($id);
+        if (!$res) {
+            throw new Exception("Não foi possível deletar o funcionário", 500);
+        }
+
+        output(200, [
+            "status" => "success",
+            "data" => $res
+        ]);
+    } catch (Exception $e) {
+        $code = $e->getCode() > 100 ? $e->getCode() : 500;
+        output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
