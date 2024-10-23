@@ -12,6 +12,13 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
 $data = handleJsonInput();
 
+$requestUri = $_SERVER['REQUEST_URI'];
+$basePath = "/projeto-pw2/api/pagamento.php";
+$relativeUri = str_replace($basePath, '', $requestUri);
+$uriSegments = array_filter(explode('/', $relativeUri));
+
+$id = isset($uriSegments[1]) ? $uriSegments[1] : null;
+
 if (method("GET")) {
     try {
         if (valid($_GET, ["id"])) {
@@ -79,14 +86,14 @@ if (method("POST")) {
 
 if (method("DELETE")) {
     try {
-        if (!valid($_GET, ["id"])) {
+        if (!valid($id)) {
             throw new Exception("ID não enviado", 404);
         }
-        if (!Pagamento::exist($_GET["id"])) {
+        if (!Pagamento::exist($id)) {
             throw new Exception("Pagamento não encontrado", 404);
         }
 
-        $res = Pagamento::deleteById($_GET["id"]);
+        $res = Pagamento::deleteById($id);
         if (!$res) {
             throw new Exception("Não foi possível deletar o pagamento", 500);
         }
@@ -106,19 +113,19 @@ if (method("PUT")) {
         if (!$data) {
             throw new Exception("Nenhuma informação encontrada", 400);
         }
-        if (!valid($_GET, ["id"])) {
+        if (!valid($id)) {
             throw new Exception("ID não enviado", 404);
         }
         if (!valid($data, ["metodo", "valor"])) {
             throw new Exception("Método de pagamento ou valor não encontrado", 400);
         }
-        if (!Pagamento::exist($_GET["id"])) {
+        if (!Pagamento::exist($id)) {
             throw new Exception("Pagamento não encontrado", 404);
         }
         $metodo = paymentMethodEnum::from($data["metodo"]);
         $valor = $data["valor"];
 
-        $res = Pagamento::atualizar($_GET["id"], $metodo, $valor);
+        $res = Pagamento::atualizar($id, $metodo, $valor);
         if (!$res) {
             throw new Exception("Não foi possível atualizar o pagamento", 500);
         }
