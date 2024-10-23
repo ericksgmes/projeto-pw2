@@ -74,12 +74,11 @@ class Produto
             output(500, ["msg" => $e->getMessage()]);
         }
     }
-
-    public static function atualizar($id, $nome, $preco) {
+    public static function atualizar($id, paymentMethodEnum $metodo, $preco) {
         try {
             $connection = Connection::getConnection();
-            $sql = $connection->prepare("UPDATE Produto SET nome = ?, preco = ? WHERE id = ?");
-            $sql->execute([$nome, $preco, $id]);
+            $sql = $connection->prepare("UPDATE Produto SET metodo = ?, preco = ? WHERE id = ?");
+            $sql->execute([$metodo->value, $preco, $id]);
 
             return $sql->rowCount();
         } catch (Exception $e) {
