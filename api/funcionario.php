@@ -16,8 +16,7 @@ $basePath = "/projeto-pw2/api/funcionario.php";
 $relativeUri = str_replace($basePath, '', $requestUri);
 $uriSegments = array_filter(explode('/', $relativeUri));
 
-$id = isset($uriSegments[1]) ? $uriSegments[1] : null;
-
+$id = $uriSegments[1] ?? null;
 
 if (method("GET")) {
     try {
