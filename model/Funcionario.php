@@ -6,6 +6,7 @@ require_once(__DIR__ . "/../config/utils.php");
 class Funcionario
 {
 
+    // teste
     public static function listar() {
         try {
             $connection = Connection::getConnection();
