@@ -34,11 +34,19 @@ CREATE TABLE IF NOT EXISTS Atende (
     FOREIGN KEY (id_mesa) REFERENCES Mesa(id)
     );
 
-CREATE TABLE IF NOT EXISTS Contem (
-    id INT,
-    id INT,
+CREATE TABLE IF NOT EXISTS ProdutosMesa (
+    id_mesa INT,
+    id_prod INT,
     quantidade INT,
     PRIMARY KEY (id_mesa, id_prod),
-    FOREIGN KEY (id_mesa) REFERENCES Mesa(id_mesa),
-    FOREIGN KEY (id_prod) REFERENCES Produto(id_prod)
+    FOREIGN KEY (id_mesa) REFERENCES Mesa(id),
+    FOREIGN KEY (id_prod) REFERENCES Produto(id)
     );
+
+CREATE TABLE IF NOT EXISTS PagamentoMesa (
+    id_mesa INT,
+    id_pag INT,
+    PRIMARY KEY (id_mesa, id_pag),
+    FOREIGN KEY (id_mesa) REFERENCES Mesa(id),
+    FOREIGN KEY (id_pag) REFERENCES Pagamento(id)
+);
