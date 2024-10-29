@@ -51,7 +51,7 @@ class Funcionario
         }
     }
 
-    public function getById($id) {
+    public static function getById($id) {
         try {
             $connection = Connection::getConnection();
             $sql = $connection->prepare("SELECT * FROM Funcionario WHERE id = ?");
