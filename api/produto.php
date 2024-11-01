@@ -18,14 +18,9 @@ $uriSegments = array_values(array_filter(explode('/', $relativeUri))); // Reinde
 
 $id = $uriSegments[0] ?? null; // Captura o ID corretamente
 
-// Se $_GET['id'] não estiver definido, atribui o valor de $id
-if (!isset($_GET['id']) && $id) {
-    $_GET['id'] = $id;
-}
-
 if (method("GET")) {
     try {
-        $produtoId = $_GET["id"] ?? null;
+        $produtoId = $id ?? null;
 
         if ($produtoId) {
             if (!Produto::exist($produtoId)) {
@@ -52,7 +47,7 @@ if (method("GET")) {
             ]);
         }
     } catch (Exception $e) {
-        $code = $e->getCode() > 100 ? $e->getCode() : 500;
+        $code = $e->getCode() >= 100 ? $e->getCode() : 500;
         output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
@@ -74,22 +69,22 @@ if (method("POST")) {
         $nome = $data["nome"];
         $preco = $data["preco"];
 
-        $res = Produto::cadastrar($preco, $nome);
-        if (!$res) {
+        $insertedId = Produto::cadastrar($nome, $preco);
+        if (!$insertedId) {
             throw new Exception("Não foi possível cadastrar o produto", 500);
         }
 
         output(201, [
             "status" => "success",
-            "data" => $res,
+            "data" => ["id" => $insertedId],
             "links" => [
-                ["rel" => "self", "href" => "/produtos/" . $res],
-                ["rel" => "update", "href" => "/produtos/" . $res],
-                ["rel" => "delete", "href" => "/produtos/" . $res]
+                ["rel" => "self", "href" => "/produtos/" . $insertedId],
+                ["rel" => "update", "href" => "/produtos/" . $insertedId],
+                ["rel" => "delete", "href" => "/produtos/" . $insertedId]
             ]
         ]);
     } catch (Exception $e) {
-        $code = $e->getCode() > 100 ? $e->getCode() : 500;
+        $code = $e->getCode() >= 100 ? $e->getCode() : 500;
         output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
@@ -100,10 +95,10 @@ if (method("PUT")) {
             throw new Exception("Nenhuma informação encontrada", 400);
         }
 
-        $produtoId = $_GET["id"] ?? $id;
+        $produtoId = $id ?? null;
 
         if (!$produtoId) {
-            throw new Exception("ID não enviado", 404);
+            throw new Exception("ID não enviado", 400);
         }
 
         if (!valid($data, ["nome", "preco"])) {
@@ -117,30 +112,37 @@ if (method("PUT")) {
         $nome = $data["nome"];
         $preco = $data["preco"];
 
-        $res = Produto::atualizar($produtoId, $preco, $nome);
+        // Verifica se o nome já está em uso por outro produto
+        $produtoExistente = Produto::getByName($nome);
+        if ($produtoExistente && $produtoExistente['id'] != $produtoId) {
+            throw new Exception("O nome do produto já está em uso por outro produto.", 409);
+        }
+
+        $res = Produto::atualizar($produtoId, $nome, $preco);
         if (!$res) {
             throw new Exception("Não foi possível atualizar o produto", 500);
         }
 
         output(200, [
             "status" => "success",
-            "data" => $res,
+            "data" => ["id" => $produtoId],
             "links" => [
                 ["rel" => "self", "href" => "/produtos/" . $produtoId],
                 ["rel" => "delete", "href" => "/produtos/" . $produtoId]
             ]
         ]);
     } catch (Exception $e) {
-        output($e->getCode(), ["status" => "error", "message" => $e->getMessage()]);
+        $code = $e->getCode() >= 100 ? $e->getCode() : 500;
+        output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
 
 if (method("DELETE")) {
     try {
-        $produtoId = $_GET["id"] ?? $id;
+        $produtoId = $id ?? null;
 
         if (!$produtoId) {
-            throw new Exception("ID não enviado", 404);
+            throw new Exception("ID não enviado", 400);
         }
         if (!Produto::exist($produtoId)) {
             throw new Exception("Produto não encontrado", 404);
@@ -153,10 +155,10 @@ if (method("DELETE")) {
 
         output(200, [
             "status" => "success",
-            "data" => $res
+            "data" => ["id" => $produtoId]
         ]);
     } catch (Exception $e) {
-        $code = $e->getCode() > 100 ? $e->getCode() : 500;
+        $code = $e->getCode() >= 100 ? $e->getCode() : 500;
         output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }

@@ -16,7 +16,7 @@ $basePath = "/projeto-pw2/api/mesa.php";
 $relativeUri = str_replace($basePath, '', $requestUri);
 $uriSegments = array_filter(explode('/', $relativeUri));
 
-$id = isset($uriSegments[1]) ? $uriSegments[1] : null;
+$id = $uriSegments[0] ?? null;
 
 if (method("GET")) {
     try {
@@ -45,7 +45,7 @@ if (method("GET")) {
             ]);
         }
     } catch (Exception $e) {
-        $code = $e->getCode() > 100 ? $e->getCode() : 500;
+        $code = $e->getCode() >= 100 ? $e->getCode() : 500;
         output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
@@ -53,7 +53,7 @@ if (method("GET")) {
 if (method("POST")) {
     try {
         if (!$data) {
-            throw new Exception("Nenhuma informação encontrada", 404);
+            throw new Exception("Nenhuma informação encontrada", 400);
         }
 
         if (!valid($data, ["numero"])) {
@@ -68,22 +68,22 @@ if (method("POST")) {
             throw new Exception("O número já existe. Tente outro.", 409);
         }
 
-        $res = Mesa::criar($data["numero"]);
-        if (!$res) {
+        $insertedId = Mesa::criar($data["numero"]);
+        if (!$insertedId) {
             throw new Exception("Não foi possível criar a mesa", 500);
         }
 
         output(201, [
             "status" => "success",
-            "data" => $res,
+            "data" => ["id" => $insertedId],
             "links" => [
-                ["rel" => "self", "href" => "/mesas/" . $res],
-                ["rel" => "update", "href" => "/mesas/" . $res],
-                ["rel" => "delete", "href" => "/mesas/" . $res]
+                ["rel" => "self", "href" => "/mesas/" . $insertedId],
+                ["rel" => "update", "href" => "/mesas/" . $insertedId],
+                ["rel" => "delete", "href" => "/mesas/" . $insertedId]
             ]
         ]);
     } catch (Exception $e) {
-        $code = $e->getCode() > 100 ? $e->getCode() : 500;
+        $code = $e->getCode() >= 100 ? $e->getCode() : 500;
         output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
@@ -91,22 +91,29 @@ if (method("POST")) {
 if (method("PUT")) {
     try {
         if (!$data) {
-            throw new Exception("Nenhuma informação encontrada", 404);
+            throw new Exception("Nenhuma informação encontrada", 400);
         }
         if (!$id) {
-            throw new Exception("ID não enviado", 404);
+            throw new Exception("ID não enviado", 400);
         }
         if (!valid($data, ["numero"])) {
-            throw new Exception("Número não encontrado", 404);
+            throw new Exception("Número não encontrado", 400);
         }
         if (count($data) != 1) {
             throw new Exception("Foram enviados dados desconhecidos", 400);
         }
         if (!Mesa::exist($id)) {
-            throw new Exception("Mesa não encontrada", 400);
+            throw new Exception("Mesa não encontrada", 404);
         }
 
         $numero = $data["numero"];
+
+        // Verifica se o número já está em uso por outra mesa ativa
+        $mesaExistente = Mesa::existsByNumber($numero);
+        if ($mesaExistente && $mesaExistente['id'] != $id) {
+            throw new Exception("O número da mesa já está em uso por outra mesa.", 409);
+        }
+
         $res = Mesa::atualizar($id, $numero);
         if (!$res) {
             throw new Exception("Não foi possível atualizar a mesa", 500);
@@ -114,14 +121,15 @@ if (method("PUT")) {
 
         output(200, [
             "status" => "success",
-            "data" => $res,
+            "data" => ["id" => $id],
             "links" => [
                 ["rel" => "self", "href" => "/mesas/" . $id],
                 ["rel" => "delete", "href" => "/mesas/" . $id]
             ]
         ]);
     } catch (Exception $e) {
-        output($e->getCode(), ["status" => "error", "message" => $e->getMessage()]);
+        $code = $e->getCode() >= 100 ? $e->getCode() : 500;
+        output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
 
@@ -136,15 +144,15 @@ if (method("DELETE")) {
 
         $res = Mesa::deleteById($id);
         if (!$res) {
-            throw new Exception("Não foi possível deletar a mesa", 404);
+            throw new Exception("Não foi possível deletar a mesa", 500);
         }
 
         output(200, [
             "status" => "success",
-            "data" => $res
+            "data" => ["id" => $id]
         ]);
     } catch (Exception $e) {
-        $code = $e->getCode() > 100 ? $e->getCode() : 500;
+        $code = $e->getCode() >= 100 ? $e->getCode() : 500;
         output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
