@@ -7,31 +7,37 @@ header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 $data = handleJsonInput();
 
 $requestUri = $_SERVER['REQUEST_URI'];
 $basePath = "/projeto-pw2/api/funcionario.php";
 $relativeUri = str_replace($basePath, '', $requestUri);
-$uriSegments = array_filter(explode('/', $relativeUri));
+$uriSegments = array_values(array_filter(explode('/', $relativeUri)));
 
-$id = $uriSegments[1] ?? null;
+$id = $uriSegments[0] ?? null;
+
+// Se $_GET['id'] não estiver definido, atribui o valor de $id
+if (!isset($_GET['id']) && $id) {
+    $_GET['id'] = $id;
+}
 
 if (method("GET")) {
     try {
-        if (valid($_GET, ["id"])) {
-            if (!Funcionario::exist($_GET["id"])) {
+        $funcionarioId = $_GET["id"] ?? null;
+
+        if ($funcionarioId) {
+            if (!Funcionario::exist($funcionarioId)) {
                 throw new Exception("Funcionário não encontrado", 404);
             }
-            $funcionario = Funcionario::getById($_GET["id"]);
+            $funcionario = Funcionario::getById($funcionarioId);
             output(200, [
                 "status" => "success",
                 "data" => $funcionario,
                 "links" => [
-                    ["rel" => "self", "href" => "/funcionarios?id=" . $_GET["id"]],
-                    ["rel" => "update", "href" => "/funcionarios?id=" . $_GET["id"]],
-                    ["rel" => "delete", "href" => "/funcionarios?id=" . $_GET["id"]]
+                    ["rel" => "self", "href" => "/funcionarios/" . $funcionarioId],
+                    ["rel" => "update", "href" => "/funcionarios/" . $funcionarioId],
+                    ["rel" => "delete", "href" => "/funcionarios/" . $funcionarioId]
                 ]
             ]);
         } else {
@@ -49,6 +55,10 @@ if (method("GET")) {
         output($code, ["status" => "error", "message" => $e->getMessage()]);
     }
 }
+
+// Resto do código para POST, PUT, DELETE
+
+
 
 if (method("POST")) {
     try {
