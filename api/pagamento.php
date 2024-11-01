@@ -15,24 +15,31 @@ $data = handleJsonInput();
 $requestUri = $_SERVER['REQUEST_URI'];
 $basePath = "/projeto-pw2/api/pagamento.php";
 $relativeUri = str_replace($basePath, '', $requestUri);
-$uriSegments = array_filter(explode('/', $relativeUri));
+$uriSegments = array_values(array_filter(explode('/', $relativeUri))); // Reindexa o array
 
-$id = isset($uriSegments[1]) ? $uriSegments[1] : null;
+$id = $uriSegments[0] ?? null; // Captura o ID corretamente
+
+// Se $_GET['id'] não estiver definido, atribui o valor de $id
+if (!isset($_GET['id']) && $id) {
+    $_GET['id'] = $id;
+}
 
 if (method("GET")) {
     try {
-        if (valid($_GET, ["id"])) {
-            if (!Pagamento::exist($_GET["id"])) {
+        $pagamentoId = $_GET["id"] ?? null; // Considera ambos os casos
+
+        if ($pagamentoId) {
+            if (!Pagamento::exist($pagamentoId)) {
                 throw new Exception("Pagamento não encontrado", 404);
             }
-            $pagamento = Pagamento::getById($_GET["id"]);
+            $pagamento = Pagamento::getById($pagamentoId);
             output(200, [
                 "status" => "success",
                 "data" => $pagamento,
                 "links" => [
-                    ["rel" => "self", "href" => "/pagamentos?id=" . $_GET["id"]],
-                    ["rel" => "update", "href" => "/pagamentos?id=" . $_GET["id"]],
-                    ["rel" => "delete", "href" => "/pagamentos?id=" . $_GET["id"]]
+                    ["rel" => "self", "href" => "/pagamentos/" . $pagamentoId],
+                    ["rel" => "update", "href" => "/pagamentos/" . $pagamentoId],
+                    ["rel" => "delete", "href" => "/pagamentos/" . $pagamentoId]
                 ]
             ]);
         } else {
@@ -73,9 +80,9 @@ if (method("POST")) {
             "status" => "success",
             "data" => $res,
             "links" => [
-                ["rel" => "self", "href" => "/pagamentos?id=" . $res],
-                ["rel" => "update", "href" => "/pagamentos?id=" . $res],
-                ["rel" => "delete", "href" => "/pagamentos?id=" . $res]
+                ["rel" => "self", "href" => "/pagamentos/" . $res],
+                ["rel" => "update", "href" => "/pagamentos/" . $res],
+                ["rel" => "delete", "href" => "/pagamentos/" . $res]
             ]
         ]);
     } catch (Exception $e) {
@@ -86,14 +93,16 @@ if (method("POST")) {
 
 if (method("DELETE")) {
     try {
-        if (!valid($id)) {
+        $pagamentoId = $_GET["id"] ?? $id;
+
+        if (!$pagamentoId) {
             throw new Exception("ID não enviado", 404);
         }
-        if (!Pagamento::exist($id)) {
+        if (!Pagamento::exist($pagamentoId)) {
             throw new Exception("Pagamento não encontrado", 404);
         }
 
-        $res = Pagamento::deleteById($id);
+        $res = Pagamento::deleteById($pagamentoId);
         if (!$res) {
             throw new Exception("Não foi possível deletar o pagamento", 500);
         }
@@ -113,19 +122,21 @@ if (method("PUT")) {
         if (!$data) {
             throw new Exception("Nenhuma informação encontrada", 400);
         }
-        if (!valid($id)) {
+        $pagamentoId = $_GET["id"] ?? $id;
+
+        if (!$pagamentoId) {
             throw new Exception("ID não enviado", 404);
         }
         if (!valid($data, ["metodo", "valor"])) {
             throw new Exception("Método de pagamento ou valor não encontrado", 400);
         }
-        if (!Pagamento::exist($id)) {
+        if (!Pagamento::exist($pagamentoId)) {
             throw new Exception("Pagamento não encontrado", 404);
         }
         $metodo = paymentMethodEnum::from($data["metodo"]);
         $valor = $data["valor"];
 
-        $res = Pagamento::atualizar($id, $metodo, $valor);
+        $res = Pagamento::atualizar($pagamentoId, $metodo, $valor);
         if (!$res) {
             throw new Exception("Não foi possível atualizar o pagamento", 500);
         }
@@ -134,8 +145,8 @@ if (method("PUT")) {
             "status" => "success",
             "data" => $res,
             "links" => [
-                ["rel" => "self", "href" => "/pagamentos?id=" . $_GET["id"]],
-                ["rel" => "delete", "href" => "/pagamentos?id=" . $_GET["id"]]
+                ["rel" => "self", "href" => "/pagamentos/" . $pagamentoId],
+                ["rel" => "delete", "href" => "/pagamentos/" . $pagamentoId]
             ]
         ]);
     } catch (Exception $e) {
