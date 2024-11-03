@@ -7,7 +7,7 @@ function jsonResponse($statusCode, $data)
     header('Content-Type: application/json');
     echo json_encode($data);
 
-    exit();
+    exit;
 }
 
 function handleJSONInput()

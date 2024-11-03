@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/controllers/FuncionarioController.php';
+require_once __DIR__ . '/controller/FuncionarioController.php';
 require_once __DIR__ . '/config/utils.php';
 
 $requestUri = $_SERVER['REQUEST_URI'];
@@ -9,14 +9,15 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 $funcionarioController = new FuncionarioController();
 
-$baseUri = str_replace('/resturante-webservice', '', $requestUri);
-$uriSegments = explode('/', trim($baseUri, '/'));
+$basePath = '/resturante-webservice';
+$relativeUri = str_replace($basePath, '', $requestUri);
+$uriSegments = explode('/', trim($relativeUri, '/'));
 
 $resource = $uriSegments[0] ?? '';
 $id = $uriSegments[1] ?? null;
 
 switch ($resource) {
-    case 'funcionarios':
+    case 'funcionario':
         switch ($method) {
             case 'GET':
                 if ($id) {
