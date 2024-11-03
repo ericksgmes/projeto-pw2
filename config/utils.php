@@ -1,10 +1,9 @@
 <?php
 
 
-function output($statusCode, $data)
+function jsonResponse($statusCode, $data)
 {
     http_response_code($statusCode);
-    // Define o cabeçalho de resposta como JSON
     header('Content-Type: application/json');
     echo json_encode($data);
 
