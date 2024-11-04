@@ -14,8 +14,11 @@ $data = handleJsonInput();
 $requestUri = $_SERVER['REQUEST_URI'];
 $basePath = "/projeto-pw2/api/funcionarioMesa.php";
 $relativeUri = str_replace($basePath, '', $requestUri);
+
+// Reindexa o array para garantir a indexação correta
 $uriSegments = array_values(array_filter(explode('/', $relativeUri)));
 
+// Extrai os IDs do caminho da URL
 $funcionarioId = $uriSegments[0] ?? null;
 $mesaId = $uriSegments[1] ?? null;
 
@@ -25,7 +28,7 @@ if (method("GET")) {
             // Obter associação específica (opcional)
             throw new Exception("Operação não suportada", 400);
         } elseif ($funcionarioId) {
-            // Listar mesas associadas a um funcionário
+            // Listar mesas associadas a um funcionário específico
             $associacoes = FuncionarioMesa::getByFuncionarioId($funcionarioId);
             output(200, [
                 "status" => "success",
@@ -72,8 +75,8 @@ if (method("POST")) {
             "status" => "success",
             "data" => ["id_funcionario" => $id_funcionario, "id_mesa" => $id_mesa],
             "links" => [
-                ["rel" => "self", "href" => "/funcionarioMesa/" . $id_funcionario . "/" . $id_mesa],
-                ["rel" => "delete", "href" => "/funcionarioMesa/" . $id_funcionario . "/" . $id_mesa]
+                ["rel" => "self", "href" => "/funcionarioMesa.php/" . $id_funcionario . "/" . $id_mesa],
+                ["rel" => "delete", "href" => "/funcionarioMesa.php/" . $id_funcionario . "/" . $id_mesa]
             ]
         ]);
     } catch (Exception $e) {

@@ -13,9 +13,12 @@ $data = handleJsonInput();
 $requestUri = $_SERVER['REQUEST_URI'];
 $basePath = "/projeto-pw2/api/funcionario.php";
 $relativeUri = str_replace($basePath, '', $requestUri);
-$uriSegments = array_filter(explode('/', $relativeUri));
 
-$id = $uriSegments[5] ?? null;
+// Reindexa o array de segmentos da URI
+$uriSegments = array_values(array_filter(explode('/', $relativeUri)));
+
+// Extrai o ID corretamente a partir do caminho da URL
+$id = $uriSegments[0] ?? null;
 
 if (method("GET")) {
     try {
@@ -123,7 +126,7 @@ if (method("PUT")) {
             "data" => ["id" => $id],
             "links" => [
                 ["rel" => "self", "href" => "/funcionario.php/" . $id],
-                ["rel" => "delete", "href" => "/funcionario.php/" . $id . "/deletar"]
+                ["rel" => "delete", "href" => "/funcionario.php/" . $id]
             ]
         ]);
     } catch (Exception $e) {
