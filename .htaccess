@@ -1,6 +1,11 @@
-RewriteEngine On
-RewriteBase /resturante-webservice/
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /resturante-webservice/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
 
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [QSA,L]
+<Limit GET POST PUT DELETE OPTIONS>
+    Allow from all
+</Limit>
