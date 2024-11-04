@@ -1,143 +1,103 @@
 <?php
 
-require_once(__DIR__ . "/../config/database.php");
-require_once(__DIR__ . "/../config/utils.php");
+require_once __DIR__ . '/../config/database.php';
 
-class Produto
-{
-    public static function listar() {
-        try {
-            $connection = Connection::getConnection();
-            $sql = $connection->prepare("SELECT * FROM Produto WHERE deletado = 0");
-            $sql->execute();
+class Produto {
 
-            return $sql->fetchAll();
-        } catch (Exception $e) {
-            output(500, ["msg" => $e->getMessage()]);
-        }
+    public static function listar(): array {
+        $connection = Connection::getConnection();
+        $sql = $connection->prepare("SELECT * FROM Produto WHERE deletado = 0");
+        $sql->execute();
+        return $sql->fetchAll(PDO::FETCH_ASSOC);
+    }
+    public static function listarDeletados(): array {
+        $connection = Connection::getConnection();
+        $sql = $connection->prepare("SELECT * FROM Produto WHERE deletado = 1");
+        $sql->execute();
+        return $sql->fetchAll(PDO::FETCH_ASSOC);
     }
 
+
     public static function cadastrar($nome, $preco) {
-        try {
-            $connection = Connection::getConnection();
+        $connection = Connection::getConnection();
 
-            // Verifica se o nome já existe entre os produtos ativos
-            if (self::existsByName($nome)) {
-                throw new Exception("Nome do produto já está em uso.");
-            }
-
-            $sql = $connection->prepare("INSERT INTO Produto(nome, preco) VALUES (?, ?)");
-            $sql->execute([$nome, $preco]);
-
-            return $sql->rowCount();
-        } catch (Exception $e) {
-            output(500, ["msg" => $e->getMessage()]);
+        if (self::existsByName($nome)) {
+            throw new Exception("O nome do produto já está em uso.", 409);
         }
+
+        $sql = $connection->prepare("INSERT INTO Produto (nome, preco) VALUES (?, ?)");
+        $sql->execute([$nome, $preco]);
+
+        return $connection->lastInsertId();
     }
 
     public static function getById($id) {
-        try {
-            $connection = Connection::getConnection();
-            $sql = $connection->prepare("SELECT * FROM Produto WHERE id = ? AND deletado = 0");
-            $sql->execute([$id]);
+        $connection = Connection::getConnection();
+        $sql = $connection->prepare("SELECT * FROM Produto WHERE id = ? AND deletado = 0");
+        $sql->execute([$id]);
+        $produto = $sql->fetch(PDO::FETCH_ASSOC);
 
-            return $sql->fetch(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            output(500, ["msg" => $e->getMessage()]);
+        if (!$produto) {
+            throw new Exception("Produto não encontrado", 404);
         }
-    }
 
-    public static function deleteById($id){
-        try {
-            $connection = Connection::getConnection();
-
-            // Marca o produto como deletado
-            $sql = $connection->prepare("UPDATE Produto SET deletado = 1, data_deletado = NOW() WHERE id = ?");
-            $sql->execute([$id]);
-
-            return $sql->rowCount();
-
-        } catch (Exception $e) {
-            output(500, ["msg" => $e->getMessage()]);
-        }
-    }
-
-    public static function exist($id) {
-        try {
-            $connection = Connection::getConnection();
-            $sql = $connection->prepare("SELECT COUNT(*) FROM Produto WHERE id = ? AND deletado = 0");
-            $sql->execute([$id]);
-
-            return $sql->fetchColumn() > 0;
-        } catch (Exception $e) {
-            output(500, ["msg" => $e->getMessage()]);
-        }
-    }
-
-    public static function existsByName($nome) {
-        try {
-            $connection = Connection::getConnection();
-            $sql = $connection->prepare("SELECT id FROM Produto WHERE nome = ? AND deletado = 0");
-            $sql->execute([$nome]);
-            return (bool)$sql->fetch();
-        } catch (Exception $e) {
-            output(500, ["msg" => $e->getMessage()]);
-        }
+        return $produto;
     }
 
     public static function atualizar($id, $nome, $preco) {
-        try {
-            $connection = Connection::getConnection();
+        $connection = Connection::getConnection();
 
-            // Verifica se o produto existe e não está deletado
-            if (!self::exist($id)) {
-                throw new Exception("Produto não encontrado ou está deletado.");
-            }
+        if (!self::exist($id)) {
+            throw new Exception("Produto não encontrado", 404);
+        }
 
-            // Verifica se o nome já está em uso por outro produto ativo
-            $sql = $connection->prepare("SELECT id FROM Produto WHERE nome = ? AND deletado = 0 AND id != ?");
-            $sql->execute([$nome, $id]);
-            if ($sql->fetch()) {
-                throw new Exception("Nome do produto já está em uso.");
-            }
+        $produtoExistente = self::getByName($nome);
+        if ($produtoExistente && $produtoExistente['id'] != $id) {
+            throw new Exception("O nome do produto já está em uso por outro produto.", 409);
+        }
 
-            $sql = $connection->prepare("UPDATE Produto SET nome = ?, preco = ? WHERE id = ? AND deletado = 0");
-            $sql->execute([$nome, $preco, $id]);
+        $sql = $connection->prepare("UPDATE Produto SET nome = ?, preco = ? WHERE id = ? AND deletado = 0");
+        $sql->execute([$nome, $preco, $id]);
 
-            return $sql->rowCount();
-        } catch (Exception $e) {
-            output(500, ["msg" => $e->getMessage()]);
+        if ($sql->rowCount() === 0) {
+            throw new Exception("Não foi possível atualizar o produto", 500);
         }
     }
 
-    public static function restoreById($id){
-        try {
-            $connection = Connection::getConnection();
+    public static function deleteById($id) {
+        $connection = Connection::getConnection();
 
-            // Verifica se o produto existe e está deletado
-            $sql = $connection->prepare("SELECT nome FROM Produto WHERE id = ? AND deletado = 1");
-            $sql->execute([$id]);
-            $nome = $sql->fetchColumn();
-
-            if (!$nome) {
-                throw new Exception("Produto não encontrado ou não está deletado.");
-            }
-
-            // Verifica se o nome do produto já está em uso por outro produto ativo
-            $sql = $connection->prepare("SELECT id FROM Produto WHERE nome = ? AND deletado = 0");
-            $sql->execute([$nome]);
-            if ($sql->fetch()) {
-                throw new Exception("Nome do produto já está em uso por outro produto ativo.");
-            }
-
-            // Restaura o produto
-            $sql = $connection->prepare("UPDATE Produto SET deletado = 0, data_deletado = NULL WHERE id = ?");
-            $sql->execute([$id]);
-
-            return $sql->rowCount();
-
-        } catch (Exception $e) {
-            output(500, ["msg" => $e->getMessage()]);
+        if (!self::exist($id)) {
+            throw new Exception("Produto não encontrado", 404);
         }
+
+        $sql = $connection->prepare("UPDATE Produto SET deletado = 1, data_deletado = NOW() WHERE id = ?");
+        $sql->execute([$id]);
+
+        if ($sql->rowCount() === 0) {
+            throw new Exception("Não foi possível deletar o produto", 500);
+        }
+    }
+
+    public static function exist($id): bool {
+        $connection = Connection::getConnection();
+        $sql = $connection->prepare("SELECT COUNT(*) FROM Produto WHERE id = ? AND deletado = 0");
+        $sql->execute([$id]);
+
+        return $sql->fetchColumn() > 0;
+    }
+
+    public static function existsByName($nome) {
+        $connection = Connection::getConnection();
+        $sql = $connection->prepare("SELECT id FROM Produto WHERE nome = ? AND deletado = 0");
+        $sql->execute([$nome]);
+        return $sql->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public static function getByName($nome) {
+        $connection = Connection::getConnection();
+        $sql = $connection->prepare("SELECT * FROM Produto WHERE nome = ? AND deletado = 0");
+        $sql->execute([$nome]);
+        return $sql->fetch(PDO::FETCH_ASSOC);
     }
 }
