@@ -77,4 +77,23 @@ class FuncionarioController {
             jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
+
+    public function atualizarSenha($id, $novaSenha): void
+    {
+        try {
+            if (empty($novaSenha)) {
+                throw new Exception("Senha não pode estar vazia", 400);
+            }
+
+            if (!Funcionario::exist($id)) {
+                throw new Exception("Funcionário não encontrado", 404);
+            }
+
+            Funcionario::atualizarSenha($id, $novaSenha);
+            jsonResponse(200, ["status" => "success", "message" => "Senha atualizada com sucesso"]);
+        } catch (Exception $e) {
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
+
 }

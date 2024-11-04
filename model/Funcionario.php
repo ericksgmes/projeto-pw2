@@ -89,4 +89,23 @@ class Funcionario {
         $sql->execute([$username]);
         return $sql->fetch(PDO::FETCH_ASSOC);
     }
+
+    public static function atualizarSenha($id, $novaSenha): void
+    {
+        $connection = Connection::getConnection();
+
+        if (!self::exist($id)) {
+            throw new Exception("Funcionário não encontrado", 404);
+        }
+
+        $senhaHashed = password_hash($novaSenha, PASSWORD_BCRYPT);
+
+        $sql = $connection->prepare("UPDATE Funcionario SET senha = ? WHERE id = ? AND deletado = 0");
+        $sql->execute([$senhaHashed, $id]);
+
+        if ($sql->rowCount() === 0) {
+            throw new Exception("Falha ao atualizar a senha", 500);
+        }
+    }
+
 }
