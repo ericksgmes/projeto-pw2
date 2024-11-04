@@ -4,6 +4,36 @@ require_once __DIR__ . '/../model/Funcionario.php';
 require_once __DIR__ . '/../config/utils.php';
 
 class FuncionarioController {
+    public function handleRequest($method, $id = null, $data = null): void {
+        try {
+            switch ($method) {
+                case 'GET':
+                    $this->listar($id);
+                    break;
+                case 'POST':
+                    $this->criar($data);
+                    break;
+                case 'PUT':
+                    if ($id) {
+                        $this->atualizar($id, $data);
+                    } else {
+                        jsonResponse(400, ["status" => "error", "message" => "ID necessário para atualização"]);
+                    }
+                    break;
+                case 'DELETE':
+                    if ($id) {
+                        $this->deletar($id);
+                    } else {
+                        jsonResponse(400, ["status" => "error", "message" => "ID necessário para exclusão"]);
+                    }
+                    break;
+                default:
+                    jsonResponse(405, ["status" => "error", "message" => "Método não permitido"]);
+            }
+        } catch (Exception $e) {
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
 
     public function listar($id = null): void
     {
