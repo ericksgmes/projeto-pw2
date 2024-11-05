@@ -1,4 +1,6 @@
 {
+    "name": "ericksgmes/resturante-webservice",
+    "version": "1.0.0",
     "require": {
         "zircote/swagger-php": "^4.11",
         "doctrine/annotations": "^2.0",
