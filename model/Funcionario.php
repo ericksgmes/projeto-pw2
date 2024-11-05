@@ -2,6 +2,46 @@
 
 require_once __DIR__ . '/../config/database.php';
 
+/**
+ * @OA\Schema(
+ *     schema="Funcionario",
+ *     type="object",
+ *     title="Funcionario",
+ *     description="Funcionario model",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         description="ID do funcionário"
+ *     ),
+ *     @OA\Property(
+ *         property="nome",
+ *         type="string",
+ *         description="Nome do funcionário"
+ *     ),
+ *     @OA\Property(
+ *         property="username",
+ *         type="string",
+ *         description="Username do funcionário"
+ *     ),
+ *     @OA\Property(
+ *         property="senha",
+ *         type="string",
+ *         description="Senha do funcionário"
+ *     ),
+ *     @OA\Property(
+ *         property="deletado",
+ *         type="boolean",
+ *         description="Indica se o funcionário está deletado"
+ *     ),
+ *     @OA\Property(
+ *         property="data_deletado",
+ *         type="string",
+ *         format="date-time",
+ *         description="Data em que o funcionário foi deletado"
+ *     )
+ * )
+ */
+
 class Funcionario {
 
     public static function listar(): array {
@@ -107,5 +147,4 @@ class Funcionario {
             throw new Exception("Falha ao atualizar a senha", 500);
         }
     }
-
 }
