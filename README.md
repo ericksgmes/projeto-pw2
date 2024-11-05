@@ -63,7 +63,6 @@ For detailed route information, please refer to the **`rotas.html`** file.
 
 - **Frontend Integration**: Connect the frontend to the backend to provide a complete user experience.
 - **Authentication**: Implement user authentication to secure API endpoints.
-- **Enhanced Documentation**: Add detailed examples for each endpoint in the documentation.
 
 ### Authors
 
