@@ -1,0 +1,57 @@
+# Ignorar arquivos e diretórios desnecessários do PHP, Swagger e outros
+
+# Arquivos de configuração e ambientes locais
+.env
+.env.*
+.phpunit.result.cache
+
+# Dependências de PHP
+/vendor/
+/composer.lock
+
+# Arquivos gerados pelo Swagger
+/swagger.json
+/swagger.yaml
+/swagger-ui/
+
+# Arquivos do IDE
+/.vscode/
+/.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Arquivos de logs
+*.log
+
+# Cache e outros arquivos temporários
+/cache/
+/tmp/
+*.cache
+*.bak
+
+# Arquivos de sessão do PHP
+sessions/
+
+# Arquivos de relatório de erros
+error_log
+
+# Arquivos gerados automaticamente
+*.generated.php
+
+# Arquivos de exportação
+*.export
+
+# Arquivos de backup
+*.backup
+
+# Arquivos de teste
+/tests/
+/test-results/
+
+# Arquivos de banco de dados locais
+*.sql
+*.sqlite
+
+# Configurações específicas do sistema
+.DS_Store
+Thumbs.db
