@@ -43,12 +43,13 @@ For detailed route information, please refer to the **`rotas.html`** file.
 ### Directory Structure
 
 ```
-├── api/               # API endpoints for handling HTTP requests
 ├── config/            # Configuration files (database connection, utilities)
+├── controller/        # Controllers for handling requests
 ├── frontend/          # Frontend files (not yet integrated)
 ├── model/             # Database models for different entities
 ├── swagger-ui/        # Swagger UI files for API documentation
-├── rotas.html         # Documentation for available API routes
+├── vendor/            # Composer dependencies
+├── index.php          # Entry point for the webservice
 ├── LICENSE            # Project license
 └── README.md          # Project documentation
 ```
