@@ -18,7 +18,7 @@ $requestUri = $_SERVER['REQUEST_URI'];
 $method = $_SERVER['REQUEST_METHOD'];
 $data = json_decode(file_get_contents("php://input"), true);
 
-$basePath = '/resturante-webservice';
+$basePath = '/restaurante-webservice';
 $relativeUri = str_replace($basePath, '', $requestUri);
 $uriSegments = explode('/', trim($relativeUri, '/'));
 

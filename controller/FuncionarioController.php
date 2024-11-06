@@ -11,7 +11,7 @@ require_once __DIR__ . '/../config/utils.php';
  *         description="Documentação da API para o sistema de gerenciamento de restaurante."
  *     ),
  *     @OA\Server(
- *         url="http://localhost/resturante-webservice",
+ *         url="http://localhost/restaurante-webservice",
  *         description="Servidor local de desenvolvimento"
  *     )
  * )
