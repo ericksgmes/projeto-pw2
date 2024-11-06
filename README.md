@@ -27,14 +27,14 @@ Follow these instructions to set up and run the project using **XAMPP** and **Po
 
 4. **Test Endpoints:**
    - Open **Postman**.
-   - Use the routes described in the **`rotas.html`** file to test the available endpoints of the webservice.
+   - Use the routes described in the **`swagger.html`** file to test the available endpoints of the webservice.
 
 ### Accessing Swagger Documentation
 
 The project includes Swagger UI for easy visualization and testing of the API. To access the Swagger documentation:
 
 1. Ensure that the **Apache** server is running in **XAMPP**.
-2. Navigate to `http://localhost/resturante-webservice/swagger-ui/dist` in your web browser.
+2. Navigate to `http://localhost/resturante-webservice/swagger.html` in your web browser.
 3. The Swagger interface will provide detailed documentation of all available endpoints and allow you to test them directly from the browser.
 
 ### Available Endpoints
@@ -55,12 +55,11 @@ For detailed route information, please refer to the **`rotas.html`** file.
 ├── controller/        # Controllers for handling requests
 ├── frontend/          # Frontend files (not yet integrated)
 ├── model/             # Database models for different entities
-├── swagger-ui/        # Swagger UI files for API documentation
 ├── vendor/            # Composer dependencies
 ├── index.php          # Entry point for the webservice
-├── rotas.html         # Documentation for available API routes
-├── LICENSE            # Project license
-└── README.md          # Project documentation
+├── LICENSE            # Project license 
+├── README.md          # Project documentation
+└── swagger.html       # Swagger-ui to view endpoints
 ```
 
 ### Notes
