@@ -34,7 +34,7 @@ Follow these instructions to set up and run the project using **XAMPP** and **Po
 The project includes Swagger UI for easy visualization and testing of the API. To access the Swagger documentation:
 
 1. Ensure that the **Apache** server is running in **XAMPP**.
-2. Navigate to `http://localhost/resturante-webservice/swagger.html` in your web browser.
+2. Navigate to `http://localhost/restaurante-webservice/swagger.html` in your web browser.
 3. The Swagger interface will provide detailed documentation of all available endpoints and allow you to test them directly from the browser.
 
 ### Available Endpoints
