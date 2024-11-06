@@ -7,7 +7,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost/resturante-webservice",
+            "url": "http://localhost/restaurante-webservice",
             "description": "Servidor local de desenvolvimento"
         }
     ],
