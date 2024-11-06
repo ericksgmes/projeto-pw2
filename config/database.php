@@ -1,7 +1,7 @@
 <?php
 
 class Connection {
-    private static $instance;
+    private static PDO $instance;
 
     private function __construct()
     {
