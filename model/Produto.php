@@ -68,6 +68,10 @@ class Produto {
             throw new Exception("O nome do produto já está em uso.", 409);
         }
 
+        if ($preco < 0) {
+            throw new Exception("O preço não deve ser menor que 0.", 400);
+        }
+
         $sql = $connection->prepare("INSERT INTO Produto (nome, preco) VALUES (?, ?)");
         $sql->execute([$nome, $preco]);
 
@@ -131,9 +135,12 @@ class Produto {
             throw new Exception("Produto não encontrado", 404);
         }
 
-        $produtoExistente = self::getByName($nome);
-        if ($produtoExistente && $produtoExistente['id'] != $id) {
-            throw new Exception("O nome do produto já está em uso por outro produto.", 409);
+        if (self::existsByName($nome)) {
+            throw new Exception("O nome do produto já está em uso.", 409);
+        }
+
+        if ($preco < 0) {
+            throw new Exception("O preço não deve ser menor que 0.", 400);
         }
 
         $sql = $connection->prepare("UPDATE Produto SET nome = ?, preco = ? WHERE id = ? AND deletado = 0");
