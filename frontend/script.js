@@ -91,11 +91,19 @@ document.addEventListener("DOMContentLoaded", function () {
         const funcionarioDiv = document.createElement("div");
         funcionarioDiv.classList.add("item");
         funcionarioDiv.innerHTML = `
-        <p><strong>Nome:</strong> ${funcionario.nome}</p>
-        <p><strong>Username:</strong> ${funcionario.username}</p>
-        <button class="deletar-funcionario" data-id="${funcionario.id}">Deletar</button>
-      `;
+          <p><strong>Nome:</strong> ${funcionario.nome}</p>
+          <p><strong>Username:</strong> ${funcionario.username}</p>
+          <button class="deletar-funcionario" data-id="${funcionario.id}">Deletar</button>
+        `;
         listaFuncionarios.appendChild(funcionarioDiv);
+      });
+
+      // Adiciona eventos de clique para deletar após listar
+      document.querySelectorAll(".deletar-funcionario").forEach(button => {
+        button.addEventListener("click", async function () {
+          const id = this.getAttribute("data-id");
+          await deletarFuncionario(id);
+        });
       });
     } catch (error) {
       console.error("Erro ao listar funcionários:", error.message);
@@ -119,13 +127,6 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("Erro ao deletar funcionário:", error.message);
     }
   }
-
-  document.querySelectorAll(".deletar-funcionario").forEach(button => {
-    button.addEventListener("click", async function () {
-      const id = this.getAttribute("data-id");
-      await deletarFuncionario(id);
-    });
-  });
 
   listarFuncionarios(); // Lista funcionários ao carregar a página
 
@@ -177,9 +178,17 @@ document.addEventListener("DOMContentLoaded", function () {
         mesaDiv.classList.add("item");
         mesaDiv.innerHTML = `
           <p><strong>Número da Mesa:</strong> ${mesa.numero}</p>
-          <button onclick="deletarMesa(${mesa.id})">Deletar</button>
+          <button class="deletar-mesa" data-id="${mesa.id}">Deletar</button>
         `;
         listaMesas.appendChild(mesaDiv);
+      });
+
+      // Adiciona eventos de clique para deletar após listar
+      document.querySelectorAll(".deletar-mesa").forEach(button => {
+        button.addEventListener("click", async function () {
+          const id = this.getAttribute("data-id");
+          await deletarMesa(id);
+        });
       });
     } catch (error) {
       console.error("Erro ao listar mesas:", error.message);
@@ -203,13 +212,6 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("Erro ao deletar mesa:", error.message);
     }
   }
-
-  document.querySelectorAll(".deletar-mesa").forEach(button => {
-    button.addEventListener("click", async function () {
-      const id = this.getAttribute("data-id");
-      await deletarMesa(id);
-    });
-  });
 
   listarMesas(); // Lista mesas ao carregar a página
 
@@ -263,9 +265,17 @@ document.addEventListener("DOMContentLoaded", function () {
         produtoDiv.innerHTML = `
           <p><strong>Nome:</strong> ${produto.nome}</p>
           <p><strong>Preço:</strong> R$${produto.preco.toFixed(2)}</p>
-          <button onclick="deletarProduto(${produto.id})">Deletar</button>
+          <button class="deletar-produto" data-id="${produto.id}">Deletar</button>
         `;
         listaProdutos.appendChild(produtoDiv);
+      });
+
+      // Adiciona eventos de clique para deletar após listar
+      document.querySelectorAll(".deletar-produto").forEach(button => {
+        button.addEventListener("click", async function () {
+          const id = this.getAttribute("data-id");
+          await deletarProduto(id);
+        });
       });
     } catch (error) {
       console.error("Erro ao listar produtos:", error.message);
@@ -290,15 +300,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  document.querySelectorAll(".deletar-produto").forEach(button => {
-    button.addEventListener("click", async function () {
-      const id = this.getAttribute("data-id");
-      await deletarProduto(id);
-    });
-  });
-
   listarProdutos(); // Lista produtos ao carregar a página
-
 
   // Pagamentos - CRUD
   document.getElementById("form-pagamento").addEventListener("submit", async function (e) {
@@ -352,9 +354,17 @@ document.addEventListener("DOMContentLoaded", function () {
           <p><strong>Método:</strong> ${pagamento.metodo}</p>
           <p><strong>Valor:</strong> R$${pagamento.valor.toFixed(2)}</p>
           <p><strong>ID da Mesa:</strong> ${pagamento.id_mesa}</p>
-          <button onclick="deletarPagamento(${pagamento.id})">Deletar</button>
+          <button class="deletar-pagamento" data-id="${pagamento.id}">Deletar</button>
         `;
         listaPagamentos.appendChild(pagamentoDiv);
+      });
+
+      // Adiciona eventos de clique para deletar após listar
+      document.querySelectorAll(".deletar-pagamento").forEach(button => {
+        button.addEventListener("click", async function () {
+          const id = this.getAttribute("data-id");
+          await deletarPagamento(id);
+        });
       });
     } catch (error) {
       console.error("Erro ao listar pagamentos:", error.message);
@@ -378,13 +388,6 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("Erro ao deletar pagamento:", error.message);
     }
   }
-
-  document.querySelectorAll(".deletar-pagamento").forEach(button => {
-    button.addEventListener("click", async function () {
-      const id = this.getAttribute("data-id");
-      await deletarPagamento(id);
-    });
-  });
 
   listarPagamentos(); // Lista pagamentos ao carregar a página
 });

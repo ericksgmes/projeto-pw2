@@ -12,22 +12,23 @@
     <nav>
         <ul>
             <li><a href="#home">Home</a></li>
-            <li><a href="#login">Login</a></li>
-            <li><a href="#funcionarios">Funcionários</a></li>
-            <li><a href="#mesas">Mesas</a></li>
-            <li><a href="#produtos">Produtos</a></li>
-            <li><a href="#pagamentos">Pagamentos</a></li>
+            <li><a href="#login" class="restricted">Login</a></li>
+            <li><a href="#funcionarios" class="restricted" style="display: none;">Funcionários</a></li>
+            <li><a href="#mesas" class="restricted" style="display: none;">Mesas</a></li>
+            <li><a href="#produtos" class="restricted" style="display: none;">Produtos</a></li>
+            <li><a href="#pagamentos" class="restricted" style="display: none;">Pagamentos</a></li>
         </ul>
     </nav>
 </header>
 
 <main>
-    <section id="home" class="section active">
+    <section id="home" class="section">
         <h2>Bem-vindo ao Gerenciamento de Restaurante</h2>
-        <p>Utilize o menu acima para navegar pelas seções do sistema e realizar o gerenciamento do restaurante.</p>
+        <p>Abaixo estão todos os produtos disponíveis no restaurante:</p>
+        <div id="lista-produtos-home"></div>
     </section>
 
-    <section id="login" class="section">
+    <section id="login" class="section active">
         <h2>Login</h2>
         <form id="form-login">
             <input type="text" id="username-login" placeholder="Username" required>
@@ -119,5 +120,73 @@
 </footer>
 
 <script src="script.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Impedir o acesso às seções restritas até o login
+        document.querySelectorAll(".restricted").forEach(link => {
+            link.style.display = "none";
+        });
+
+        // Após login bem-sucedido
+        document.getElementById("form-login").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById("username-login").value.trim();
+            const senha = document.getElementById("senha-login").value.trim();
+
+            if (username === "admin" && senha === "admin") {
+                alert("Login bem-sucedido!");
+                document.getElementById("login").style.display = "none";
+                mostrarSecao("home");
+                document.querySelectorAll(".restricted").forEach(link => {
+                    link.style.display = "block";
+                });
+            } else {
+                alert("Credenciais inválidas!");
+            }
+        });
+
+        // Função para mostrar a seção específica
+        function mostrarSecao(sectionId) {
+            document.querySelectorAll(".section").forEach(section => {
+                section.classList.remove("active");
+            });
+            document.getElementById(sectionId).classList.add("active");
+        }
+
+        // Listar produtos na página inicial
+        async function listarProdutosHome() {
+            try {
+                const response = await fetch("http://localhost/restaurante-webservice/produtos", {
+                    method: "GET",
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    alert(`Erro ao listar produtos: ${errorData.message || response.statusText}`);
+                    return;
+                }
+
+                const produtos = await response.json();
+                const listaProdutosHome = document.getElementById("lista-produtos-home");
+                listaProdutosHome.innerHTML = "";
+
+                produtos.data.forEach(produto => {
+                    const produtoDiv = document.createElement("div");
+                    produtoDiv.classList.add("item");
+                    produtoDiv.innerHTML = `
+                        <p><strong>Nome:</strong> ${produto.nome}</p>
+                        <p><strong>Preço:</strong> R$${produto.preco.toFixed(2)}</p>
+                    `;
+                    listaProdutosHome.appendChild(produtoDiv);
+                });
+            } catch (error) {
+                console.error("Erro ao listar produtos:", error.message);
+            }
+        }
+
+        listarProdutosHome();
+    });
+</script>
 </body>
 </html>
