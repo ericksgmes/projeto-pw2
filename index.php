@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 switch ($resource) {
     case 'funcionarios':
         $controller = new FuncionarioController();
-        $controller->handleRequest($method, $id, $data);
+        $controller->handleRequest($method, $id, $action ,$data);
         break;
 
     case 'funcionario-mesa':
