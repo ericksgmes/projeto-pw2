@@ -3,45 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cardápio - Test</title>
+    <title>Gerenciamento de Restaurante</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
 <header>
-    <img src="imgs/LogoRestaurante.png" alt="Logo do Restaurante" class="logo">
-    <div class="search-bar">
-        <input type="text" id="search-bar" placeholder="Pesquisar produtos...">
-    </div>
-    <div class="login-area">
-        <button id="login-btn">Login</button>
-        <button id="logout-btn" style="display:none;">Logout</button>
-    </div>
+    <h1>Restaurante Webservice</h1>
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#login">Login</a></li>
+            <li><a href="#funcionarios">Funcionários</a></li>
+            <li><a href="#mesas">Mesas</a></li>
+            <li><a href="#produtos">Produtos</a></li>
+            <li><a href="#pagamentos">Pagamentos</a></li>
+        </ul>
+    </nav>
 </header>
 
 <main>
-    <div class="category">Todos os Produtos</div>
-    <section id="produtos-lista"></section>
+    <section id="home" class="section active">
+        <h2>Bem-vindo ao Gerenciamento de Restaurante</h2>
+        <p>Utilize o menu acima para navegar pelas seções do sistema e realizar o gerenciamento do restaurante.</p>
+    </section>
+
+    <section id="login" class="section">
+        <h2>Login</h2>
+        <form id="form-login">
+            <input type="text" id="username-login" placeholder="Username" required>
+            <input type="password" id="senha-login" placeholder="Senha" required>
+            <button type="submit">Login</button>
+        </form>
+    </section>
+
+    <section id="funcionarios" class="section">
+        <h2>Gerenciamento de Funcionários</h2>
+        <div id="lista-funcionarios"></div>
+        <form id="form-funcionario">
+            <input type="text" id="nome-funcionario" placeholder="Nome do Funcionário" required>
+            <input type="text" id="username-funcionario" placeholder="Username" required>
+            <input type="password" id="senha-funcionario" placeholder="Senha" required>
+            <button type="submit">Adicionar Funcionário</button>
+        </form>
+    </section>
+
+    <section id="mesas" class="section">
+        <h2>Gerenciamento de Mesas</h2>
+        <div id="lista-mesas"></div>
+        <form id="form-mesa">
+            <input type="number" id="numero-mesa" placeholder="Número da Mesa" required>
+            <button type="submit">Adicionar Mesa</button>
+        </form>
+    </section>
+
+    <section id="produtos" class="section">
+        <h2>Gerenciamento de Produtos</h2>
+        <div id="lista-produtos"></div>
+        <form id="form-produto">
+            <input type="text" id="nome-produto" placeholder="Nome do Produto" required>
+            <input type="number" step="0.01" id="preco-produto" placeholder="Preço do Produto" required>
+            <button type="submit">Adicionar Produto</button>
+        </form>
+    </section>
+
+    <section id="pagamentos" class="section">
+        <h2>Gerenciamento de Pagamentos</h2>
+        <div id="lista-pagamentos"></div>
+        <form id="form-pagamento">
+            <input type="number" id="id-mesa-pagamento" placeholder="ID da Mesa" required>
+            <input type="text" id="metodo-pagamento" placeholder="Método de Pagamento" required>
+            <input type="number" step="0.01" id="valor-pagamento" placeholder="Valor do Pagamento" required>
+            <button type="submit">Adicionar Pagamento</button>
+        </form>
+    </section>
+
+    <section id="editar-funcionario" class="section">
+        <h2>Editar Funcionário</h2>
+        <form id="form-editar-funcionario">
+            <input type="text" id="editar-nome-funcionario" placeholder="Nome do Funcionário" required>
+            <input type="text" id="editar-username-funcionario" placeholder="Username" required>
+            <button type="submit">Salvar Alterações</button>
+        </form>
+    </section>
+
+    <section id="editar-mesa" class="section">
+        <h2>Editar Mesa</h2>
+        <form id="form-editar-mesa">
+            <input type="number" id="editar-numero-mesa" placeholder="Número da Mesa" required>
+            <button type="submit">Salvar Alterações</button>
+        </form>
+    </section>
+
+    <section id="editar-produto" class="section">
+        <h2>Editar Produto</h2>
+        <form id="form-editar-produto">
+            <input type="text" id="editar-nome-produto" placeholder="Nome do Produto" required>
+            <input type="number" step="0.01" id="editar-preco-produto" placeholder="Preço do Produto" required>
+            <button type="submit">Salvar Alterações</button>
+        </form>
+    </section>
+
+    <section id="editar-pagamento" class="section">
+        <h2>Editar Pagamento</h2>
+        <form id="form-editar-pagamento">
+            <input type="number" id="editar-id-mesa-pagamento" placeholder="ID da Mesa" required>
+            <input type="text" id="editar-metodo-pagamento" placeholder="Método de Pagamento" required>
+            <input type="number" step="0.01" id="editar-valor-pagamento" placeholder="Valor do Pagamento" required>
+            <button type="submit">Salvar Alterações</button>
+        </form>
+    </section>
 </main>
 
-<form id="form-produto">
-    <label for="nome-produto">Nome do Produto:</label>
-    <input type="text" id="nome-produto" name="nome" required>
+<footer>
+    <p>Restaurante Webservice &copy; 2024</p>
+</footer>
 
-    <label for="preco-produto">Preço:</label>
-    <input type="number" id="preco-produto" name="preco" step="0.01" required>
-
-    <button type="submit">Adicionar Produto</button>
-</form>
-
-<!-- Modal para detalhes do produto -->
-<div id="modal" class="modal">
-    <div class="modal-content" id="modal-content">
-        <span class="close" onclick="closeModal()">×</span>
-    </div>
-</div>
-
-<!-- Carrega o JavaScript após o DOM -->
 <script src="script.js"></script>
 </body>
 </html>
