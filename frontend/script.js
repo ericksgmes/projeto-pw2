@@ -1,6 +1,27 @@
 document.addEventListener("DOMContentLoaded", function () {
   const baseUrl = "http://localhost/restaurante-webservice";
 
+  const imagemProdutos = {
+    Bruschetta: "./assets/imgProducts/bruschetta.jpeg",
+    "Tábua de Queijos": "./assets/imgProducts/tabua_queijos.jpeg",
+    "Salada Caprese": "./assets/imgProducts/salada_caprese.jpeg",
+    Carbonara: "./assets/imgProducts/carbonara.png",
+    "Filé Mignon ao Molho Madeira":
+      "./assets/imgProducts/file_mignon_madeira.jpeg",
+    "Risoto de Cogumelos": "./assets/imgProducts/risoto_cogumelos.jpeg",
+    Tiramisù: "./assets/imgProducts/tiramisu.jpeg",
+    "Petit Gâteau": "./assets/imgProducts/petit_gateau.jpeg",
+    Cheesecake: "./assets/imgProducts/cheesecake.jpeg",
+    "Vinho Tinto": "./assets/imgProducts/vinho_tinto.jpeg",
+    "Suco de Laranja": "./assets/imgProducts/suco_laranja.jpeg",
+    "Água com Gás": "./assets/imgProducts/agua_com_gas.jpeg",
+  };
+
+  const imagemFuncionarios = {
+    "Carlos Souza": ".assets/imgUsers/carlos_souza.webp",
+    "João Silva": "./assets/imgUsers/joao_silva.webp",
+    "Maria Oliveira": ".assets/imgUsers/maria_oliveira.webp",
+  };
   // Elementos
   const loginSection = document.getElementById("login-section");
   const mainContent = document.getElementById("main-content");
@@ -94,13 +115,19 @@ document.addEventListener("DOMContentLoaded", function () {
       produtos.data.forEach((produto) => {
         const produtoDiv = document.createElement("div");
         produtoDiv.classList.add("item");
+
+        // Se não houver imagem específica, usar uma imagem padrão
+        const imagem =
+          imagemProdutos[produto.nome] || "./assets/imgProducts/default.jpeg";
+
         produtoDiv.innerHTML = `
-          <img src="caminho/para/imagem/produto.png" alt="${produto.nome}">
+          <img src="${imagem}" alt="${produto.nome}">
           <p><strong>Nome:</strong> ${produto.nome}</p>
           <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(
             2
           )}</p>
         `;
+
         listaProdutosHome.appendChild(produtoDiv);
       });
     } catch (error) {
@@ -171,10 +198,14 @@ document.addEventListener("DOMContentLoaded", function () {
       listaFuncionarios.innerHTML = "";
 
       funcionarios.data.forEach((funcionario) => {
+        console.log(funcionario.nome);
+        const imagem =
+          imagemFuncionarios[funcionario.nome] ||
+          "./assets/imgUsers/default.jpeg";
         const funcionarioDiv = document.createElement("div");
         funcionarioDiv.classList.add("item");
         funcionarioDiv.innerHTML = `
-          <img src="caminho/para/imagem/funcionario.png" alt="${funcionario.nome}">
+          <img src="${imagem}" alt="${funcionario.nome}">
           <p><strong>Nome:</strong> ${funcionario.nome}</p>
           <p><strong>Username:</strong> ${funcionario.username}</p>
           <div class="action-buttons">
@@ -359,7 +390,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const mesaDiv = document.createElement("div");
         mesaDiv.classList.add("item");
         mesaDiv.innerHTML = `
-          <img src="caminho/para/imagem/mesa.png" alt="Mesa ${mesa.numero}">
           <p><strong>Número da Mesa:</strong> ${mesa.numero}</p>
           <div class="action-buttons">
             <button class="deletar-mesa" data-id="${mesa.id}">Deletar</button>
@@ -456,10 +486,12 @@ document.addEventListener("DOMContentLoaded", function () {
       listaProdutos.innerHTML = "";
 
       produtos.data.forEach((produto) => {
+        const imagem =
+          imagemProdutos[produto.nome] || "./assets/imgProducts/default.jpeg";
         const produtoDiv = document.createElement("div");
         produtoDiv.classList.add("item");
         produtoDiv.innerHTML = `
-          <img src="caminho/para/imagem/produto.png" alt="${produto.nome}">
+          <img src="${imagem}" alt="${produto.nome}">
           <p><strong>Nome:</strong> ${produto.nome}</p>
           <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(
             2
@@ -651,7 +683,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const pagamentoDiv = document.createElement("div");
         pagamentoDiv.classList.add("item");
         pagamentoDiv.innerHTML = `
-          <img src="caminho/para/imagem/pagamento.png" alt="Pagamento">
           <p><strong>Método:</strong> ${pagamento.metodo}</p>
           <p><strong>Valor:</strong> R$${parseFloat(pagamento.valor).toFixed(
             2

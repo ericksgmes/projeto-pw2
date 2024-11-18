@@ -16,12 +16,26 @@ VALUES (1),
        (5);
 
 -- Inserindo produtos
+
 INSERT INTO Produto (nome, preco)
-VALUES ('Pizza Margherita', 25.00),
-       ('Spaghetti Carbonara', 20.00),
-       ('Salada Caesar', 15.00),
-       ('Refrigerante', 5.00),
-       ('Sobremesa', 10.00);
+VALUES 
+   
+    ('Bruschetta', 25.00),
+    ('Tábua de Queijos', 45.00),
+    ('Salada Caprese', 30.00),
+    
+    ('Carbonara', 50.00),
+    ('Filé Mignon ao Molho Madeira', 75.00),
+    ('Risoto de Cogumelos', 60.00),
+    
+    ('Tiramisù', 20.00),
+    ('Petit Gâteau', 22.00),
+    ('Cheesecake', 18.00),
+    
+    
+    ('Vinho Tinto', 90.00),
+    ('Suco de Laranja', 12.00),
+    ('Água com Gás', 8.00);
 
 -- Associando funcionários às mesas
 INSERT INTO FuncionarioMesa (id_funcionario, id_mesa)
