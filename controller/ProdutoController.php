@@ -2,8 +2,6 @@
 require_once __DIR__ . '/../model/Produto.php';
 require_once __DIR__ . '/../config/utils.php';
 
-
-
 class ProdutoController {
     /**
      * @OA\Get(
@@ -68,10 +66,14 @@ class ProdutoController {
             return;
         }
 
-        $nome = $data["nome"];
-        $preco = $data["preco"];
+        // Verificar se já existe um produto com o mesmo nome que não esteja deletado
+        $produtoExistente = Produto::getByNome($data["nome"]);
+        if ($produtoExistente && $produtoExistente["deletado"] == 0) {
+            jsonResponse(409, ["status" => "error", "message" => "Um produto com este nome já existe"]);
+            return;
+        }
 
-        $insertedId = Produto::cadastrar($nome, $preco);
+        $insertedId = Produto::cadastrar($data["nome"], $data["preco"]);
         jsonResponse(201, ["status" => "success", "data" => ["id" => $insertedId]]);
     }
 
@@ -104,10 +106,14 @@ class ProdutoController {
             return;
         }
 
-        $nome = $data["nome"];
-        $preco = $data["preco"];
+        // Verificar se já existe um produto com o mesmo nome que não esteja deletado e não seja o próprio produto
+        $produtoExistente = Produto::getByNome($data["nome"]);
+        if ($produtoExistente && $produtoExistente["id"] != $id && $produtoExistente["deletado"] == 0) {
+            jsonResponse(409, ["status" => "error", "message" => "Um produto com este nome já existe"]);
+            return;
+        }
 
-        Produto::atualizar($id, $nome, $preco);
+        Produto::atualizar($id, $data["nome"], $data["preco"]);
         jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
     }
 
@@ -131,9 +137,7 @@ class ProdutoController {
     }
 
     public function handleRequest($method, $id = null, $action = null, $data = null): void {
-        
         try {
-           
             if ($method === 'GET') {
                 if ($action === 'deletados') {
                     $this->listarDeletados();

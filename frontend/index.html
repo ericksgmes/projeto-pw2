@@ -136,6 +136,22 @@
         </div>
     </div>
 
+    <!-- Modal de Edição de Funcionário -->
+    <div id="modal-editar-funcionario" class="modal">
+        <div class="modal-content">
+            <span class="close" id="fechar-modal-funcionario">&times;</span>
+            <h2>Editar Funcionário</h2>
+            <form id="form-editar-funcionario">
+                <input type="hidden" id="editar-id-funcionario">
+                <input type="text" id="editar-nome-funcionario" placeholder="Nome do Funcionário" required>
+                <input type="text" id="editar-username-funcionario" placeholder="Username" required>
+                <input type="password" id="editar-senha-funcionario"
+                    placeholder="Senha (deixe em branco para não alterar)">
+                <button type="submit">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 

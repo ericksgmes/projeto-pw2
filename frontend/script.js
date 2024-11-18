@@ -73,7 +73,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Listar Produtos na Home
-  // Listar Produtos na Home
   async function listarProdutosHome() {
     try {
       const response = await fetch(`${baseUrl}/produtos`, {
@@ -96,12 +95,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const produtoDiv = document.createElement("div");
         produtoDiv.classList.add("item");
         produtoDiv.innerHTML = `
-              <img src="caminho/para/imagem/produto.png" alt="${produto.nome}">
-              <p><strong>Nome:</strong> ${produto.nome}</p>
-              <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(
-                2
-              )}</p>
-          `;
+          <img src="caminho/para/imagem/produto.png" alt="${produto.nome}">
+          <p><strong>Nome:</strong> ${produto.nome}</p>
+          <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(
+            2
+          )}</p>
+        `;
         listaProdutosHome.appendChild(produtoDiv);
       });
     } catch (error) {
@@ -175,16 +174,27 @@ document.addEventListener("DOMContentLoaded", function () {
         const funcionarioDiv = document.createElement("div");
         funcionarioDiv.classList.add("item");
         funcionarioDiv.innerHTML = `
-                    <p><strong>Nome:</strong> ${funcionario.nome}</p>
-                    <p><strong>Username:</strong> ${funcionario.username}</p>
-                    <div class="action-buttons">
-                        <button class="deletar-funcionario" data-id="${funcionario.id}">Deletar</button>
-                    </div>
-                `;
+          <img src="caminho/para/imagem/funcionario.png" alt="${funcionario.nome}">
+          <p><strong>Nome:</strong> ${funcionario.nome}</p>
+          <p><strong>Username:</strong> ${funcionario.username}</p>
+          <div class="action-buttons">
+            <button class="editar-funcionario" data-id="${funcionario.id}" data-nome="${funcionario.nome}" data-username="${funcionario.username}">Editar</button>
+            <button class="deletar-funcionario" data-id="${funcionario.id}">Deletar</button>
+          </div>
+        `;
         listaFuncionarios.appendChild(funcionarioDiv);
       });
 
-      // Adiciona eventos de clique para deletar após listar
+      // Eventos para editar e deletar funcionários
+      document.querySelectorAll(".editar-funcionario").forEach((button) => {
+        button.addEventListener("click", function () {
+          const id = this.getAttribute("data-id");
+          const nome = this.getAttribute("data-nome");
+          const username = this.getAttribute("data-username");
+          abrirModalEditarFuncionario(id, nome, username);
+        });
+      });
+
       document.querySelectorAll(".deletar-funcionario").forEach((button) => {
         button.addEventListener("click", async function () {
           const id = this.getAttribute("data-id");
@@ -221,6 +231,79 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("Erro ao deletar funcionário:", error.message);
     }
   }
+
+  // Funções para editar funcionário
+  const modalEditarFuncionario = document.getElementById(
+    "modal-editar-funcionario"
+  );
+  const fecharModalFuncionario = document.getElementById(
+    "fechar-modal-funcionario"
+  );
+
+  fecharModalFuncionario.addEventListener("click", function () {
+    modalEditarFuncionario.style.display = "none";
+  });
+
+  window.addEventListener("click", function (event) {
+    if (event.target == modalEditarFuncionario) {
+      modalEditarFuncionario.style.display = "none";
+    }
+  });
+
+  function abrirModalEditarFuncionario(id, nome, username) {
+    document.getElementById("editar-id-funcionario").value = id;
+    document.getElementById("editar-nome-funcionario").value = nome;
+    document.getElementById("editar-username-funcionario").value = username;
+    document.getElementById("editar-senha-funcionario").value = ""; // Limpar o campo de senha
+    modalEditarFuncionario.style.display = "block";
+  }
+
+  document
+    .getElementById("form-editar-funcionario")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const id = document.getElementById("editar-id-funcionario").value;
+      const nome = document
+        .getElementById("editar-nome-funcionario")
+        .value.trim();
+      const username = document
+        .getElementById("editar-username-funcionario")
+        .value.trim();
+      const senha = document.getElementById("editar-senha-funcionario").value;
+
+      // Criar objeto com os dados atualizados
+      const dadosAtualizados = { nome, username };
+      if (senha) {
+        dadosAtualizados.senha = senha;
+      }
+
+      try {
+        const response = await fetch(`${baseUrl}/funcionarios/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dadosAtualizados),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          alert(
+            `Erro ao atualizar funcionário: ${
+              errorData.message || response.statusText
+            }`
+          );
+          return;
+        }
+
+        alert("Funcionário atualizado com sucesso!");
+        listarFuncionarios();
+        modalEditarFuncionario.style.display = "none";
+      } catch (error) {
+        console.error("Erro ao atualizar funcionário:", error.message);
+      }
+    });
 
   // Mesas - CRUD
   document
@@ -276,11 +359,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const mesaDiv = document.createElement("div");
         mesaDiv.classList.add("item");
         mesaDiv.innerHTML = `
-                    <p><strong>Número da Mesa:</strong> ${mesa.numero}</p>
-                    <div class="action-buttons">
-                        <button class="deletar-mesa" data-id="${mesa.id}">Deletar</button>
-                    </div>
-                `;
+          <img src="caminho/para/imagem/mesa.png" alt="Mesa ${mesa.numero}">
+          <p><strong>Número da Mesa:</strong> ${mesa.numero}</p>
+          <div class="action-buttons">
+            <button class="deletar-mesa" data-id="${mesa.id}">Deletar</button>
+          </div>
+        `;
         listaMesas.appendChild(mesaDiv);
       });
 
@@ -375,21 +459,20 @@ document.addEventListener("DOMContentLoaded", function () {
         const produtoDiv = document.createElement("div");
         produtoDiv.classList.add("item");
         produtoDiv.innerHTML = `
-                    <p><strong>Nome:</strong> ${produto.nome}</p>
-                    <p><strong>Preço:</strong> R$${parseFloat(
-                      produto.preco
-                    ).toFixed(2)}</p>
-                    <div class="action-buttons">
-                        <button class="editar-produto" data-id="${
-                          produto.id
-                        }" data-nome="${produto.nome}" data-preco="${
-          produto.preco
-        }">Editar</button>
-                        <button class="deletar-produto" data-id="${
-                          produto.id
-                        }">Deletar</button>
-                    </div>
-                `;
+          <img src="caminho/para/imagem/produto.png" alt="${produto.nome}">
+          <p><strong>Nome:</strong> ${produto.nome}</p>
+          <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(
+            2
+          )}</p>
+          <div class="action-buttons">
+            <button class="editar-produto" data-id="${produto.id}" data-nome="${
+          produto.nome
+        }" data-preco="${produto.preco}">Editar</button>
+            <button class="deletar-produto" data-id="${
+              produto.id
+            }">Deletar</button>
+          </div>
+        `;
         listaProdutos.appendChild(produtoDiv);
       });
 
@@ -480,18 +563,19 @@ document.addEventListener("DOMContentLoaded", function () {
           body: JSON.stringify({ nome, preco }),
         });
 
-        if (response.ok) {
-          alert("Produto atualizado com sucesso!");
-          modalEditarProduto.style.display = "none";
-          listarProdutos();
-        } else {
+        if (!response.ok) {
           const errorData = await response.json();
           alert(
             `Erro ao atualizar produto: ${
               errorData.message || response.statusText
             }`
           );
+          return;
         }
+
+        alert("Produto atualizado com sucesso!");
+        listarProdutos();
+        modalEditarProduto.style.display = "none";
       } catch (error) {
         console.error("Erro ao atualizar produto:", error.message);
       }
@@ -511,6 +595,12 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("valor-pagamento").value
       );
 
+      // Verificar se os campos estão preenchidos corretamente
+      if (isNaN(idMesa) || !metodo || isNaN(valor)) {
+        alert("Por favor, preencha todos os campos corretamente.");
+        return;
+      }
+
       try {
         const response = await fetch(`${baseUrl}/pagamentos`, {
           method: "POST",
@@ -521,19 +611,19 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (response.status === 201) {
-          alert("Pagamento registrado com sucesso!");
+          alert("Pagamento adicionado com sucesso!");
           listarPagamentos();
           e.target.reset();
         } else {
           const errorData = await response.json();
           alert(
-            `Erro ao registrar pagamento: ${
+            `Erro ao adicionar pagamento: ${
               errorData.message || response.statusText
             }`
           );
         }
       } catch (error) {
-        console.error("Erro ao registrar pagamento:", error.message);
+        console.error("Erro ao adicionar pagamento:", error.message);
       }
     });
 
@@ -561,17 +651,18 @@ document.addEventListener("DOMContentLoaded", function () {
         const pagamentoDiv = document.createElement("div");
         pagamentoDiv.classList.add("item");
         pagamentoDiv.innerHTML = `
-                    <p><strong>Método:</strong> ${pagamento.metodo}</p>
-                    <p><strong>Valor:</strong> R$${parseFloat(
-                      pagamento.valor
-                    ).toFixed(2)}</p>
-                    <p><strong>ID da Mesa:</strong> ${pagamento.id_mesa}</p>
-                    <div class="action-buttons">
-                        <button class="deletar-pagamento" data-id="${
-                          pagamento.id
-                        }">Deletar</button>
-                    </div>
-                `;
+          <img src="caminho/para/imagem/pagamento.png" alt="Pagamento">
+          <p><strong>Método:</strong> ${pagamento.metodo}</p>
+          <p><strong>Valor:</strong> R$${parseFloat(pagamento.valor).toFixed(
+            2
+          )}</p>
+          <p><strong>ID da Mesa:</strong> ${pagamento.id_mesa}</p>
+          <div class="action-buttons">
+            <button class="deletar-pagamento" data-id="${
+              pagamento.id
+            }">Deletar</button>
+          </div>
+        `;
         listaPagamentos.appendChild(pagamentoDiv);
       });
 
