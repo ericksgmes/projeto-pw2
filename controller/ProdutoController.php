@@ -1,7 +1,8 @@
 <?php
-
 require_once __DIR__ . '/../model/Produto.php';
 require_once __DIR__ . '/../config/utils.php';
+
+
 
 class ProdutoController {
     /**
@@ -130,7 +131,9 @@ class ProdutoController {
     }
 
     public function handleRequest($method, $id = null, $action = null, $data = null): void {
+        
         try {
+           
             if ($method === 'GET') {
                 if ($action === 'deletados') {
                     $this->listarDeletados();

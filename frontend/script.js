@@ -1,8 +1,13 @@
 document.addEventListener("DOMContentLoaded", function () {
   const baseUrl = "http://localhost/restaurante-webservice";
 
-  // Navegação entre páginas
-  document.querySelectorAll("header nav ul li a").forEach(link => {
+  // Elementos
+  const loginSection = document.getElementById("login-section");
+  const mainContent = document.getElementById("main-content");
+  const logoutButton = document.getElementById("logout-button");
+
+  // Navegação entre seções
+  document.querySelectorAll(".nav-link").forEach((link) => {
     link.addEventListener("click", function (e) {
       e.preventDefault();
       const sectionId = link.getAttribute("href").substring(1);
@@ -11,65 +16,140 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function mostrarSecao(sectionId) {
-    document.querySelectorAll(".section").forEach(section => {
+    document.querySelectorAll(".section").forEach((section) => {
       section.classList.remove("active");
     });
     document.getElementById(sectionId).classList.add("active");
+    // Chamar a função de listagem correspondente
+    if (sectionId === "home") {
+      listarProdutosHome();
+    } else if (sectionId === "funcionarios") {
+      listarFuncionarios();
+    } else if (sectionId === "mesas") {
+      listarMesas();
+    } else if (sectionId === "produtos") {
+      listarProdutos();
+    } else if (sectionId === "pagamentos") {
+      listarPagamentos();
+    }
   }
 
   // Login
-  document.getElementById("form-login").addEventListener("submit", async function (e) {
-    e.preventDefault();
+  document
+    .getElementById("login-form")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    const username = document.getElementById("username-login").value.trim();
-    const senha = document.getElementById("senha-login").value.trim();
+      const username = document.getElementById("username-login").value.trim();
+      const senha = document.getElementById("senha-login").value.trim();
 
-    try {
-      // Simulando autenticação para simplificar
-      if (username === "admin" && senha === "admin") {
-        alert("Login bem-sucedido!");
-        document.getElementById("login").style.display = "none";
-        mostrarSecao("funcionarios");
-      } else {
-        alert("Credenciais inválidas!");
+      try {
+        // Simulando autenticação para simplificar
+        if (username === "admin" && senha === "admin") {
+          alert("Login bem-sucedido!");
+          loginSection.style.display = "none";
+          mainContent.style.display = "block";
+          mostrarSecao("home");
+          document.querySelectorAll(".restricted").forEach((link) => {
+            link.style.display = "block";
+          });
+        } else {
+          document.getElementById("login-error").style.display = "block";
+        }
+      } catch (error) {
+        console.error("Erro ao tentar fazer login:", error.message);
       }
-    } catch (error) {
-      console.error("Erro ao tentar fazer login:", error.message);
-    }
+    });
+
+  // Logout
+  logoutButton.addEventListener("click", function () {
+    mainContent.style.display = "none";
+    loginSection.style.display = "block";
+    document.getElementById("login-form").reset();
+    document.getElementById("login-error").style.display = "none";
+    document.querySelectorAll(".restricted").forEach((link) => {
+      link.style.display = "none";
+    });
   });
 
-  // Funcionários - CRUD
-  document.getElementById("form-funcionario").addEventListener("submit", async function (e) {
-    e.preventDefault();
-
-    const nome = document.getElementById("nome-funcionario").value.trim();
-    const username = document.getElementById("username-funcionario").value.trim();
-    const senha = document.getElementById("senha-funcionario").value.trim();
-
+  // Listar Produtos na Home
+  // Listar Produtos na Home
+  async function listarProdutosHome() {
     try {
-      const response = await fetch(`${baseUrl}/funcionarios`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nome,
-          username,
-          senha,
-        }),
+      const response = await fetch(`${baseUrl}/produtos`, {
+        method: "GET",
       });
 
-      if (response.status === 201) {
-        alert("Funcionário criado com sucesso!");
-        listarFuncionarios();
-      } else {
+      if (!response.ok) {
         const errorData = await response.json();
-        alert(`Erro ao criar funcionário: ${errorData.message || response.statusText}`);
+        alert(
+          `Erro ao listar produtos: ${errorData.message || response.statusText}`
+        );
+        return;
       }
+
+      const produtos = await response.json();
+      const listaProdutosHome = document.getElementById("lista-produtos-home");
+      listaProdutosHome.innerHTML = "";
+
+      produtos.data.forEach((produto) => {
+        const produtoDiv = document.createElement("div");
+        produtoDiv.classList.add("item");
+        produtoDiv.innerHTML = `
+              <img src="caminho/para/imagem/produto.png" alt="${produto.nome}">
+              <p><strong>Nome:</strong> ${produto.nome}</p>
+              <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(
+                2
+              )}</p>
+          `;
+        listaProdutosHome.appendChild(produtoDiv);
+      });
     } catch (error) {
-      console.error("Erro ao criar funcionário:", error.message);
+      console.error("Erro ao listar produtos:", error.message);
     }
-  });
+  }
+
+  // Funcionários - CRUD
+  document
+    .getElementById("form-funcionario")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const nome = document.getElementById("nome-funcionario").value.trim();
+      const username = document
+        .getElementById("username-funcionario")
+        .value.trim();
+      const senha = document.getElementById("senha-funcionario").value.trim();
+
+      try {
+        const response = await fetch(`${baseUrl}/funcionarios`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nome,
+            username,
+            senha,
+          }),
+        });
+
+        if (response.status === 201) {
+          alert("Funcionário criado com sucesso!");
+          listarFuncionarios();
+          e.target.reset();
+        } else {
+          const errorData = await response.json();
+          alert(
+            `Erro ao criar funcionário: ${
+              errorData.message || response.statusText
+            }`
+          );
+        }
+      } catch (error) {
+        console.error("Erro ao criar funcionário:", error.message);
+      }
+    });
 
   async function listarFuncionarios() {
     try {
@@ -79,7 +159,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert(`Erro ao listar funcionários: ${errorData.message || response.statusText}`);
+        alert(
+          `Erro ao listar funcionários: ${
+            errorData.message || response.statusText
+          }`
+        );
         return;
       }
 
@@ -87,19 +171,21 @@ document.addEventListener("DOMContentLoaded", function () {
       const listaFuncionarios = document.getElementById("lista-funcionarios");
       listaFuncionarios.innerHTML = "";
 
-      funcionarios.data.forEach(funcionario => {
+      funcionarios.data.forEach((funcionario) => {
         const funcionarioDiv = document.createElement("div");
         funcionarioDiv.classList.add("item");
         funcionarioDiv.innerHTML = `
-          <p><strong>Nome:</strong> ${funcionario.nome}</p>
-          <p><strong>Username:</strong> ${funcionario.username}</p>
-          <button class="deletar-funcionario" data-id="${funcionario.id}">Deletar</button>
-        `;
+                    <p><strong>Nome:</strong> ${funcionario.nome}</p>
+                    <p><strong>Username:</strong> ${funcionario.username}</p>
+                    <div class="action-buttons">
+                        <button class="deletar-funcionario" data-id="${funcionario.id}">Deletar</button>
+                    </div>
+                `;
         listaFuncionarios.appendChild(funcionarioDiv);
       });
 
       // Adiciona eventos de clique para deletar após listar
-      document.querySelectorAll(".deletar-funcionario").forEach(button => {
+      document.querySelectorAll(".deletar-funcionario").forEach((button) => {
         button.addEventListener("click", async function () {
           const id = this.getAttribute("data-id");
           await deletarFuncionario(id);
@@ -111,6 +197,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function deletarFuncionario(id) {
+    if (!confirm("Tem certeza que deseja deletar este funcionário?")) {
+      return;
+    }
+
     try {
       const response = await fetch(`${baseUrl}/funcionarios/${id}`, {
         method: "DELETE",
@@ -121,41 +211,48 @@ document.addEventListener("DOMContentLoaded", function () {
         listarFuncionarios();
       } else {
         const errorData = await response.json();
-        alert(`Erro ao deletar funcionário: ${errorData.message || response.statusText}`);
+        alert(
+          `Erro ao deletar funcionário: ${
+            errorData.message || response.statusText
+          }`
+        );
       }
     } catch (error) {
       console.error("Erro ao deletar funcionário:", error.message);
     }
   }
 
-  listarFuncionarios(); // Lista funcionários ao carregar a página
-
   // Mesas - CRUD
-  document.getElementById("form-mesa").addEventListener("submit", async function (e) {
-    e.preventDefault();
+  document
+    .getElementById("form-mesa")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    const numero = document.getElementById("numero-mesa").value.trim();
+      const numero = document.getElementById("numero-mesa").value.trim();
 
-    try {
-      const response = await fetch(`${baseUrl}/mesas`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ numero }),
-      });
+      try {
+        const response = await fetch(`${baseUrl}/mesas`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ numero }),
+        });
 
-      if (response.status === 201) {
-        alert("Mesa criada com sucesso!");
-        listarMesas();
-      } else {
-        const errorData = await response.json();
-        alert(`Erro ao criar mesa: ${errorData.message || response.statusText}`);
+        if (response.status === 201) {
+          alert("Mesa criada com sucesso!");
+          listarMesas();
+          e.target.reset();
+        } else {
+          const errorData = await response.json();
+          alert(
+            `Erro ao criar mesa: ${errorData.message || response.statusText}`
+          );
+        }
+      } catch (error) {
+        console.error("Erro ao criar mesa:", error.message);
       }
-    } catch (error) {
-      console.error("Erro ao criar mesa:", error.message);
-    }
-  });
+    });
 
   async function listarMesas() {
     try {
@@ -165,7 +262,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert(`Erro ao listar mesas: ${errorData.message || response.statusText}`);
+        alert(
+          `Erro ao listar mesas: ${errorData.message || response.statusText}`
+        );
         return;
       }
 
@@ -173,18 +272,20 @@ document.addEventListener("DOMContentLoaded", function () {
       const listaMesas = document.getElementById("lista-mesas");
       listaMesas.innerHTML = "";
 
-      mesas.data.forEach(mesa => {
+      mesas.data.forEach((mesa) => {
         const mesaDiv = document.createElement("div");
         mesaDiv.classList.add("item");
         mesaDiv.innerHTML = `
-          <p><strong>Número da Mesa:</strong> ${mesa.numero}</p>
-          <button class="deletar-mesa" data-id="${mesa.id}">Deletar</button>
-        `;
+                    <p><strong>Número da Mesa:</strong> ${mesa.numero}</p>
+                    <div class="action-buttons">
+                        <button class="deletar-mesa" data-id="${mesa.id}">Deletar</button>
+                    </div>
+                `;
         listaMesas.appendChild(mesaDiv);
       });
 
       // Adiciona eventos de clique para deletar após listar
-      document.querySelectorAll(".deletar-mesa").forEach(button => {
+      document.querySelectorAll(".deletar-mesa").forEach((button) => {
         button.addEventListener("click", async function () {
           const id = this.getAttribute("data-id");
           await deletarMesa(id);
@@ -196,6 +297,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function deletarMesa(id) {
+    if (!confirm("Tem certeza que deseja deletar esta mesa?")) {
+      return;
+    }
+
     try {
       const response = await fetch(`${baseUrl}/mesas/${id}`, {
         method: "DELETE",
@@ -206,42 +311,47 @@ document.addEventListener("DOMContentLoaded", function () {
         listarMesas();
       } else {
         const errorData = await response.json();
-        alert(`Erro ao deletar mesa: ${errorData.message || response.statusText}`);
+        alert(
+          `Erro ao deletar mesa: ${errorData.message || response.statusText}`
+        );
       }
     } catch (error) {
       console.error("Erro ao deletar mesa:", error.message);
     }
   }
 
-  listarMesas(); // Lista mesas ao carregar a página
-
   // Produtos - CRUD
-  document.getElementById("form-produto").addEventListener("submit", async function (e) {
-    e.preventDefault();
+  document
+    .getElementById("form-produto")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    const nome = document.getElementById("nome-produto").value.trim();
-    const preco = parseFloat(document.getElementById("preco-produto").value);
+      const nome = document.getElementById("nome-produto").value.trim();
+      const preco = parseFloat(document.getElementById("preco-produto").value);
 
-    try {
-      const response = await fetch(`${baseUrl}/produtos`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ nome, preco }),
-      });
+      try {
+        const response = await fetch(`${baseUrl}/produtos`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ nome, preco }),
+        });
 
-      if (response.status === 201) {
-        alert("Produto criado com sucesso!");
-        listarProdutos();
-      } else {
-        const errorData = await response.json();
-        alert(`Erro ao criar produto: ${errorData.message || response.statusText}`);
+        if (response.status === 201) {
+          alert("Produto criado com sucesso!");
+          listarProdutos();
+          e.target.reset();
+        } else {
+          const errorData = await response.json();
+          alert(
+            `Erro ao criar produto: ${errorData.message || response.statusText}`
+          );
+        }
+      } catch (error) {
+        console.error("Erro ao criar produto:", error.message);
       }
-    } catch (error) {
-      console.error("Erro ao criar produto:", error.message);
-    }
-  });
+    });
 
   async function listarProdutos() {
     try {
@@ -251,7 +361,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert(`Erro ao listar produtos: ${errorData.message || response.statusText}`);
+        alert(
+          `Erro ao listar produtos: ${errorData.message || response.statusText}`
+        );
         return;
       }
 
@@ -259,19 +371,39 @@ document.addEventListener("DOMContentLoaded", function () {
       const listaProdutos = document.getElementById("lista-produtos");
       listaProdutos.innerHTML = "";
 
-      produtos.data.forEach(produto => {
+      produtos.data.forEach((produto) => {
         const produtoDiv = document.createElement("div");
         produtoDiv.classList.add("item");
         produtoDiv.innerHTML = `
-          <p><strong>Nome:</strong> ${produto.nome}</p>
-          <p><strong>Preço:</strong> R$${produto.preco.toFixed(2)}</p>
-          <button class="deletar-produto" data-id="${produto.id}">Deletar</button>
-        `;
+                    <p><strong>Nome:</strong> ${produto.nome}</p>
+                    <p><strong>Preço:</strong> R$${parseFloat(
+                      produto.preco
+                    ).toFixed(2)}</p>
+                    <div class="action-buttons">
+                        <button class="editar-produto" data-id="${
+                          produto.id
+                        }" data-nome="${produto.nome}" data-preco="${
+          produto.preco
+        }">Editar</button>
+                        <button class="deletar-produto" data-id="${
+                          produto.id
+                        }">Deletar</button>
+                    </div>
+                `;
         listaProdutos.appendChild(produtoDiv);
       });
 
-      // Adiciona eventos de clique para deletar após listar
-      document.querySelectorAll(".deletar-produto").forEach(button => {
+      // Eventos para editar e deletar produtos
+      document.querySelectorAll(".editar-produto").forEach((button) => {
+        button.addEventListener("click", function () {
+          const id = this.getAttribute("data-id");
+          const nome = this.getAttribute("data-nome");
+          const preco = this.getAttribute("data-preco");
+          abrirModalEditarProduto(id, nome, preco);
+        });
+      });
+
+      document.querySelectorAll(".deletar-produto").forEach((button) => {
         button.addEventListener("click", async function () {
           const id = this.getAttribute("data-id");
           await deletarProduto(id);
@@ -283,6 +415,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function deletarProduto(id) {
+    if (!confirm("Tem certeza que deseja deletar este produto?")) {
+      return;
+    }
+
     try {
       const response = await fetch(`${baseUrl}/produtos/${id}`, {
         method: "DELETE",
@@ -293,43 +429,113 @@ document.addEventListener("DOMContentLoaded", function () {
         listarProdutos();
       } else {
         const errorData = await response.json();
-        alert(`Erro ao deletar produto: ${errorData.message || response.statusText}`);
+        alert(
+          `Erro ao deletar produto: ${errorData.message || response.statusText}`
+        );
       }
     } catch (error) {
       console.error("Erro ao deletar produto:", error.message);
     }
   }
 
-  listarProdutos(); // Lista produtos ao carregar a página
+  // Funções para editar produto
+  const modalEditarProduto = document.getElementById("modal-editar-produto");
+  const fecharModalProduto = document.getElementById("fechar-modal-produto");
 
-  // Pagamentos - CRUD
-  document.getElementById("form-pagamento").addEventListener("submit", async function (e) {
-    e.preventDefault();
+  fecharModalProduto.addEventListener("click", function () {
+    modalEditarProduto.style.display = "none";
+  });
 
-    const idMesa = parseInt(document.getElementById("id-mesa-pagamento").value);
-    const metodo = document.getElementById("metodo-pagamento").value.trim();
-    const valor = parseFloat(document.getElementById("valor-pagamento").value);
-
-    try {
-      const response = await fetch(`${baseUrl}/pagamentos`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ metodo, valor, id_mesa: idMesa }),
-      });
-
-      if (response.status === 201) {
-        alert("Pagamento criado com sucesso!");
-        listarPagamentos();
-      } else {
-        const errorData = await response.json();
-        alert(`Erro ao criar pagamento: ${errorData.message || response.statusText}`);
-      }
-    } catch (error) {
-      console.error("Erro ao criar pagamento:", error.message);
+  window.addEventListener("click", function (event) {
+    if (event.target == modalEditarProduto) {
+      modalEditarProduto.style.display = "none";
     }
   });
+
+  function abrirModalEditarProduto(id, nome, preco) {
+    document.getElementById("editar-id-produto").value = id;
+    document.getElementById("editar-nome-produto").value = nome;
+    document.getElementById("editar-preco-produto").value =
+      parseFloat(preco).toFixed(2);
+    modalEditarProduto.style.display = "block";
+  }
+
+  document
+    .getElementById("form-editar-produto")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const id = document.getElementById("editar-id-produto").value;
+      const nome = document.getElementById("editar-nome-produto").value.trim();
+      const preco = parseFloat(
+        document.getElementById("editar-preco-produto").value
+      );
+
+      try {
+        const response = await fetch(`${baseUrl}/produtos/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ nome, preco }),
+        });
+
+        if (response.ok) {
+          alert("Produto atualizado com sucesso!");
+          modalEditarProduto.style.display = "none";
+          listarProdutos();
+        } else {
+          const errorData = await response.json();
+          alert(
+            `Erro ao atualizar produto: ${
+              errorData.message || response.statusText
+            }`
+          );
+        }
+      } catch (error) {
+        console.error("Erro ao atualizar produto:", error.message);
+      }
+    });
+
+  // Pagamentos - CRUD
+  document
+    .getElementById("form-pagamento")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const idMesa = parseInt(
+        document.getElementById("id-mesa-pagamento").value
+      );
+      const metodo = document.getElementById("metodo-pagamento").value.trim();
+      const valor = parseFloat(
+        document.getElementById("valor-pagamento").value
+      );
+
+      try {
+        const response = await fetch(`${baseUrl}/pagamentos`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ metodo, valor, id_mesa: idMesa }),
+        });
+
+        if (response.status === 201) {
+          alert("Pagamento registrado com sucesso!");
+          listarPagamentos();
+          e.target.reset();
+        } else {
+          const errorData = await response.json();
+          alert(
+            `Erro ao registrar pagamento: ${
+              errorData.message || response.statusText
+            }`
+          );
+        }
+      } catch (error) {
+        console.error("Erro ao registrar pagamento:", error.message);
+      }
+    });
 
   async function listarPagamentos() {
     try {
@@ -339,7 +545,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert(`Erro ao listar pagamentos: ${errorData.message || response.statusText}`);
+        alert(
+          `Erro ao listar pagamentos: ${
+            errorData.message || response.statusText
+          }`
+        );
         return;
       }
 
@@ -347,20 +557,26 @@ document.addEventListener("DOMContentLoaded", function () {
       const listaPagamentos = document.getElementById("lista-pagamentos");
       listaPagamentos.innerHTML = "";
 
-      pagamentos.data.forEach(pagamento => {
+      pagamentos.data.forEach((pagamento) => {
         const pagamentoDiv = document.createElement("div");
         pagamentoDiv.classList.add("item");
         pagamentoDiv.innerHTML = `
-          <p><strong>Método:</strong> ${pagamento.metodo}</p>
-          <p><strong>Valor:</strong> R$${pagamento.valor.toFixed(2)}</p>
-          <p><strong>ID da Mesa:</strong> ${pagamento.id_mesa}</p>
-          <button class="deletar-pagamento" data-id="${pagamento.id}">Deletar</button>
-        `;
+                    <p><strong>Método:</strong> ${pagamento.metodo}</p>
+                    <p><strong>Valor:</strong> R$${parseFloat(
+                      pagamento.valor
+                    ).toFixed(2)}</p>
+                    <p><strong>ID da Mesa:</strong> ${pagamento.id_mesa}</p>
+                    <div class="action-buttons">
+                        <button class="deletar-pagamento" data-id="${
+                          pagamento.id
+                        }">Deletar</button>
+                    </div>
+                `;
         listaPagamentos.appendChild(pagamentoDiv);
       });
 
       // Adiciona eventos de clique para deletar após listar
-      document.querySelectorAll(".deletar-pagamento").forEach(button => {
+      document.querySelectorAll(".deletar-pagamento").forEach((button) => {
         button.addEventListener("click", async function () {
           const id = this.getAttribute("data-id");
           await deletarPagamento(id);
@@ -372,6 +588,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function deletarPagamento(id) {
+    if (!confirm("Tem certeza que deseja deletar este pagamento?")) {
+      return;
+    }
+
     try {
       const response = await fetch(`${baseUrl}/pagamentos/${id}`, {
         method: "DELETE",
@@ -382,12 +602,18 @@ document.addEventListener("DOMContentLoaded", function () {
         listarPagamentos();
       } else {
         const errorData = await response.json();
-        alert(`Erro ao deletar pagamento: ${errorData.message || response.statusText}`);
+        alert(
+          `Erro ao deletar pagamento: ${
+            errorData.message || response.statusText
+          }`
+        );
       }
     } catch (error) {
       console.error("Erro ao deletar pagamento:", error.message);
     }
   }
 
-  listarPagamentos(); // Lista pagamentos ao carregar a página
+  // Inicializar com a seção de login
+  loginSection.style.display = "block";
+  mainContent.style.display = "none";
 });
