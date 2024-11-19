@@ -103,7 +103,9 @@ class Funcionario {
             throw new Exception("Funcionário não encontrado", 404);
         }
 
-        $sql = $connection->prepare("UPDATE Funcionario SET deletado = 1, data_deletado = NOW() WHERE id = ?");
+        $sql = $connection->prepare("UPDATE Funcionario
+                    SET deletado = 1, data_deletado = NOW(), username = CONCAT(username, '_deleted_', id)
+                    WHERE id = ?;");
         $sql->execute([$id]);
 
         return $sql->rowCount();
