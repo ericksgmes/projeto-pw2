@@ -64,18 +64,27 @@ class PagamentoController {
      * )
      */
     public function criar($data): void {
+        error_log("Iniciando criação de pagamento com dados: " . json_encode($data));
+
         if (!valid($data, ["metodo", "valor", "id_mesa"])) {
             jsonResponse(400, ["status" => "error", "message" => "Método de pagamento, valor ou ID da mesa não fornecido"]);
             return;
         }
 
-        $metodo = paymentMethodEnum::from($data["metodo"]);
-        $valor = $data["valor"];
-        $id_mesa = $data["id_mesa"];
+        try {
+            $metodo = paymentMethodEnum::from($data["metodo"]);
+            $valor = $data["valor"];
+            $id_mesa = $data["id_mesa"];
+            error_log("Dados validados. Método: {$metodo->value}, Valor: $valor, ID Mesa: $id_mesa");
 
-        $insertedId = Pagamento::cadastrar($metodo, $valor, $id_mesa);
-        jsonResponse(201, ["status" => "success", "data" => ["id" => $insertedId]]);
+            $insertedId = Pagamento::cadastrar($metodo, $valor, $id_mesa);
+            jsonResponse(201, ["status" => "success", "data" => ["id" => $insertedId]]);
+        } catch (Exception $e) {
+            error_log("Erro ao criar pagamento: " . $e->getMessage());
+            throw new Exception("Erro ao criar pagamento: " . $e->getMessage(), 500);
+        }
     }
+
 
     /**
      * @OA\Put(
@@ -164,4 +173,4 @@ class PagamentoController {
             jsonResponse($code, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
-} ?>
+}
