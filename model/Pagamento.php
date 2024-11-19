@@ -66,20 +66,44 @@ class Pagamento {
      * )
      */
     public static function cadastrar(paymentMethodEnum $metodo, $valor, $id_mesa) {
+        error_log("Iniciando cadastro de pagamento.");
+        error_log("Dados recebidos: Método - {$metodo->value}, Valor - $valor, ID Mesa - $id_mesa");
+
         $connection = Connection::getConnection();
         $data = self::dataAtual();
+        error_log("Data atual gerada: $data");
 
-        $sql = $connection->prepare("SELECT id FROM Mesa WHERE id = ? AND deletado = 0");
-        $sql->execute([$id_mesa]);
-        if (!$sql->fetch()) {
-            throw new Exception("Mesa não encontrada ou está deletada.", 404);
+        try {
+            // Verificar se a mesa existe e não está deletada
+            error_log("Verificando existência da mesa com ID: $id_mesa");
+            $sql = $connection->prepare("SELECT id FROM Mesa WHERE id = ? AND deletado = 0");
+            $sql->execute([$id_mesa]);
+
+            $mesa = $sql->fetch();
+            if (!$mesa) {
+                error_log("Mesa não encontrada ou está deletada. ID Mesa: $id_mesa");
+                throw new Exception("Mesa não encontrada ou está deletada.", 404);
+            }
+            error_log("Mesa encontrada: " . json_encode($mesa));
+
+            // Inserir o pagamento
+            error_log("Inserindo pagamento no banco.");
+            $sql = $connection->prepare("INSERT INTO Pagamento (metodo, valor, data, id_mesa) VALUES (?, ?, ?, ?)");
+            $sql->execute([$metodo->value, $valor, $data, $id_mesa]);
+
+            $insertedId = $connection->lastInsertId();
+            error_log("Pagamento inserido com sucesso. ID: $insertedId");
+
+            return $insertedId;
+        } catch (PDOException $e) {
+            error_log("Erro no banco ao cadastrar pagamento: " . $e->getMessage());
+            throw new Exception("Erro ao cadastrar pagamento: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            error_log("Erro ao cadastrar pagamento: " . $e->getMessage());
+            throw $e; // Repassar exceções personalizadas
         }
-
-        $sql = $connection->prepare("INSERT INTO Pagamento (metodo, valor, data, id_mesa) VALUES (?, ?, ?, ?)");
-        $sql->execute([$metodo->value, $valor, $data, $id_mesa]);
-
-        return $connection->lastInsertId();
     }
+
 
     /**
      * @OA\Get(
@@ -188,5 +212,10 @@ class Pagamento {
         $sql->execute([$id]);
 
         return $sql->fetchColumn() > 0;
+    }
+
+    private static function dataAtual(): string
+    {
+        return date('Y-m-d H:i:s');
     }
 }
