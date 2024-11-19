@@ -172,7 +172,8 @@ class Produto {
             throw new Exception("Produto não encontrado", 404);
         }
 
-        $sql = $connection->prepare("UPDATE Produto SET deletado = 1, data_deletado = NOW() WHERE id = ?");
+        $sql = $connection->prepare("UPDATE Produto SET deletado = 1, data_deletado = NOW(), 
+                                            CONCAT(nome, '_deleted_', id) WHERE id = ?");
         $sql->execute([$id]);
 
         if ($sql->rowCount() === 0) {
