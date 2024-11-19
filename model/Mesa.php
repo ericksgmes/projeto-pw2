@@ -60,21 +60,35 @@ class Mesa {
      * )
      */
     public static function criar($numero) {
-        $connection = Connection::getConnection();
+        try {
+            error_log("Número recebido: " . json_encode($numero));
+            $connection = Connection::getConnection();
+            error_log("Conexão com o banco estabelecida.");
 
-        if ($numero <= 0) {
-            throw new Exception("O número da mesa deve ser maior que zero.", 400);
+            // Validar o número
+            if ($numero <= 0) {
+                error_log("Número inválido: $numero");
+                throw new Exception("O número da mesa deve ser maior que zero.", 400);
+            }
+
+            // Verificar duplicidade
+            if (self::existsByNumber($numero)) {
+                error_log("Número já em uso: $numero");
+                throw new Exception("O número da mesa já está em uso.", 409);
+            }
+
+            // Inserir no banco
+            $sql = $connection->prepare("INSERT INTO Mesa (numero) VALUES (?)");
+            $sql->execute([$numero]);
+            error_log("Query executada com sucesso.");
+
+            return $connection->lastInsertId();
+        } catch (PDOException $e) {
+            error_log("Erro ao executar a query: " . $e->getMessage());
+            throw new Exception("Erro ao criar mesa: " . $e->getMessage(), 500);
         }
-
-        if (self::existsByNumber($numero)) {
-            throw new Exception("O número da mesa já está em uso.", 409);
-        }
-
-        $sql = $connection->prepare("INSERT INTO Mesa (numero) VALUES (?)");
-        $sql->execute([$numero]);
-
-        return $connection->lastInsertId();
     }
+
 
     /**
      * @OA\Get(
@@ -171,7 +185,8 @@ class Mesa {
             throw new Exception("Mesa não encontrada", 404);
         }
 
-        $sql = $connection->prepare("UPDATE Mesa SET deletado = 1, data_deletado = NOW() WHERE id = ?");
+        $sql = $connection->prepare("UPDATE Mesa SET deletado = 1, data_deletado = NOW(),
+                                            numero = CONCAT(numero, '_deleted_', id) WHERE id = ?;");
         $sql->execute([$id]);
 
         if ($sql->rowCount() === 0) {
