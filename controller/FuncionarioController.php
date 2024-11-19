@@ -76,11 +76,9 @@ class FuncionarioController {
                 throw new Exception("Nome, username e/ou senha não encontrados", 400);
             }
 
-            $funcionarioExistente = Funcionario::getByUsername($data["username"]);
-            if ($funcionarioExistente && $funcionarioExistente["deletado"] == 0) {
-                throw new Exception("O username já existe. Tente outro.", 409);
+            if (Funcionario::existsByUsername($data["username"])) {
+                throw new Exception("Username já existente", 400);
             }
-
             $insertedId = Funcionario::cadastrar($data["nome"], $data["username"], $data["senha"]);
             jsonResponse(201, ["status" => "success", "data" => ["id" => $insertedId]]);
         } catch (Exception $e) {
@@ -99,8 +97,7 @@ class FuncionarioController {
             return;
         }
     
-        $funcionarioExistente = Funcionario::getByUsername($data["username"]);
-        if ($funcionarioExistente && $funcionarioExistente['id'] != $id) {
+        if (Funcionario::existsByUsername($data["username"])) {
             jsonResponse(409, ["status" => "error", "message" => "O username já existe. Tente outro."]);
             return;
         }

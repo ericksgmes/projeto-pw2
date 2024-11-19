@@ -85,8 +85,7 @@ class Funcionario {
             throw new Exception("Funcionário não encontrado", 404);
         }
 
-        $funcionarioExistente = self::getByUsername($username);
-        if ($funcionarioExistente && $funcionarioExistente['id'] != $id) {
+        if (existsByUsername($username)) {
             throw new Exception("O username já está em uso por outro funcionário.", 409);
         }
 
