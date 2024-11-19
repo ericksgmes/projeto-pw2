@@ -67,7 +67,7 @@ class MesaController {
         }
 
         // Verificar se já existe uma mesa com o mesmo número que não esteja deletada
-        $mesaExistente = Mesa::getByNumero($data["numero"]);
+        $mesaExistente = Mesa::existsByNumber($data["numero"]);
         if ($mesaExistente && $mesaExistente["deletado"] == 0) {
             jsonResponse(409, ["status" => "error", "message" => "Uma mesa com este número já existe"]);
             return;
@@ -106,7 +106,7 @@ class MesaController {
         }
 
         // Verificar se já existe uma mesa com o mesmo número que não esteja deletada e não seja a própria mesa
-        $mesaExistente = Mesa::getByNumero($data["numero"]);
+        $mesaExistente = Mesa::existsByNumber($data["numero"]);
         if ($mesaExistente && $mesaExistente["id"] != $id && $mesaExistente["deletado"] == 0) {
             jsonResponse(409, ["status" => "error", "message" => "Uma mesa com este número já existe"]);
             return;
@@ -167,7 +167,7 @@ class MesaController {
             }
         } catch (Exception $e) {
             $code = $e->getCode() >= 100 ? $e->getCode() : 500;
-            jsonResponse($code, ["status" => "error", "message" => $e->getMessage()]);
+            jsonResponse($code, ["status - MesaController" => "error", "message" => $e->getMessage()]);
         }
     }
 }
