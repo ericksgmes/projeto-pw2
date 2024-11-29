@@ -26,6 +26,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const loginSection = document.getElementById("login-section");
   const mainContent = document.getElementById("main-content");
   const logoutButton = document.getElementById("logout-button");
+  const goToRegister = document.getElementById("go-to-register");
+  const goToLogin = document.getElementById("go-to-login");
+  const registerSection = document.getElementById("register-section");
 
   // Navegação entre seções
   document.querySelectorAll(".nav-link").forEach((link) => {
@@ -35,25 +38,6 @@ document.addEventListener("DOMContentLoaded", function () {
       mostrarSecao(sectionId);
     });
   });
-
-  function mostrarSecao(sectionId) {
-    document.querySelectorAll(".section").forEach((section) => {
-      section.classList.remove("active");
-    });
-    document.getElementById(sectionId).classList.add("active");
-    // Chamar a função de listagem correspondente
-    if (sectionId === "home") {
-      listarProdutosHome();
-    } else if (sectionId === "funcionarios") {
-      listarFuncionarios();
-    } else if (sectionId === "mesas") {
-      listarMesas();
-    } else if (sectionId === "produtos") {
-      listarProdutos();
-    } else if (sectionId === "pagamentos") {
-      listarPagamentos();
-    }
-  }
 
   // Login
   document
@@ -82,16 +66,85 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
+  // Cadastro
+  document.getElementById("register-form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    // Capturar valores do formulário
+    const nome = document.getElementById("register-name").value.trim();
+    const username = document.getElementById("register-username").value.trim();
+    const senha = document.getElementById("register-password").value.trim();
+    const confirmSenha = document.getElementById("register-confirm-password").value.trim();
+
+    // Validações básicas
+    if (!nome || !username || !senha || !confirmSenha) {
+      showPopup("Todos os campos são obrigatórios.", "error");
+      return;
+    }
+
+    if (senha !== confirmSenha) {
+      showPopup("As senhas não coincidem. Tente novamente.", "error");
+      return;
+    }
+
+    try {
+      // Enviar os dados para o servidor
+      const response = await fetch(`${baseUrl}/funcionarios`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ nome, username, senha}),
+      });
+
+      if (response.status === 201) {
+        showPopup("Cadastro realizado com sucesso! Faça login para continuar.", "success");
+        // Limpar formulário e retornar ao login
+        document.getElementById("register-form").reset();
+        registerSection.style.display = "none";
+        loginSection.style.display = "block";
+      }
+    } catch (error) {
+      console.error("Erro ao cadastrar usuário:", error.message);
+      showPopup("Erro ao cadastrar usuário. Tente novamente.", "error");
+    }
+  });
+
   // Logout
   logoutButton.addEventListener("click", function () {
-    mainContent.style.display = "none";
-    loginSection.style.display = "block";
-    document.getElementById("login-form").reset();
-    document.getElementById("login-error").style.display = "none";
-    document.querySelectorAll(".restricted").forEach((link) => {
-      link.style.display = "none";
-    });
+    showConfirm(
+        "Tem certeza que deseja sair?",
+        () => {
+          // Callback de confirmação
+          document.getElementById("main-content").style.display = "none";
+          document.getElementById("login-section").style.display = "block";
+          document.getElementById("login-form").reset();
+          document.getElementById("login-error").style.display = "none";
+          document.querySelectorAll(".restricted").forEach((link) => {
+            link.style.display = "none";
+          });
+          showPopup("Logout realizado com sucesso!", "success");
+        },
+        () => {
+          // Callback de cancelamento
+          showPopup("Logout cancelado!", "info");
+        }
+    );
   });
+  // Alternar para a tela de cadastro
+  goToRegister.addEventListener("click", function (e) {
+    e.preventDefault();
+    document.getElementById("login-section").style.display = "none";
+    document.getElementById("register-section").style.display = "block";
+  });
+
+// Alternar para a tela de login
+  goToLogin.addEventListener("click", function (e) {
+    e.preventDefault();
+    document.getElementById("register-section").style.display = "none";
+    document.getElementById("login-section").style.display = "block";
+  });
+
 
   // Listar Produtos na Home
   async function listarProdutosHome() {
@@ -478,25 +531,29 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function deletarMesa(id) {
-    if (!confirm("Tem certeza que deseja deletar esta mesa?")) {
-      return;
-    }
+    showConfirm(
+        "Tem certeza que deseja deletar esta mesa?",
+        async () => {
+          try {
+            const response = await fetch(`${baseUrl}/mesas/${id}`, {
+              method: "DELETE",
+            });
 
-    try {
-      const response = await fetch(`${baseUrl}/mesas/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        showPopup("Mesa deletada com sucesso!", "success");
-        listarMesas();
-      } else {
-        const errorData = await response.json();
-        showPopup(`Erro ao deletar mesa: ${errorData.message || response.statusText}`, "error");
-      }
-    } catch (error) {
-      console.error("Erro ao deletar mesa:", error.message);
-    }
+            if (response.ok) {
+              showPopup("Mesa deletada com sucesso!", "success");
+              listarMesas();
+            } else {
+              const errorData = await response.json();
+              showPopup(`Erro ao deletar mesa: ${errorData.message || response.statusText}`, "error");
+            }
+          } catch (error) {
+            console.error("Erro ao deletar mesa:", error.message);
+          }
+        },
+        () => {
+          showPopup("Ação cancelada!", "info");
+        }
+    );
   }
 
   // Produtos - CRUD
@@ -591,25 +648,29 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function deletarProduto(id) {
-    if (!confirm("Tem certeza que deseja deletar este produto?")) {
-      return;
-    }
+    showConfirm(
+        "Tem certeza que deseja deletar este produto?",
+        async () => {
+          try {
+            const response = await fetch(`${baseUrl}/produtos/${id}`, {
+              method: "DELETE",
+            });
 
-    try {
-      const response = await fetch(`${baseUrl}/produtos/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        showPopup("Produto deletado com sucesso!", "success");
-        listarProdutos();
-      } else {
-        const errorData = await response.json();
-        showPopup(`Erro ao deletar produto: ${errorData.message || response.statusText}`, "error");
-      }
-    } catch (error) {
-      console.error("Erro ao deletar produto:", error.message);
-    }
+            if (response.ok) {
+              showPopup("Produto deletado com sucesso!", "success");
+              listarProdutos();
+            } else {
+              const errorData = await response.json();
+              showPopup(`Erro ao deletar produto: ${errorData.message || response.statusText}`, "error");
+            }
+          } catch (error) {
+            console.error("Erro ao deletar produto:", error.message);
+          }
+        },
+        () => {
+          showPopup("Ação cancelada!", "info");
+        }
+    );
   }
 
   // Funções para editar produto
@@ -804,25 +865,29 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function deletarPagamento(id) {
-    if (!confirm("Tem certeza que deseja deletar este pagamento?")) {
-      return;
-    }
+    showConfirm(
+        "Tem certeza que deseja deletar este pagamento?",
+        async () => {
+          try {
+            const response = await fetch(`${baseUrl}/pagamentos/${id}`, {
+              method: "DELETE",
+            });
 
-    try {
-      const response = await fetch(`${baseUrl}/pagamentos/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        showPopup("Pagamento deletado com sucesso!", "success");
-        listarPagamentos();
-      } else {
-        const errorData = await response.json();
-        showPopup(`Erro ao deletar pagamento: ${errorData.message || response.statusText}`, "error");
-      }
-    } catch (error) {
-      console.error("Erro ao deletar pagamento:", error.message);
-    }
+            if (response.ok) {
+              showPopup("Pagamento deletado com sucesso!", "success");
+              listarPagamentos();
+            } else {
+              const errorData = await response.json();
+              showPopup(`Erro ao deletar pagamento: ${errorData.message || response.statusText}`, "error");
+            }
+          } catch (error) {
+            console.error("Erro ao deletar pagamento:", error.message);
+          }
+        },
+        () => {
+          showPopup("Ação cancelada!", "info");
+        }
+    );
   }
 
   // Inicializar com a seção de login
@@ -918,5 +983,22 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  window.showPopup = showPopup;
+  function mostrarSecao(sectionId) {
+    document.querySelectorAll(".section").forEach((section) => {
+      section.classList.remove("active");
+    });
+    document.getElementById(sectionId).classList.add("active");
+    // Chamar a função de listagem correspondente
+    if (sectionId === "home") {
+      listarProdutosHome();
+    } else if (sectionId === "funcionarios") {
+      listarFuncionarios();
+    } else if (sectionId === "mesas") {
+      listarMesas();
+    } else if (sectionId === "produtos") {
+      listarProdutos();
+    } else if (sectionId === "pagamentos") {
+      listarPagamentos();
+    }
+  }
 });
