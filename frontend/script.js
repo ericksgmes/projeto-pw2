@@ -228,38 +228,52 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function deletarFuncionario(id) {
-    if (!confirm("Tem certeza que deseja deletar este funcionário?")) {
-      return;
-    }
+    // Substituir o confirm() pelo showConfirm
+    showConfirm(
+        "Tem certeza que deseja deletar este funcionário?",
+        async () => {
+          // Callback para o botão "Sim"
+          try {
+            const response = await fetch(`${baseUrl}/funcionarios/${id}`, {
+              method: "DELETE",
+            });
 
-    try {
-      const response = await fetch(`${baseUrl}/funcionarios/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        showPopup("Funcionário deletado com sucesso!", "success");
-        listarFuncionarios();
-      } else {
-        const errorData = await response.json();
-        showPopup(`Erro ao deletar funcionário: ${errorData.message || response.statusText}`, "error");
-      }
-    } catch (error) {
-      console.error("Erro ao deletar funcionário:", error.message);
-    }
+            if (response.ok) {
+              showPopup("Funcionário deletado com sucesso!", "success");
+              listarFuncionarios();
+            } else {
+              const errorData = await response.json();
+              showPopup(
+                  `Erro ao deletar funcionário: ${
+                      errorData.message || response.statusText
+                  }`,
+                  "error"
+              );
+            }
+          } catch (error) {
+            console.error("Erro ao deletar funcionário:", error.message);
+            showPopup("Erro ao deletar funcionário.", "error");
+          }
+        },
+        () => {
+          // Callback para o botão "Não"
+          showPopup("Ação cancelada!", "info");
+        }
+    );
   }
 
-  // Funções para editar funcionário
+// Funções para editar funcionário
   const modalEditarFuncionario = document.getElementById(
-    "modal-editar-funcionario"
+      "modal-editar-funcionario"
   );
   const fecharModalFuncionario = document.getElementById(
-    "fechar-modal-funcionario"
+      "fechar-modal-funcionario"
   );
 
   fecharModalFuncionario.addEventListener("click", function () {
     modalEditarFuncionario.style.display = "none";
   });
+
 
   window.addEventListener("click", function (event) {
     if (event.target == modalEditarFuncionario) {
@@ -816,9 +830,11 @@ document.addEventListener("DOMContentLoaded", function () {
   mainContent.style.display = "none";
 
   function showConfirm(message, onConfirm, onCancel) {
+    // Criar o container do confirm
     const confirmContainer = document.createElement("div");
     confirmContainer.className = "confirm-container";
 
+    // Criar a caixa de confirmação
     const confirmBox = document.createElement("div");
     confirmBox.className = "confirm-box";
     confirmBox.innerHTML = `
@@ -829,29 +845,44 @@ document.addEventListener("DOMContentLoaded", function () {
     </div>
   `;
 
+    // Adicionar a caixa ao container
     confirmContainer.appendChild(confirmBox);
     document.body.appendChild(confirmContainer);
 
+    // Lidar com o clique no botão "Sim"
     document.getElementById("confirm-yes").onclick = () => {
       document.body.removeChild(confirmContainer);
       if (onConfirm) onConfirm();
     };
 
+    // Lidar com o clique no botão "Não"
     document.getElementById("confirm-no").onclick = () => {
       document.body.removeChild(confirmContainer);
       if (onCancel) onCancel();
     };
   }
 
+// Exemplo de uso
+  document.getElementById("delete-button").addEventListener("click", () => {
+    showConfirm(
+        "Tem certeza que deseja deletar este item?",
+        () => {
+          alert("Item deletado com sucesso!");
+        },
+        () => {
+          alert("Ação cancelada!");
+        }
+    );
+  });
+
+
   function showPopup(message, type = "info", duration = 3000) {
-    // Certifique-se de que o contêiner existe
     const popupContainer = document.getElementById("popup-container");
     if (!popupContainer) {
       console.error("Popup container not found in the DOM.");
       return;
     }
 
-    // Criar o elemento do pop-up
     const popup = document.createElement("div");
     popup.className = `popup ${type}`;
     popup.innerHTML = `
@@ -860,34 +891,29 @@ document.addEventListener("DOMContentLoaded", function () {
     <div class="popup-progress"></div>
   `;
 
-    // Adicionar o pop-up ao contêiner
     popupContainer.appendChild(popup);
 
-    // Lidar com o fechamento manual
     const closeButton = popup.querySelector(".popup-close");
     closeButton.addEventListener("click", () => {
       popup.classList.add("removing");
       setTimeout(() => {
         popup.remove();
-      }, 500); // Corresponde ao tempo de transição de "removing"
+      }, 500);
     });
 
-    // Criar a barra de progresso
     const progressBar = popup.querySelector(".popup-progress");
     progressBar.style.transition = `width ${duration}ms linear`;
     setTimeout(() => {
       progressBar.style.width = "100%";
     }, 10);
 
-    // Remover o pop-up após a duração especificada
     const timeout = setTimeout(() => {
       popup.classList.add("removing");
       setTimeout(() => {
         popup.remove();
-      }, 500); // Corresponde ao tempo de transição de "removing"
+      }, 500);
     }, duration);
 
-    // Garantir que o timeout seja limpo se o pop-up for fechado manualmente
     closeButton.addEventListener("click", () => clearTimeout(timeout));
   }
 
