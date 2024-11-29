@@ -647,50 +647,99 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function abrirModalEditarProduto(id, nome, preco) {
+    const nomeInput = document.getElementById("editar-nome-produto");
+    const precoInput = document.getElementById("editar-preco-produto");
+
+    nomeInput.value = nome;
+    precoInput.value = parseFloat(preco).toFixed(2);
+
+    nomeInput.setAttribute("data-original-nome", nome);
+    precoInput.setAttribute("data-original-preco", preco);
+
     document.getElementById("editar-id-produto").value = id;
-    document.getElementById("editar-nome-produto").value = nome;
-    document.getElementById("editar-preco-produto").value =
-      parseFloat(preco).toFixed(2);
     modalEditarProduto.style.display = "block";
   }
 
+
   document
-    .getElementById("form-editar-produto")
-    .addEventListener("submit", async function (e) {
-      e.preventDefault();
+      .getElementById("form-editar-produto")
+      .addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-      const id = document.getElementById("editar-id-produto").value;
-      const nome = document.getElementById("editar-nome-produto").value.trim();
-      const preco = parseFloat(
-        document.getElementById("editar-preco-produto").value
-      );
+        const id = document.getElementById("editar-id-produto").value;
+        const nome = document.getElementById("editar-nome-produto").value.trim();
+        const preco = parseFloat(
+            document.getElementById("editar-preco-produto").value
+        );
 
-      try {
-        const response = await fetch(`${baseUrl}/produtos/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ nome, preco }),
-        });
+        // Capturar valores originais para verificação
+        const nomeOriginal = document
+            .getElementById("editar-nome-produto")
+            .getAttribute("data-original-nome");
+        const precoOriginal = parseFloat(
+            document
+                .getElementById("editar-preco-produto")
+                .getAttribute("data-original-preco")
+        );
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          alert(
-            `Erro ao atualizar produto: ${
-              errorData.message || response.statusText
-            }`
-          );
+        if (preco !== precoOriginal && nome === nomeOriginal) {
+          try {
+            const response = await fetch(`${baseUrl}/produtos/${id}/preco`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ preco }),
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              alert(
+                  `Erro ao atualizar preço: ${errorData.message || response.statusText}`
+              );
+              return;
+            }
+
+            alert("Preço atualizado com sucesso!");
+            listarProdutos();
+            modalEditarProduto.style.display = "none";
+          } catch (error) {
+            console.error("Erro ao atualizar preço:", error.message);
+          }
           return;
         }
 
-        alert("Produto atualizado com sucesso!");
-        listarProdutos();
-        modalEditarProduto.style.display = "none";
-      } catch (error) {
-        console.error("Erro ao atualizar produto:", error.message);
-      }
-    });
+        const dadosAtualizados = {
+          nome: nome || nomeOriginal,
+          preco: preco || precoOriginal,
+        };
+
+        try {
+          const response = await fetch(`${baseUrl}/produtos/${id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dadosAtualizados),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            alert(
+                `Erro ao atualizar produto: ${
+                    errorData.message || response.statusText
+                }`
+            );
+            return;
+          }
+
+          alert("Produto atualizado com sucesso!");
+          listarProdutos();
+          modalEditarProduto.style.display = "none";
+        } catch (error) {
+          console.error("Erro ao atualizar produto:", error.message);
+        }
+      });
 
   // Pagamentos - CRUD
   document
