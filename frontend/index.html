@@ -141,7 +141,12 @@
             <!-- Formulário para adicionar Pagamento -->
             <form id="form-pagamento">
                 <input type="number" id="id-mesa-pagamento" placeholder="ID da Mesa" required>
-                <input type="text" id="metodo-pagamento" placeholder="Método de Pagamento" required>
+                <select id="metodo-pagamento" required>
+                    <option value="" disabled selected>Selecione um método de pagamento</option>
+                    <option value="CREDITO">Crédito</option>
+                    <option value="DEBITO">Débito</option>
+                    <option value="PIX">Pix</option>
+                </select>
                 <input type="number" step="0.01" id="valor-pagamento" placeholder="Valor do Pagamento" required>
                 <button type="submit">Adicionar Pagamento</button>
             </form>
