@@ -85,7 +85,7 @@ class Funcionario {
             throw new Exception("Funcionário não encontrado", 404);
         }
 
-        if (existsByUsername($username)) {
+        if (self::existsByUsername($username)) {
             throw new Exception("O username já está em uso por outro funcionário.", 409);
         }
 
@@ -146,6 +146,24 @@ class Funcionario {
 
         if ($sql->rowCount() === 0) {
             throw new Exception("Falha ao atualizar a senha", 500);
+        }
+    }
+
+    public static function atualizarNome($id, $novoNome): void {
+        $connection = Connection::getConnection();
+
+        // Verifica se o funcionário existe
+        if (!self::exist($id)) {
+            throw new Exception("Funcionário não encontrado", 404);
+        }
+
+        // Atualiza apenas o nome
+        $sql = $connection->prepare("UPDATE Funcionario SET nome = ? WHERE id = ? AND deletado = 0");
+        $sql->execute([$novoNome, $id]);
+
+        // Verifica se a atualização foi bem-sucedida
+        if ($sql->rowCount() === 0) {
+            throw new Exception("Falha ao atualizar o nome do funcionário", 500);
         }
     }
 }

@@ -282,59 +282,138 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function abrirModalEditarFuncionario(id, nome, username) {
+    const nomeInput = document.getElementById("editar-nome-funcionario");
+    const usernameInput = document.getElementById("editar-username-funcionario");
+
+    // Preencher os campos com os valores atuais
+    nomeInput.value = nome;
+    usernameInput.value = username;
     document.getElementById("editar-id-funcionario").value = id;
-    document.getElementById("editar-nome-funcionario").value = nome;
-    document.getElementById("editar-username-funcionario").value = username;
-    document.getElementById("editar-senha-funcionario").value = ""; // Limpar o campo de senha
+
+    // Armazenar os valores originais nos atributos data-*
+    nomeInput.setAttribute("data-original-nome", nome);
+    usernameInput.setAttribute("data-original-username", username);
+
+    // Limpar o campo de senha ao abrir o modal
+    document.getElementById("editar-senha-funcionario").value = "";
+
     modalEditarFuncionario.style.display = "block";
   }
 
   document
-    .getElementById("form-editar-funcionario")
-    .addEventListener("submit", async function (e) {
-      e.preventDefault();
+      .getElementById("form-editar-funcionario")
+      .addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-      const id = document.getElementById("editar-id-funcionario").value;
-      const nome = document
-        .getElementById("editar-nome-funcionario")
-        .value.trim();
-      const username = document
-        .getElementById("editar-username-funcionario")
-        .value.trim();
-      const senha = document.getElementById("editar-senha-funcionario").value;
+        // Capturar os valores do formulário
+        const id = document.getElementById("editar-id-funcionario").value;
+        const nome = document.getElementById("editar-nome-funcionario").value.trim();
+        const username = document
+            .getElementById("editar-username-funcionario")
+            .value.trim();
+        const senha = document.getElementById("editar-senha-funcionario").value.trim();
 
-      // Criar objeto com os dados atualizados
-      const dadosAtualizados = { nome, username };
-      if (senha) {
-        dadosAtualizados.senha = senha;
-      }
+        // Capturar os valores originais armazenados no modal
+        const nomeOriginal = document
+            .getElementById("editar-nome-funcionario")
+            .getAttribute("data-original-nome");
+        const usernameOriginal = document
+            .getElementById("editar-username-funcionario")
+            .getAttribute("data-original-username");
 
-      try {
-        const response = await fetch(`${baseUrl}/funcionarios/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dadosAtualizados),
-        });
+        // Caso 1: Atualizar apenas o nome
+        if (nome !== nomeOriginal && username === usernameOriginal && !senha) {
+          try {
+            const response = await fetch(`${baseUrl}/funcionarios/${id}/nome`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ nome }),
+            });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          alert(
-            `Erro ao atualizar funcionário: ${
-              errorData.message || response.statusText
-            }`
-          );
+            if (!response.ok) {
+              const errorData = await response.json();
+              alert(
+                  `Erro ao atualizar nome: ${errorData.message || response.statusText}`
+              );
+              return;
+            }
+
+            alert("Nome atualizado com sucesso!");
+            listarFuncionarios();
+            modalEditarFuncionario.style.display = "none";
+          } catch (error) {
+            console.error("Erro ao atualizar nome:", error.message);
+          }
           return;
         }
 
-        alert("Funcionário atualizado com sucesso!");
-        listarFuncionarios();
-        modalEditarFuncionario.style.display = "none";
-      } catch (error) {
-        console.error("Erro ao atualizar funcionário:", error.message);
-      }
-    });
+        // Caso 2: Atualizar apenas a senha
+        if (senha && nome === nomeOriginal && username === usernameOriginal) {
+          try {
+            const response = await fetch(`${baseUrl}/funcionarios/${id}/senha`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ novaSenha: senha }),
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              alert(
+                  `Erro ao atualizar senha: ${errorData.message || response.statusText}`
+              );
+              return;
+            }
+
+            alert("Senha atualizada com sucesso!");
+            listarFuncionarios();
+            modalEditarFuncionario.style.display = "none";
+          } catch (error) {
+            console.error("Erro ao atualizar senha:", error.message);
+          }
+          return;
+        }
+
+        // Caso 3: Atualizar nome e/ou username (e senha, se fornecida)
+        const dadosAtualizados = {
+          nome: nome || nomeOriginal,
+          username: username || usernameOriginal,
+        };
+
+        // Adicionar a senha se foi preenchida
+        if (senha) {
+          dadosAtualizados.senha = senha;
+        }
+
+        try {
+          const response = await fetch(`${baseUrl}/funcionarios/${id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dadosAtualizados),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            alert(
+                `Erro ao atualizar funcionário: ${
+                    errorData.message || response.statusText
+                }`
+            );
+            return;
+          }
+
+          alert("Funcionário atualizado com sucesso!");
+          listarFuncionarios();
+          modalEditarFuncionario.style.display = "none";
+        } catch (error) {
+          console.error("Erro ao atualizar funcionário:", error.message);
+        }
+      });
 
   // Mesas - CRUD
   document

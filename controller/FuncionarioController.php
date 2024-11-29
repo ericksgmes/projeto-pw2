@@ -32,7 +32,9 @@ class FuncionarioController {
                     $this->criar($data);
                     break;
                 case 'PUT':
-                    if ($action === 'senha') {
+                    if ($action === 'nome') {
+                        $this->atualizarNome($id, $data['nome'] ?? '');
+                    } elseif ($action === 'senha') {
                         $this->atualizarSenha($id, $data['novaSenha'] ?? '');
                     } else {
                         $this->atualizar($id, $data);
@@ -48,6 +50,28 @@ class FuncionarioController {
             jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
+
+    public function atualizarNome($id, $novoNome): void {
+        error_log("Iniciando atualização de nome para o ID: $id", 0);
+
+        if (empty($novoNome)) {
+            error_log("Novo nome não fornecido para o ID: $id", 0);
+            jsonResponse(400, ["status" => "error", "message" => "Nome não pode estar vazio"]);
+            return;
+        }
+
+        if (!Funcionario::exist($id)) {
+            error_log("Funcionário com ID $id não encontrado", 0);
+            jsonResponse(404, ["status" => "error", "message" => "Funcionário não encontrado"]);
+            return;
+        }
+
+        Funcionario::atualizarNome($id, $novoNome);
+        error_log("Atualização de nome concluída com sucesso para ID: $id", 0);
+
+        jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
+    }
+
 
     public function obterFuncionario($id): void {
         try {
@@ -87,26 +111,32 @@ class FuncionarioController {
     }
 
     public function atualizar($id, $data): void {
+        error_log("Iniciando atualização para o ID: $id", 0);
+
         if (!valid($data, ["nome", "username"])) {
+            error_log("Dados inválidos fornecidos: " . json_encode($data), 0);
             jsonResponse(400, ["status" => "error", "message" => "Nome e/ou username não encontrados"]);
             return;
         }
-    
+
         if (!Funcionario::exist($id)) {
+            error_log("Funcionário com ID $id não encontrado", 0);
             jsonResponse(404, ["status" => "error", "message" => "Funcionário não encontrado"]);
             return;
         }
-    
+
         if (Funcionario::existsByUsername($data["username"])) {
+            error_log("Username duplicado detectado: " . $data["username"], 0);
             jsonResponse(409, ["status" => "error", "message" => "O username já existe. Tente outro."]);
             return;
         }
-    
+
         Funcionario::atualizar($id, $data["nome"], $data["username"]);
+        error_log("Atualização concluída com sucesso para ID: $id", 0);
+
         jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
     }
 
-    
     public function deletar($id): void {
         try {
             if (!Funcionario::exist($id)) {
