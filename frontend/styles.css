@@ -424,3 +424,83 @@ footer {
   transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Suavidade na remoção */
 }
 
+/* Estilo do container de confirmação */
+.confirm-container {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10000;
+  background-color: rgba(0, 0, 0, 0.6);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Estilo da caixa de confirmação */
+.confirm-box {
+  background-color: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  min-width: 300px;
+  max-width: 500px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Texto da mensagem */
+.confirm-box p {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Botões de ação */
+.confirm-buttons {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 10px;
+}
+
+.confirm-buttons button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#confirm-yes {
+  background-color: #4caf50; /* Verde */
+  color: white;
+}
+
+#confirm-yes:hover {
+  background-color: #388e3c;
+}
+
+#confirm-no {
+  background-color: #f44336; /* Vermelho */
+  color: white;
+}
+
+#confirm-no:hover {
+  background-color: #d32f2f;
+}
+
+/* Animação */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
