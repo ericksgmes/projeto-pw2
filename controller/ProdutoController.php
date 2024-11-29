@@ -137,7 +137,13 @@ class ProdutoController {
 
     public function handleRequest($method, $id = null, $action = null, $data = null): void {
         try {
-            if ($method === 'GET') {
+            if ($method === 'PUT' && $action === 'preco') {
+                if ($id) {
+                    $this->atualizarPreco($id, $data);
+                } else {
+                    jsonResponse(400, ["status" => "error", "message" => "ID necessário para atualização de preço"]);
+                }
+            } elseif ($method === 'GET') {
                 if ($action === 'deletados') {
                     $this->listarDeletados();
                 } else {
@@ -165,4 +171,41 @@ class ProdutoController {
             jsonResponse($code, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
+
+    /**
+     * @OA\Put(
+     *     path="/produtos/{id}/preco",
+     *     summary="Atualizar apenas o preço de um produto",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"preco"},
+     *             @OA\Property(property="preco", type="number", format="float", description="Novo preço do produto")
+     *         )
+     *     ),
+     *     @OA\Response(response="200", description="Preço do produto atualizado com sucesso"),
+     *     @OA\Response(response="400", description="Preço inválido"),
+     *     @OA\Response(response="404", description="Produto não encontrado")
+     * )
+     */
+    public function atualizarPreco($id, $data): void {
+        if (!isset($data['preco']) || !is_numeric($data['preco'])) {
+            jsonResponse(400, ["status" => "error", "message" => "Preço inválido ou não fornecido"]);
+            return;
+        }
+
+        try {
+            Produto::atualizarPreco($id, $data['preco']);
+            jsonResponse(200, ["status" => "success", "message" => "Preço atualizado com sucesso"]);
+        } catch (Exception $e) {
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
+
 }
