@@ -106,8 +106,7 @@ class ProdutoController {
             return;
         }
 
-        // Verificar se já existe um produto com o mesmo nome que não esteja deletado e não seja o próprio produto
-        $produtoExistente = Produto::getByNome($data["nome"]);
+        $produtoExistente = Produto::existsByName($data["nome"]);
         if ($produtoExistente && $produtoExistente["id"] != $id && $produtoExistente["deletado"] == 0) {
             jsonResponse(409, ["status" => "error", "message" => "Um produto com este nome já existe"]);
             return;
