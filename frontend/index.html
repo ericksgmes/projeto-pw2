@@ -26,6 +26,40 @@
                 <button type="submit" class="login-button">Entrar</button>
                 <p id="login-error" class="error-message" style="display: none;">Usuário ou senha incorretos!</p>
             </form>
+            <p id="register-link">
+                Não tem uma conta?
+                <a href="#" id="go-to-register" class="link-button">Cadastre-se</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div id="register-section" class="section" style="display: none;">
+    <div class="register-container">
+        <div class="register-box">
+            <h2>Cadastre-se</h2>
+            <form id="register-form">
+                <div class="input-group">
+                    <label for="register-name">Nome Completo</label>
+                    <input type="text" id="register-name" name="name" placeholder="Digite seu nome completo" required>
+                </div>
+                <div class="input-group">
+                    <label for="register-username">Usuário</label>
+                    <input type="text" id="register-username" name="username" placeholder="Digite seu usuário" required>
+                </div>
+                <div class="input-group">
+                    <label for="register-password">Senha</label>
+                    <input type="password" id="register-password" name="password" placeholder="Digite sua senha" required>
+                </div>
+                <div class="input-group">
+                    <label for="register-confirm-password">Confirme sua Senha</label>
+                    <input type="password" id="register-confirm-password" name="confirm-password" placeholder="Confirme sua senha" required>
+                </div>
+                <button type="submit" class="register-button">Cadastrar</button>
+            </form>
+            <p class="login-link">
+                Já tem uma conta? <a id="go-to-login" href="#">Faça login</a>
+            </p>
         </div>
     </div>
 </div>
