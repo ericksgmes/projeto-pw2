@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
       try {
         // Simulando autenticação para simplificar
         if (username === "admin" && senha === "admin") {
-          alert("Login bem-sucedido!");
+          showPopup("Login bem sucedido!", "success");
           loginSection.style.display = "none";
           mainContent.style.display = "block";
           mostrarSecao("home");
@@ -102,9 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert(
-          `Erro ao listar produtos: ${errorData.message || response.statusText}`
-        );
+        showPopup(`Erro ao listar produtos: ${errorData.message || response.statusText}`, "error");
         return;
       }
 
@@ -161,16 +159,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (response.status === 201) {
-          alert("Funcionário criado com sucesso!");
+          showPopup("Funcionário criado com sucesso!", "success");
           listarFuncionarios();
           e.target.reset();
         } else {
           const errorData = await response.json();
-          alert(
-            `Erro ao criar funcionário: ${
-              errorData.message || response.statusText
-            }`
-          );
+          showPopup(`Erro ao criar funcionário: ${errorData.message || response.statusText}`, "error");
         }
       } catch (error) {
         console.error("Erro ao criar funcionário:", error.message);
@@ -185,11 +179,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert(
-          `Erro ao listar funcionários: ${
-            errorData.message || response.statusText
-          }`
-        );
+        showPopup(`Erro ao listar funcionários: ${errorData.message || response.statusText}`, "error");
         return;
       }
 
@@ -248,15 +238,11 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       if (response.ok) {
-        alert("Funcionário deletado com sucesso!");
+        showPopup("Funcionário deletado com sucesso!", "success");
         listarFuncionarios();
       } else {
         const errorData = await response.json();
-        alert(
-          `Erro ao deletar funcionário: ${
-            errorData.message || response.statusText
-          }`
-        );
+        showPopup(`Erro ao deletar funcionário: ${errorData.message || response.statusText}`, "error");
       }
     } catch (error) {
       console.error("Erro ao deletar funcionário:", error.message);
@@ -334,13 +320,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (!response.ok) {
               const errorData = await response.json();
-              alert(
-                  `Erro ao atualizar nome: ${errorData.message || response.statusText}`
-              );
+              showPopup(`Erro ao atualizar nome: ${errorData.message || response.statusText}`, "error");
               return;
             }
 
-            alert("Nome atualizado com sucesso!");
+            showPopup("Nome atualizado com sucesso!", "success");
             listarFuncionarios();
             modalEditarFuncionario.style.display = "none";
           } catch (error) {
@@ -362,13 +346,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (!response.ok) {
               const errorData = await response.json();
-              alert(
-                  `Erro ao atualizar senha: ${errorData.message || response.statusText}`
-              );
+              showPopup(`Erro ao atualizar senha!: ${errorData.message || response.statusText}`, "error");
               return;
             }
 
-            alert("Senha atualizada com sucesso!");
+            showPopup("Senha atualizada com sucesso!", "success");
             listarFuncionarios();
             modalEditarFuncionario.style.display = "none";
           } catch (error) {
@@ -399,15 +381,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
           if (!response.ok) {
             const errorData = await response.json();
-            alert(
-                `Erro ao atualizar funcionário: ${
-                    errorData.message || response.statusText
-                }`
-            );
+            showPopup(`Erro ao atualizar funcionário: ${errorData.message || response.statusText}`, "error");
             return;
           }
 
-          alert("Funcionário atualizado com sucesso!");
+          showPopup("Funcionário atualizado com sucesso!", "success");
           listarFuncionarios();
           modalEditarFuncionario.style.display = "none";
         } catch (error) {
@@ -433,14 +411,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (response.status === 201) {
-          alert("Mesa criada com sucesso!");
+          showPopup("Mesa criada com sucesso!", "success");
           listarMesas();
           e.target.reset();
         } else {
           const errorData = await response.json();
-          alert(
-            `Erro ao criar mesa: ${errorData.message || response.statusText}`
-          );
+          showPopup(`Erro ao criar mesa: ${errorData.message || response.statusText}`, "error");
         }
       } catch (error) {
         console.error("Erro ao criar mesa:", error.message);
@@ -455,9 +431,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert(
-          `Erro ao listar mesas: ${errorData.message || response.statusText}`
-        );
+        showPopup(`Erro ao listar mesas: ${errorData.message || response.statusText}`, "error");
         return;
       }
 
@@ -500,13 +474,11 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       if (response.ok) {
-        alert("Mesa deletada com sucesso!");
+        showPopup("Mesa deletada com sucesso!", "success");
         listarMesas();
       } else {
         const errorData = await response.json();
-        alert(
-          `Erro ao deletar mesa: ${errorData.message || response.statusText}`
-        );
+        showPopup(`Erro ao deletar mesa: ${errorData.message || response.statusText}`, "error");
       }
     } catch (error) {
       console.error("Erro ao deletar mesa:", error.message);
@@ -532,14 +504,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (response.status === 201) {
-          alert("Produto criado com sucesso!");
+          showPopup("Produto criado com sucesso!", "success");
           listarProdutos();
           e.target.reset();
         } else {
           const errorData = await response.json();
-          alert(
-            `Erro ao criar produto: ${errorData.message || response.statusText}`
-          );
+          showPopup(`Erro ao criar produto: ${errorData.message || response.statusText}`, "error");
         }
       } catch (error) {
         console.error("Erro ao criar produto:", error.message);
@@ -554,9 +524,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert(
-          `Erro ao listar produtos: ${errorData.message || response.statusText}`
-        );
+        showPopup(`Erro ao listar produtos: ${errorData.message || response.statusText}`, "error");
         return;
       }
 
@@ -619,13 +587,11 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       if (response.ok) {
-        alert("Produto deletado com sucesso!");
+        showPopup("Produto deletado com sucesso!", "success");
         listarProdutos();
       } else {
         const errorData = await response.json();
-        alert(
-          `Erro ao deletar produto: ${errorData.message || response.statusText}`
-        );
+        showPopup(`Erro ao deletar produto: ${errorData.message || response.statusText}`, "error");
       }
     } catch (error) {
       console.error("Erro ao deletar produto:", error.message);
@@ -694,13 +660,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (!response.ok) {
               const errorData = await response.json();
-              alert(
-                  `Erro ao atualizar preço: ${errorData.message || response.statusText}`
-              );
+              showPopup(`Erro ao atualizar preço: ${errorData.message || response.statusText}`, "error");
               return;
             }
 
-            alert("Preço atualizado com sucesso!");
+            showPopup("Preço atualizado com sucesso!", "success");
             listarProdutos();
             modalEditarProduto.style.display = "none";
           } catch (error) {
@@ -725,15 +689,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
           if (!response.ok) {
             const errorData = await response.json();
-            alert(
-                `Erro ao atualizar produto: ${
-                    errorData.message || response.statusText
-                }`
-            );
+            showPopup(`Erro ao atualizar produto: ${errorData.message || response.statusText}`, "error");
             return;
           }
 
-          alert("Produto atualizado com sucesso!");
+          showPopup("Produto atualizado com sucesso!", "success");
           listarProdutos();
           modalEditarProduto.style.display = "none";
         } catch (error) {
@@ -757,7 +717,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Verificar se os campos estão preenchidos corretamente
       if (isNaN(idMesa) || !metodo || isNaN(valor)) {
-        alert("Por favor, preencha todos os campos corretamente.");
+        showPopup("Por favor preencha todos os campos corretamente", "info");
         return;
       }
 
@@ -771,16 +731,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (response.status === 201) {
-          alert("Pagamento adicionado com sucesso!");
+          showPopup("Pagamento adicionado com sucesso", "success");
           listarPagamentos();
           e.target.reset();
         } else {
           const errorData = await response.json();
-          alert(
-            `Erro ao adicionar pagamento: ${
-              errorData.message || response.statusText
-            }`
-          );
+          showPopup(`Erro ao adicionar pagamentos: ${errorData.message || response.statusText}`, "error");
         }
       } catch (error) {
         console.error("Erro ao adicionar pagamento:", error.message);
@@ -795,11 +751,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert(
-          `Erro ao listar pagamentos: ${
-            errorData.message || response.statusText
-          }`
-        );
+        showPopup(`Erro ao listar pagamentos: ${errorData.message || response.statusText}`, "error");
         return;
       }
 
@@ -848,15 +800,11 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       if (response.ok) {
-        alert("Pagamento deletado com sucesso!");
+        showPopup("Pagamento deletado com sucesso!", "success");
         listarPagamentos();
       } else {
         const errorData = await response.json();
-        alert(
-          `Erro ao deletar pagamento: ${
-            errorData.message || response.statusText
-          }`
-        );
+        showPopup(`Erro ao deletar pagamento: ${errorData.message || response.statusText}`, "error");
       }
     } catch (error) {
       console.error("Erro ao deletar pagamento:", error.message);
@@ -866,4 +814,83 @@ document.addEventListener("DOMContentLoaded", function () {
   // Inicializar com a seção de login
   loginSection.style.display = "block";
   mainContent.style.display = "none";
+
+  function showConfirm(message, onConfirm, onCancel) {
+    const confirmContainer = document.createElement("div");
+    confirmContainer.className = "confirm-container";
+
+    const confirmBox = document.createElement("div");
+    confirmBox.className = "confirm-box";
+    confirmBox.innerHTML = `
+    <p>${message}</p>
+    <div class="confirm-buttons">
+      <button id="confirm-yes">Sim</button>
+      <button id="confirm-no">Não</button>
+    </div>
+  `;
+
+    confirmContainer.appendChild(confirmBox);
+    document.body.appendChild(confirmContainer);
+
+    document.getElementById("confirm-yes").onclick = () => {
+      document.body.removeChild(confirmContainer);
+      if (onConfirm) onConfirm();
+    };
+
+    document.getElementById("confirm-no").onclick = () => {
+      document.body.removeChild(confirmContainer);
+      if (onCancel) onCancel();
+    };
+  }
+
+  function showPopup(message, type = "info", duration = 3000) {
+    // Certifique-se de que o contêiner existe
+    const popupContainer = document.getElementById("popup-container");
+    if (!popupContainer) {
+      console.error("Popup container not found in the DOM.");
+      return;
+    }
+
+    // Criar o elemento do pop-up
+    const popup = document.createElement("div");
+    popup.className = `popup ${type}`;
+    popup.innerHTML = `
+    <span class="popup-message">${message}</span>
+    <button class="popup-close">×</button>
+    <div class="popup-progress"></div>
+  `;
+
+    // Adicionar o pop-up ao contêiner
+    popupContainer.appendChild(popup);
+
+    // Lidar com o fechamento manual
+    const closeButton = popup.querySelector(".popup-close");
+    closeButton.addEventListener("click", () => {
+      popup.classList.add("removing");
+      setTimeout(() => {
+        popup.remove();
+      }, 500); // Corresponde ao tempo de transição de "removing"
+    });
+
+    // Criar a barra de progresso
+    const progressBar = popup.querySelector(".popup-progress");
+    progressBar.style.transition = `width ${duration}ms linear`;
+    setTimeout(() => {
+      progressBar.style.width = "100%";
+    }, 10);
+
+    // Remover o pop-up após a duração especificada
+    const timeout = setTimeout(() => {
+      popup.classList.add("removing");
+      setTimeout(() => {
+        popup.remove();
+      }, 500); // Corresponde ao tempo de transição de "removing"
+    }, duration);
+
+    // Garantir que o timeout seja limpo se o pop-up for fechado manualmente
+    closeButton.addEventListener("click", () => clearTimeout(timeout));
+  }
+
+
+  window.showPopup = showPopup;
 });
