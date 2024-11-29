@@ -503,4 +503,101 @@ footer {
     transform: scale(1);
   }
 }
+/* Link "Cadastre-se" */
+#go-to-register, #go-to-login {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  color: #ff7f00; /* Cor laranja */
+  text-decoration: none;
+  font-size: 1em; /* Tamanho consistente */
+  transition: color 0.3s ease-in-out;
+}
 
+#go-to-register:hover, #go-to-login:hover {
+  color: #e67300; /* Laranja mais escura no hover */
+}
+
+/* Seção de Registro */
+#register-section {
+  display: none;
+}
+
+#register-section.active {
+  display: flex;
+}
+
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #ff7f00; /* Laranja de fundo */
+}
+
+.register-box {
+  background-color: #fff;
+  padding: 30px;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.register-box h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.register-box .input-group {
+  margin-bottom: 15px;
+}
+
+.register-box .input-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.register-box .input-group input {
+  width: calc(100% - 20px);
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Botão de Registro */
+.register-box .register-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #ff7f00; /* Laranja */
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1em;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.register-box .register-button:hover {
+  background-color: #e67300; /* Laranja mais escura no hover */
+}
+
+/* Estilo para o link "Cadastre-se" */
+.link-button {
+  color: #ff6f00; /* Um laranja mais chamativo */
+  font-weight: bold;
+  text-decoration: none; /* Remove o sublinhado padrão */
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.link-button:hover {
+  color: #d86000; /* Um tom mais escuro ao passar o mouse */
+  text-shadow: 0 0 5px rgba(255, 111, 0, 0.8); /* Brilho no hover */
+}
+
+#register-link {
+  margin-top: 15px;
+  text-align: center; /* Centraliza o texto */
+  font-size: 14px; /* Ajusta o tamanho da fonte */
+}
