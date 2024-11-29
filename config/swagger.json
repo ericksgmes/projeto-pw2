@@ -3,7 +3,7 @@
     "info": {
         "title": "API Restaurante Webservice",
         "description": "Documentação da API para o sistema de gerenciamento de restaurante.",
-        "version": "2.0.0"
+        "version": "2.1.2"
     },
     "servers": [
         {
