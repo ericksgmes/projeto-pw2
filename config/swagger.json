@@ -205,6 +205,49 @@
                 }
             }
         },
+        "/funcionarios/{id}/nome": {
+            "put": {
+                "summary": "Atualizar o nome de um funcionário",
+                "operationId": "atualizarNomeFuncionario",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["nome"],
+                                "properties": {
+                                    "nome": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Nome atualizado com sucesso"
+                    },
+                    "400": {
+                        "description": "Nome inválido"
+                    },
+                    "404": {
+                        "description": "Funcionário não encontrado"
+                    }
+                }
+            }
+        },
         "/funcionario-mesa/{funcionarioId}": {
             "get": {
                 "summary": "Listar todas as mesas associadas a um funcionário",
@@ -727,6 +770,50 @@
                     },
                     "404": {
                         "description": "Produto não encontrado"
+                    }
+                }
+            },
+            "/produtos/{id}/preco": {
+                "put": {
+                    "summary": "Atualizar o preço de um produto",
+                    "operationId": "atualizarPrecoProduto",
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "integer"
+                            }
+                        }
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": ["preco"],
+                                    "properties": {
+                                        "preco": {
+                                            "type": "number",
+                                            "format": "float"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Preço atualizado com sucesso"
+                        },
+                        "400": {
+                            "description": "Preço inválido"
+                        },
+                        "404": {
+                            "description": "Produto não encontrado"
+                        }
                     }
                 }
             },
