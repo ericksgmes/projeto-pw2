@@ -601,3 +601,18 @@ footer {
   text-align: center; /* Centraliza o texto */
   font-size: 14px; /* Ajusta o tamanho da fonte */
 }
+
+select {
+  width: 100%; /* Preenche a largura disponível */
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  appearance: none; /* Remove o estilo padrão do navegador */
+}
+
+select:focus {
+  border-color: #ff7f00; /* Laranja */
+  outline: none;
+}
