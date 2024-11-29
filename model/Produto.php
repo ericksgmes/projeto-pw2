@@ -173,7 +173,7 @@ class Produto {
         }
 
         $sql = $connection->prepare("UPDATE Produto SET deletado = 1, data_deletado = NOW(), 
-                                            CONCAT(nome, '_deleted_', id) WHERE id = ?");
+                                            nome = CONCAT(nome, '_deleted_', id) WHERE id = ?");
         $sql->execute([$id]);
 
         if ($sql->rowCount() === 0) {
@@ -211,10 +211,24 @@ class Produto {
         return $sql->fetch(PDO::FETCH_ASSOC);
     }
 
-    public static function getByName($nome) {
+
+    public static function atualizarPreco($id, $preco): void {
         $connection = Connection::getConnection();
-        $sql = $connection->prepare("SELECT * FROM Produto WHERE nome = ? AND deletado = 0");
-        $sql->execute([$nome]);
-        return $sql->fetch(PDO::FETCH_ASSOC);
+
+        if (!self::exist($id)) {
+            throw new Exception("Produto não encontrado", 404);
+        }
+
+        if ($preco < 0) {
+            throw new Exception("O preço não pode ser menor que 0.", 400);
+        }
+
+        $sql = $connection->prepare("UPDATE Produto SET preco = ? WHERE id = ? AND deletado = 0");
+        $sql->execute([$preco, $id]);
+
+        if ($sql->rowCount() === 0) {
+            throw new Exception("Não foi possível atualizar o preço do produto", 500);
+        }
     }
+
 }
