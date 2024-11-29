@@ -334,3 +334,93 @@ footer {
     width: 100%;
   }
 }
+/* Estilo atualizado para Pop-ups */
+#popup-container {
+  position: fixed;
+  top: 20px; /* Alterado para posicionar no canto superior */
+  right: 20px; /* Alterado para posicionar no canto esquerdo */
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Aumentado o espaçamento entre os pop-ups */
+}
+
+
+/* Pop-up geral */
+.popup {
+  position: absolute; /* Posicionamento absoluto em relação ao contêiner pai */
+  top: 20%; /* 20% da altura da tela a partir do topo */
+  right: 20%; /* 20% da largura da tela a partir da direita */
+  min-width: 300px; /* Tamanho mínimo */
+  max-width: 500px; /* Tamanho máximo */
+  padding: 20px 30px; /* Espaço interno */
+  border-radius: 10px; /* Cantos arredondados */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(225, 135, 56, 0.9); /* Cor com leve transparência */
+  color: white;
+  font-size: 18px; /* Fonte maior */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Sombra */
+  opacity: 1; /* Totalmente visível no início */
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; /* Suavidade na transição */
+  z-index: 9999; /* Sobrepor outros elementos */
+}
+
+/* Botão de fechar */
+.popup .popup-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* Barra de progresso */
+.popup .popup-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.8);
+  width: 0;
+  border-radius: 0 0 5px 5px;
+  transition: width 0.3s linear;
+}
+
+/* Esquema de cores para diferentes tipos */
+.popup.success {
+  background-color: rgba(76, 175, 80, 0.9); /* Verde com transparência */
+}
+
+.popup.success .popup-progress {
+  background-color: #388e3c;
+}
+
+.popup.error {
+  background-color: rgba(244, 67, 54, 0.9); /* Vermelho com transparência */
+}
+
+.popup.error .popup-progress {
+  background-color: #d32f2f;
+}
+
+.popup.info {
+  background-color: rgba(33, 150, 243, 0.9); /* Azul com transparência */
+}
+
+.popup.info .popup-progress {
+  background-color: #1976d2;
+}
+
+/* Remoção da transparência */
+.popup.removing {
+  opacity: 0; /* Gradualmente desaparece */
+  transform: translate(-50%, -15%); /* Pequeno movimento ao desaparecer */
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Suavidade na remoção */
+}
+
