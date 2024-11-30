@@ -41,30 +41,47 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Login
   document
-    .getElementById("login-form")
-    .addEventListener("submit", async function (e) {
-      e.preventDefault();
+      .getElementById("login-form")
+      .addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-      const username = document.getElementById("username-login").value.trim();
-      const senha = document.getElementById("senha-login").value.trim();
+        const username = document.getElementById("username-login").value.trim();
+        const senha = document.getElementById("senha-login").value.trim();
 
-      try {
-        // Simulando autenticação para simplificar
-        if (username === "admin" && senha === "admin") {
-          showPopup("Login bem sucedido!", "success");
-          loginSection.style.display = "none";
-          mainContent.style.display = "block";
-          mostrarSecao("home");
-          document.querySelectorAll(".restricted").forEach((link) => {
-            link.style.display = "block";
+        try {
+          // Fazer requisição ao backend para autenticação
+          const response = await fetch(`${baseUrl}/auth`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, senha }), // Enviar username e senha no corpo da requisição
           });
-        } else {
-          document.getElementById("login-error").style.display = "block";
+
+          const result = await response.json();
+
+          if (response.ok) {
+            // Armazenar o token no localStorage
+            localStorage.setItem("token", result.data.token);
+
+            showPopup("Login bem-sucedido!", "success");
+            loginSection.style.display = "none";
+            mainContent.style.display = "block";
+            mostrarSecao("home");
+
+            // Exibir links restritos se necessário
+            document.querySelectorAll(".restricted").forEach((link) => {
+              link.style.display = "block";
+            });
+          } else {
+            // Exibir erro retornado pelo backend
+            showPopup(result.message || "Erro no login.", "error");
+          }
+        } catch (error) {
+          console.error("Erro ao tentar fazer login:", error.message);
+          showPopup("Erro ao tentar fazer login. Tente novamente.", "error");
         }
-      } catch (error) {
-        console.error("Erro ao tentar fazer login:", error.message);
-      }
-    });
+      });
 
   // Cadastro
   document.getElementById("register-form").addEventListener("submit", async function (e) {
@@ -149,8 +166,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // Listar Produtos na Home
   async function listarProdutosHome() {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${baseUrl}/produtos`, {
         method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
       });
 
       if (!response.ok) {
@@ -226,13 +247,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function listarFuncionarios() {
     try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        showPopup("Token não encontrado. Faça login novamente.", "error");
+        return;
+      }
+
       const response = await fetch(`${baseUrl}/funcionarios`, {
         method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        showPopup(`Erro ao listar funcionários: ${errorData.message || response.statusText}`, "error");
+        showPopup(
+            `Erro ao listar funcionários: ${errorData.message || response.statusText}`,
+            "error"
+        );
         return;
       }
 
@@ -242,20 +276,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
       funcionarios.data.forEach((funcionario) => {
         console.log(funcionario.nome);
+
         const imagem =
-          imagemFuncionarios[funcionario.nome] ||
-          "./assets/imgUsers/default.jpeg";
+            imagemFuncionarios[funcionario.nome] ||
+            "./assets/imgUsers/default.jpeg";
+
         const funcionarioDiv = document.createElement("div");
         funcionarioDiv.classList.add("item");
+
         funcionarioDiv.innerHTML = `
-          <img src="${imagem}" alt="${funcionario.nome}">
-          <p><strong>Nome:</strong> ${funcionario.nome}</p>
-          <p><strong>Username:</strong> ${funcionario.username}</p>
-          <div class="action-buttons">
-            <button class="editar-funcionario" data-id="${funcionario.id}" data-nome="${funcionario.nome}" data-username="${funcionario.username}">Editar</button>
-            <button class="deletar-funcionario" data-id="${funcionario.id}">Deletar</button>
-          </div>
-        `;
+        <img src="${imagem}" alt="${funcionario.nome}">
+        <p><strong>Nome:</strong> ${funcionario.nome}</p>
+        <p><strong>Username:</strong> ${funcionario.username}</p>
+        <div class="action-buttons">
+          <button class="editar-funcionario" data-id="${funcionario.id}" data-nome="${funcionario.nome}" data-username="${funcionario.username}">Editar</button>
+          <button class="deletar-funcionario" data-id="${funcionario.id}">Deletar</button>
+        </div>
+      `;
+
         listaFuncionarios.appendChild(funcionarioDiv);
       });
 
@@ -277,23 +315,28 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     } catch (error) {
       console.error("Erro ao listar funcionários:", error.message);
+      showPopup("Erro ao listar funcionários. Tente novamente mais tarde.", "error");
     }
   }
 
+
   async function deletarFuncionario(id) {
-    // Substituir o confirm() pelo showConfirm
     showConfirm(
         "Tem certeza que deseja deletar este funcionário?",
         async () => {
           // Callback para o botão "Sim"
           try {
+            const token = localStorage.getItem("token");
             const response = await fetch(`${baseUrl}/funcionarios/${id}`, {
               method: "DELETE",
+              headers: {
+                "Authorization": `Bearer ${token}`
+              },
             });
 
             if (response.ok) {
               showPopup("Funcionário deletado com sucesso!", "success");
-              listarFuncionarios();
+              await listarFuncionarios();
             } else {
               const errorData = await response.json();
               showPopup(
@@ -329,29 +372,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   window.addEventListener("click", function (event) {
-    if (event.target == modalEditarFuncionario) {
+    if (event.target === modalEditarFuncionario) {
       modalEditarFuncionario.style.display = "none";
     }
   });
-
-  function abrirModalEditarFuncionario(id, nome, username) {
-    const nomeInput = document.getElementById("editar-nome-funcionario");
-    const usernameInput = document.getElementById("editar-username-funcionario");
-
-    // Preencher os campos com os valores atuais
-    nomeInput.value = nome;
-    usernameInput.value = username;
-    document.getElementById("editar-id-funcionario").value = id;
-
-    // Armazenar os valores originais nos atributos data-*
-    nomeInput.setAttribute("data-original-nome", nome);
-    usernameInput.setAttribute("data-original-username", username);
-
-    // Limpar o campo de senha ao abrir o modal
-    document.getElementById("editar-senha-funcionario").value = "";
-
-    modalEditarFuncionario.style.display = "block";
-  }
 
   document
       .getElementById("form-editar-funcionario")
@@ -365,7 +389,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .getElementById("editar-username-funcionario")
             .value.trim();
         const senha = document.getElementById("editar-senha-funcionario").value.trim();
-
+        const token = localStorage.getItem("token");
         // Capturar os valores originais armazenados no modal
         const nomeOriginal = document
             .getElementById("editar-nome-funcionario")
@@ -381,6 +405,7 @@ document.addEventListener("DOMContentLoaded", function () {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
               },
               body: JSON.stringify({ nome }),
             });
@@ -403,10 +428,12 @@ document.addEventListener("DOMContentLoaded", function () {
         // Caso 2: Atualizar apenas a senha
         if (senha && nome === nomeOriginal && username === usernameOriginal) {
           try {
+            const token = localStorage.getItem("token");
             const response = await fetch(`${baseUrl}/funcionarios/${id}/senha`, {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
               },
               body: JSON.stringify({ novaSenha: senha }),
             });
@@ -438,10 +465,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
+          const token = localStorage.getItem("token");
           const response = await fetch(`${baseUrl}/funcionarios/${id}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify(dadosAtualizados),
           });
@@ -469,10 +498,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const numero = document.getElementById("numero-mesa").value.trim();
 
       try {
+        const token = localStorage.getItem("token");
         const response = await fetch(`${baseUrl}/mesas`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
           },
           body: JSON.stringify({ numero }),
         });
@@ -492,8 +523,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function listarMesas() {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${baseUrl}/mesas`, {
         method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
       });
 
       if (!response.ok) {
@@ -535,8 +570,12 @@ document.addEventListener("DOMContentLoaded", function () {
         "Tem certeza que deseja deletar esta mesa?",
         async () => {
           try {
+            const token = localStorage.getItem("token");
             const response = await fetch(`${baseUrl}/mesas/${id}`, {
               method: "DELETE",
+              headers: {
+                "Authorization": `Bearer ${token}`
+              },
             });
 
             if (response.ok) {
@@ -566,10 +605,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const preco = parseFloat(document.getElementById("preco-produto").value);
 
       try {
+        const token = localStorage.getItem("token");
         const response = await fetch(`${baseUrl}/produtos`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
           },
           body: JSON.stringify({ nome, preco }),
         });
@@ -589,8 +630,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function listarProdutos() {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${baseUrl}/produtos`, {
         method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
       });
 
       if (!response.ok) {
@@ -652,8 +697,12 @@ document.addEventListener("DOMContentLoaded", function () {
         "Tem certeza que deseja deletar este produto?",
         async () => {
           try {
+            const token = localStorage.getItem("token");
             const response = await fetch(`${baseUrl}/produtos/${id}`, {
               method: "DELETE",
+              headers: {
+                "Authorization": `Bearer ${token}`
+              },
             });
 
             if (response.ok) {
@@ -725,10 +774,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (preco !== precoOriginal && nome === nomeOriginal) {
           try {
+            const token = localStorage.getItem("token");
             const response = await fetch(`${baseUrl}/produtos/${id}/preco`, {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
               },
               body: JSON.stringify({ preco }),
             });
@@ -754,10 +805,12 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         try {
+          const token = localStorage.getItem("token");
           const response = await fetch(`${baseUrl}/produtos/${id}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify(dadosAtualizados),
           });
@@ -797,10 +850,12 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       try {
+        const token = localStorage.getItem("token");
         const response = await fetch(`${baseUrl}/pagamentos`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
           },
           body: JSON.stringify({ metodo, valor, id_mesa: idMesa }),
         });
@@ -820,8 +875,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function listarPagamentos() {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${baseUrl}/pagamentos`, {
         method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
       });
 
       if (!response.ok) {
@@ -869,8 +928,12 @@ document.addEventListener("DOMContentLoaded", function () {
         "Tem certeza que deseja deletar este pagamento?",
         async () => {
           try {
+            const token = localStorage.getItem("token");
             const response = await fetch(`${baseUrl}/pagamentos/${id}`, {
               method: "DELETE",
+              headers: {
+                "Authorization": `Bearer ${token}`
+              },
             });
 
             if (response.ok) {

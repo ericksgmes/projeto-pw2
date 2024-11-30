@@ -1,6 +1,9 @@
 <?php
 
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
 function jsonResponse($statusCode, $data)
 {
     http_response_code($statusCode);
@@ -10,19 +13,34 @@ function jsonResponse($statusCode, $data)
     exit;
 }
 
-function handleJSONInput()
-{
+function verificarToken($jwtSecret, $jwtAlgorithm) {
     try {
-        $json = file_get_contents('php://input');
-        $json = json_decode($json, true);
-        if ($json == null) {
-            throw new Exception("JSON não enviado", 0);
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? null;
+        error_log("Cabeçalho Authorization recebido: " . json_encode($authHeader));
+
+        if (!$authHeader) {
+            throw new Exception("Token não fornecido.", 401);
         }
-        return $json;
+
+        if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+            $token = $matches[1];
+            error_log("Token extraído: " . $token);
+        } else {
+            throw new Exception("Token inválido.", 401);
+        }
+
+        $decoded = JWT::decode($token, new Key($jwtSecret, $jwtAlgorithm));
+        error_log("Token decodificado com sucesso: " . json_encode($decoded));
+        return $decoded;
     } catch (Exception $e) {
-        return false;
+        error_log("Erro ao verificar token: " . $e->getMessage());
+        throw new Exception("Acesso não autorizado: " . $e->getMessage(), 401);
     }
 }
+
+
+
+
 
 function method($method)
 {

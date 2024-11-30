@@ -124,6 +124,21 @@ class Funcionario {
         return (bool) $sql->fetch();
     }
 
+    public static function retornaUsuario($username) {
+        try {
+            $connection = Connection::getConnection();
+            $sql = $connection->prepare(
+                "SELECT id, nome, username, senha FROM Funcionario WHERE username = ? AND deletado = 0"
+            );
+            $sql->execute([$username]);
+            return $sql->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar funcionário por username: " . $e->getMessage());
+            throw new Exception("Erro ao buscar funcionário.", 500);
+        }
+    }
+
+
     public static function getByUsername($username) {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT * FROM Funcionario WHERE username = ? AND deletado = 0");

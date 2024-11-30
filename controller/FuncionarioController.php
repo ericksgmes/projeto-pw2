@@ -1,6 +1,13 @@
 <?php
+
 require_once __DIR__ . '/../model/Funcionario.php';
 require_once __DIR__ . '/../config/utils.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Firebase\JWT\ExpiredException;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Dotenv\Dotenv;
 
 /**
  * @OA\OpenApi(
@@ -17,6 +24,13 @@ require_once __DIR__ . '/../config/utils.php';
  */
 
 class FuncionarioController {
+    private static $jwtSecret;
+    private static $jwtAlgorithm;
+
+    public function __construct() {
+        self::$jwtSecret = $_ENV['JWT_SECRET'];
+        self::$jwtAlgorithm = $_ENV['JWT_ALGORITHM'];
+    }
 
     public function handleRequest(string $method, int $id = null, string $action = null, array $data = null): void {
         try {
@@ -52,6 +66,7 @@ class FuncionarioController {
     }
 
     public function atualizarNome($id, $novoNome): void {
+        $this->autenticarRequisicao();
         error_log("Iniciando atualização de nome para o ID: $id", 0);
 
         if (empty($novoNome)) {
@@ -74,6 +89,7 @@ class FuncionarioController {
 
 
     public function obterFuncionario($id): void {
+        $this->autenticarRequisicao();
         try {
             if (!Funcionario::exist($id)) {
                 throw new Exception("Funcionário não encontrado", 404);
@@ -86,6 +102,7 @@ class FuncionarioController {
     }
 
     public function listarTodos(): void {
+        $this->autenticarRequisicao();
         try {
             $funcionarios = Funcionario::listar();
             jsonResponse(200, ["status" => "success", "data" => $funcionarios]);
@@ -111,6 +128,7 @@ class FuncionarioController {
     }
 
     public function atualizar($id, $data): void {
+        $this->autenticarRequisicao();
         error_log("Iniciando atualização para o ID: $id", 0);
 
         if (!valid($data, ["nome", "username"])) {
@@ -138,6 +156,7 @@ class FuncionarioController {
     }
 
     public function deletar($id): void {
+        $this->autenticarRequisicao();
         try {
             if (!Funcionario::exist($id)) {
                 throw new Exception("Funcionário não encontrado", 404);
@@ -151,6 +170,7 @@ class FuncionarioController {
     }
 
     public function atualizarSenha($id, $novaSenha): void {
+        $this->autenticarRequisicao();
         if (empty($novaSenha)) {
             jsonResponse(400, ["status" => "error", "message" => "Senha não pode estar vazia"]);
             return;
@@ -164,5 +184,84 @@ class FuncionarioController {
         Funcionario::atualizarSenha($id, $novaSenha);
         jsonResponse(200, ["status" => "success", "message" => "Senha atualizada com sucesso"]);
     }
-    
+
+    public function autenticar($data) {
+        try {
+            error_log("Dados recebidos no login: " . json_encode($data));
+            if (!valid($data, ["username", "senha"])) {
+                throw new Exception("Username e/ou senha não fornecidos.", 400);
+            }
+
+            $funcionario = Funcionario::retornaUsuario($data["username"]);
+            if (!$funcionario) {
+                error_log("Usuário não encontrado: " . $data["username"]);
+                throw new Exception("Username ou senha incorretos.", 401);
+            }
+
+            if (!password_verify($data["senha"], $funcionario["senha"])) {
+                error_log("Senha incorreta para o usuário: " . $data["username"]);
+                throw new Exception("Username ou senha incorretos.", 401);
+            }
+
+            // Gerar o JWT
+            $token = JWT::encode([
+                "id" => $funcionario["id"],
+                "username" => $funcionario["username"],
+                "nome" => $funcionario["nome"],
+                "iat" => time(), // Data de emissão
+                "exp" => time() + 3600 // Expiração em 1 hora
+            ], self::$jwtSecret, self::$jwtAlgorithm);
+
+            error_log("Token gerado para o usuário: " . $data["username"]);
+
+            // Resposta com o token e informações do funcionário
+            jsonResponse(200, [
+                "status" => "success",
+                "data" => [
+                    "token" => $token,
+                    "expira_em" => 3600, // Expiração em segundos
+                    "funcionario" => [
+                        "id" => $funcionario["id"],
+                        "username" => $funcionario["username"],
+                        "nome" => $funcionario["nome"]
+                    ]
+                ]
+            ]);
+        } catch (Exception $e) {
+            error_log("Erro ao autenticar: " . $e->getMessage());
+            jsonResponse($e->getCode() ?: 500, [
+                "status" => "error",
+                "message" => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function autenticarJWT($token) {
+        try {
+            $decoded = JWT::decode($token, new Key(self::$jwtSecret, self::$jwtAlgorithm));
+            return (array) $decoded; // Retorna os dados decodificados como um array
+        } catch (ExpiredException $e) {
+            throw new Exception("Token expirado. Faça login novamente.", 401);
+        } catch (Exception $e) {
+            throw new Exception("Token inválido: " . $e->getMessage(), 401);
+        }
+    }
+
+    private function autenticarRequisicao() {
+        try {
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+                throw new Exception("Token não fornecido ou inválido.", 401);
+            }
+
+            return $this->autenticarJWT($matches[1]);
+        } catch (Exception $e) {
+            jsonResponse(401, [
+                "status" => "error",
+                "message" => "Acesso não autorizado: " . $e->getMessage()
+            ]);
+        }
+    }
+
+
 }

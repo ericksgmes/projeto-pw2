@@ -7,12 +7,22 @@ require_once __DIR__ . '/controller/PagamentoController.php';
 require_once __DIR__ . '/controller/ProdutoController.php';
 require_once __DIR__ . '/controller/ProdutosMesaController.php';
 require_once __DIR__ . '/config/utils.php';
+require_once __DIR__ . '/vendor/autoload.php';
+
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
+$jwtSecret = $_ENV['JWT_SECRET'];
+$jwtAlgorithm = $_ENV['JWT_ALGORITHM'];
 
 $requestUri = $_SERVER['REQUEST_URI'];
 $method = $_SERVER['REQUEST_METHOD'];
@@ -32,33 +42,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 switch ($resource) {
-    case 'funcionarios':
+    case 'auth':
         $controller = new FuncionarioController();
-        $controller->handleRequest($method, $id, $action ,$data);
+        $controller->autenticar($data);
         break;
 
+    case 'funcionarios':
     case 'funcionario-mesa':
-        $controller = new FuncionarioMesaController();
-        $controller->handleRequest($method, $id, $action, $data);
-        break;
-
     case 'mesas':
-        $controller = new MesaController();
-        $controller->handleRequest($method, $id, $action, $data);
-        break;
-
     case 'pagamentos':
-        $controller = new PagamentoController();
-        $controller->handleRequest($method, $id, $action, $data);
-        break;
-
     case 'produtos':
-        $controller = new ProdutoController();
-        $controller->handleRequest($method, $id, $action, $data);
-        break;
-
     case 'produtos-mesa':
-        $controller = new ProdutosMesaController();
+        verificarToken($jwtSecret, $jwtAlgorithm); // Exige autenticação para esses recursos
+        $controller = match ($resource) {
+            'funcionarios' => new FuncionarioController(),
+            'funcionario-mesa' => new FuncionarioMesaController(),
+            'mesas' => new MesaController(),
+            'pagamentos' => new PagamentoController(),
+            'produtos' => new ProdutoController(),
+            'produtos-mesa' => new ProdutosMesaController(),
+        };
         $controller->handleRequest($method, $id, $action, $data);
         break;
 
