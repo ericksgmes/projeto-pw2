@@ -190,19 +190,39 @@
         <h2>Editar Usuário</h2>
         <form id="form-editar-usuario">
             <input type="hidden" id="editar-id-usuario">
-            <input type="text" id="editar-nome-usuario" placeholder="Nome do Usuário" required>
-            <input type="text" id="editar-username-usuario" placeholder="Username" required>
-            <input type="password" id="editar-senha-usuario" placeholder="Senha (deixe em branco para não alterar)">
-            <select id="editar-is-admin-usuario" required>
+            <input
+                    type="text"
+                    id="editar-nome-usuario"
+                    placeholder="Nome do Usuário"
+                    data-original-nome=""
+                    required
+            >
+            <input
+                    type="text"
+                    id="editar-username-usuario"
+                    placeholder="Username"
+                    data-original-username=""
+                    required
+            >
+            <input
+                    type="password"
+                    id="editar-senha-usuario"
+                    placeholder="Senha (deixe em branco para não alterar)"
+            >
+            <select
+                    id="editar-is-admin-usuario"
+                    data-original-is_admin=""
+                    required
+            >
                 <option value="" disabled>Selecione o tipo de usuário</option>
                 <option value="1">Administrador</option>
                 <option value="0">Usuário Comum</option>
             </select>
             <button type="submit">Salvar Alterações</button>
         </form>
-
     </div>
 </div>
+
 
 <!-- Container para pop-ups e confirmações -->
 <div id="popup-container"></div>
