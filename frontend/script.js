@@ -1488,19 +1488,21 @@ document.addEventListener("DOMContentLoaded", function () {
     carrinho.forEach((produto) => {
       const itemCarrinho = document.createElement("li");
       itemCarrinho.innerHTML = `
-      <strong>${produto.nome}</strong> | Quantidade: ${
-        produto.quantidade
-      } | Preço: R$${(produto.preco * produto.quantidade).toFixed(2)}
-      <button class="remover-produto" data-id="${produto.id}">Remover</button>
+      <strong>${produto.nome}</strong> | Quantidade: ${produto.quantidade} | Preço: R$${(produto.preco * produto.quantidade).toFixed(2)}
+      <button class="remover-produto-carrinho" data-id="${produto.id}">Remover</button>
     `;
+
+      // Adiciona o item do carrinho na lista
       carrinhoLista.appendChild(itemCarrinho);
 
-      // Adiciona a funcionalidade de remover produto do carrinho
-      itemCarrinho
-        .querySelector(".remover-produto")
-        .addEventListener("click", () => {
-          removerDoCarrinho(produto.id);
-        });
+      // Adiciona a funcionalidade de remover o produto do carrinho
+      const removerBtn = itemCarrinho.querySelector(".remover-produto-carrinho");
+      removerBtn.addEventListener("click", () => {
+        // Remover do carrinho
+        removerDoCarrinho(produto.id);
+        // Atualizar a renderização do carrinho
+        renderizarCarrinho();
+      });
     });
   }
 

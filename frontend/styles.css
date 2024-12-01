@@ -695,6 +695,26 @@ header h1 {
   background-size: 16px;
 }
 
+/* Seleciona todos os selects com id que começa com 'quantidade-' */
+select[id^="quantidade-"] {
+  width: 50px;  /* Largura do dropdown */
+  height: 25px; /* Altura da caixa */
+  padding: 5px 10px 5px 5px; /* Ajuste do padding para o lado direito para dar mais espaço para o ícone */
+  font-size: 1rem;
+  text-align: center; /* Centraliza o número dentro do dropdown */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px; /* Espaçamento abaixo do dropdown */
+  background-color: #fff;
+  color: #333;
+  appearance: none;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor"%3E%3Cpath d="M5 7l5 5 5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3C/path%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: right 5px center; /* Ajuste do ícone para ficar mais distante */
+  background-size: 16px; /* Aumente o ícone para caber corretamente */
+}
+
+
 /* Ajuste do foco */
 .quantidade-produto:focus {
   border-color: #ff7f00;
@@ -730,46 +750,6 @@ header h1 {
   background-color: #45a049;
 }
 
-/* Modal (Carrinho) */
-.modal {
-  display: none; /* Inicialmente oculto */
-  position: fixed;
-  z-index: 1; /* Fica acima de outros elementos */
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4); /* Fundo semi-transparente */
-  overflow: auto; /* Permite o scroll se necessário */
-  padding-top: 60px;
-}
-
-/* Conteúdo do modal */
-.modal-content {
-  background-color: #fefefe;
-  margin: 5% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%; /* Largura do modal */
-  max-width: 600px; /* Largura máxima */
-  border-radius: 10px;
-}
-
-/* Fechar o modal */
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
-
 #btn-exibir-carrinho {
   background-color: transparent; /* Fundo transparente */
   border: none; /* Remover borda */
@@ -786,28 +766,90 @@ header h1 {
   height: auto; /* Mantém a proporção da imagem */
 }
 
+#modal-carrinho {
+  display: none; /* Inicialmente oculto */
+  position: fixed;
+  z-index: 1000; /* Fica acima de outros elementos */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+  overflow: auto; /* Permite o scroll se necessário */
+  padding-top: 60px; /* Distância do topo */
+}
 
+
+/* Número da mesa */
+#numero-mesa-modal {
+  width: 90%;
+  padding: 10px;
+  font-size: 1rem;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+
+#numero-mesa-modal:focus {
+  border-color: #ff7f00;
+  outline: none;
+}
+
+/* Lista de produtos */
 #carrinho-lista {
   list-style-type: none;
   padding: 0;
+  margin: 0;
+  max-height: 300px;
+  overflow-y: auto; /* Permite rolar a lista de produtos */
 }
 
 #carrinho-lista li {
-  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
   border-bottom: 1px solid #ddd;
+  font-size: 1.1em;
 }
 
-button#finalizar-pedido {
-  background-color: #4CAF50;
+/* Botão de Finalizar Pedido */
+#finalizar-pedido {
+  background-color: #4caf50; /* Verde */
   color: white;
   padding: 10px 20px;
   border: none;
   cursor: pointer;
   font-size: 16px;
   border-radius: 5px;
-  margin-top: 20px;
+  display: block;
+  margin: 20px auto 0;
+  width: 100%;
 }
 
-button#finalizar-pedido:hover {
-  background-color: #45a049;
+#finalizar-pedido:hover {
+  background-color: #45a049; /* Verde mais escuro no hover */
+}
+
+/* Estilo para o botão de remover produto do carrinho */
+.remover-produto-carrinho {
+  background-color: #f44336; /* Cor de fundo vermelha */
+  color: white; /* Texto branco */
+  border: none; /* Sem borda */
+  padding: 5px 15px; /* Espaçamento interno */
+  font-size: 1rem; /* Tamanho da fonte */
+  border-radius: 5px; /* Bordas arredondadas */
+  cursor: pointer; /* Cursor de clique */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Efeito de transição */
+}
+
+.remover-produto-carrinho:hover {
+  background-color: #d32f2f; /* Cor de fundo mais escura no hover */
+  transform: scale(1.05); /* Leve aumento no tamanho do botão ao passar o mouse */
+}
+
+.remover-produto-carrinho:focus {
+  outline: none; /* Remove a borda de foco padrão */
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.7); /* Adiciona uma sombra no foco */
 }
