@@ -1083,15 +1083,21 @@ document
   });
 
 
+  let carrinho = [];
+
   function adicionarAoCarrinho(idProduto, nomeProduto, precoProduto, quantidade) {
+    // Garantir que a quantidade seja um número inteiro
+    const quantidadeInt = Math.max(1, parseInt(quantidade, 10)); // A quantidade mínima será 1
+
     // Verifica se o produto já existe no carrinho
     const produtoExistente = carrinho.find((item) => item.id === idProduto);
+
     if (produtoExistente) {
       // Se o produto já existir, apenas atualizamos a quantidade
-      produtoExistente.quantidade = parseInt(produtoExistente.quantidade) + parseInt(quantidade);
+      produtoExistente.quantidade += quantidadeInt;
     } else {
       // Se não existir, adiciona um novo produto
-      carrinho.push({ id: idProduto, nome: nomeProduto, preco: precoProduto, quantidade: quantidade });
+      carrinho.push({ id: idProduto, nome: nomeProduto, preco: precoProduto, quantidade: quantidadeInt });
     }
 
     // Atualiza a renderização do carrinho
@@ -1102,19 +1108,36 @@ document
     const carrinhoLista = document.getElementById("carrinho-lista");
     carrinhoLista.innerHTML = ""; // Limpa o carrinho antes de adicionar os novos itens
 
+    // Verifica se o carrinho está vazio
     if (carrinho.length === 0) {
       carrinhoLista.innerHTML = "<p>Seu carrinho está vazio.</p>";
       return;
     }
 
+    // Renderiza os itens do carrinho
     carrinho.forEach((produto) => {
       const itemCarrinho = document.createElement("li");
       itemCarrinho.innerHTML = `
             <strong>${produto.nome}</strong> | Quantidade: ${produto.quantidade} | Preço: R$${(produto.preco * produto.quantidade).toFixed(2)}
+            <button class="remover-produto" data-id="${produto.id}">Remover</button>
         `;
       carrinhoLista.appendChild(itemCarrinho);
+
+      // Adiciona a funcionalidade de remover produto do carrinho
+      itemCarrinho.querySelector(".remover-produto").addEventListener("click", () => {
+        removerDoCarrinho(produto.id);
+      });
     });
   }
+
+  function removerDoCarrinho(idProduto) {
+    // Remove o produto do carrinho
+    carrinho = carrinho.filter((produto) => produto.id !== idProduto);
+
+    // Re-renderiza o carrinho
+    renderizarCarrinho();
+  }
+
 
 
 // Função que realiza a requisição para listar os produtos de uma mesa específica
@@ -1177,7 +1200,7 @@ document
       showPopup("Erro ao listar produtos da mesa. Tente novamente mais tarde.", "error");
     }
   }
-  let carrinho = []; // Declara a variável carrinho como um array vazio
+// Função para listar produtos disponíveis para compra
   async function listarProdutosParaCompra() {
     try {
       const token = localStorage.getItem("token");
@@ -1210,18 +1233,18 @@ document
         const produtoDiv = document.createElement("div");
         produtoDiv.classList.add("item");
         produtoDiv.innerHTML = `
-                <p><strong>Nome:</strong> ${produto.nome}</p>
-                <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(2)}</p>
-                <label for="quantidade-${produto.id}"><strong>Quantidade:</strong></label>
-                <select id="quantidade-${produto.id}">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                </select>
-                <button class="adicionar-produto" data-id="${produto.id}" data-nome="${produto.nome}" data-preco="${produto.preco}">Adicionar ao Carrinho</button>
-            `;
+        <p><strong>Nome:</strong> ${produto.nome}</p>
+        <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(2)}</p>
+        <label for="quantidade-${produto.id}"><strong>Quantidade:</strong></label>
+        <select id="quantidade-${produto.id}">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
+        <button class="adicionar-produto" data-id="${produto.id}" data-nome="${produto.nome}" data-preco="${produto.preco}">Adicionar ao Carrinho</button>
+      `;
         listaProdutos.appendChild(produtoDiv);
       });
 
@@ -1249,8 +1272,55 @@ document
     }
   }
 
+// Função de adicionar ao carrinho
+  function adicionarAoCarrinho(idProduto, nomeProduto, precoProduto, quantidade) {
+    // Garantir que a quantidade seja um número inteiro
+    const quantidadeInt = Math.max(1, parseInt(quantidade, 10));
+
+    const produtoExistente = carrinho.find((item) => item.id === idProduto);
+    if (produtoExistente) {
+      produtoExistente.quantidade += quantidadeInt;
+    } else {
+      carrinho.push({ id: idProduto, nome: nomeProduto, preco: precoProduto, quantidade: quantidadeInt });
+    }
+
+    renderizarCarrinho();
+  }
+
+// Função para renderizar o carrinho
+  function renderizarCarrinho() {
+    const carrinhoLista = document.getElementById("carrinho-lista");
+    carrinhoLista.innerHTML = ""; // Limpa o carrinho antes de adicionar os novos itens
+
+    if (carrinho.length === 0) {
+      carrinhoLista.innerHTML = "<p>Seu carrinho está vazio.</p>";
+      return;
+    }
+
+    carrinho.forEach((produto) => {
+      const itemCarrinho = document.createElement("li");
+      itemCarrinho.innerHTML = `
+      <strong>${produto.nome}</strong> | Quantidade: ${produto.quantidade} | Preço: R$${(produto.preco * produto.quantidade).toFixed(2)}
+      <button class="remover-produto" data-id="${produto.id}">Remover</button>
+    `;
+      carrinhoLista.appendChild(itemCarrinho);
+
+      // Adiciona a funcionalidade de remover produto do carrinho
+      itemCarrinho.querySelector(".remover-produto").addEventListener("click", () => {
+        removerDoCarrinho(produto.id);
+      });
+    });
+  }
+
+// Função para remover item do carrinho
+  function removerDoCarrinho(idProduto) {
+    carrinho = carrinho.filter((produto) => produto.id !== idProduto);
+    renderizarCarrinho();
+  }
+
+// Função para finalizar o pedido
   document.getElementById("finalizar-pedido").addEventListener("click", async function () {
-    const numeroMesa = document.getElementById("num-mesa").value;
+    const numeroMesa = document.getElementById("numero-mesa-modal").value;
 
     if (!numeroMesa) {
       showPopup("Por favor, insira o número da mesa.", "error");
@@ -1290,11 +1360,40 @@ document
       // Limpar carrinho
       carrinho = [];
       renderizarCarrinho();
+
+      // Fechar o modal após finalizar pedido
+      fecharModalCarrinho();
     } catch (error) {
       console.error("Erro ao finalizar pedido:", error.message);
       showPopup("Erro ao finalizar pedido. Tente novamente.", "error");
     }
   });
+
+// Função para abrir o modal do carrinho
+  function abrirModalCarrinho() {
+    const modal = document.getElementById("modal-carrinho");
+    modal.style.display = "block"; // Exibe o modal
+  }
+
+// Função para fechar o modal do carrinho
+  function fecharModalCarrinho() {
+    const modal = document.getElementById("modal-carrinho");
+    modal.style.display = "none"; // Oculta o modal
+  }
+
+  document.getElementById("btn-exibir-carrinho").addEventListener("click", abrirModalCarrinho);
+
+// Evento de clique para fechar o modal (clicando no "X")
+  document.getElementById("fechar-modal-carrinho").addEventListener("click", fecharModalCarrinho);
+
+// Fechar o modal se o usuário clicar fora do conteúdo
+  window.addEventListener("click", function (event) {
+    const modal = document.getElementById("modal-carrinho");
+    if (event.target === modal) {
+      fecharModalCarrinho();
+    }
+  });
+
 
   function mostrarSecao(sectionId) {
     document.querySelectorAll(".section").forEach((section) => {

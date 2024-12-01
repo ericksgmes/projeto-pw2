@@ -184,28 +184,34 @@
 
         <section id="adicionar-produto" class="section">
             <h2>Fazer Pedido</h2>
-            <p>Escolha a mesa e os produtos para adicionar ao seu pedido:</p>
-
-            <!-- Formulário para selecionar mesa -->
-            <form id="form-adicionar-produto">
-                <label for="num-mesa">Número da Mesa:</label>
-                <input type="number" id="num-mesa" placeholder="Número da Mesa" required>
-
-                <button type="submit">Adicionar Produto à Mesa</button>
-            </form>
-
+            <p>Escolha os produtos para adicionar ao seu pedido:</p>
             <!-- Lista de Produtos a serem exibidos -->
             <div id="lista-produtos-compra" class="card-container">
                 <!-- Os produtos serão carregados aqui dinamicamente -->
             </div>
 
-            <!-- Carrinho -->
-            <h3>Carrinho de Compras</h3>
-            <ul id="carrinho-lista">
-                <!-- Produtos adicionados ao carrinho serão exibidos aqui -->
-            </ul>
+            <!-- Carrinho (Modal) -->
+            <div id="modal-carrinho" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="fechar-modal-carrinho">&times;</span>
+                    <h3>Carrinho de Compras</h3>
 
-            <button id="finalizar-pedido">Finalizar Pedido</button>
+                    <!-- Número da mesa dentro do modal -->
+                    <div>
+                        <label for="numero-mesa-modal">Número da Mesa:</label>
+                        <input type="number" id="numero-mesa-modal" placeholder="Digite o número da mesa" required>
+                    </div>
+
+                    <ul id="carrinho-lista">
+                        <!-- Produtos adicionados ao carrinho serão exibidos aqui -->
+                    </ul>
+
+                    <button id="finalizar-pedido">Finalizar Pedido</button>
+                </div>
+            </div>
+
+            <!-- Carrinho Button -->
+            <button id="btn-exibir-carrinho">Ver Carrinho</button>
 
             <!-- Feedback para o cliente -->
             <div id="mensagem-feedback" class="feedback-message"></div>
