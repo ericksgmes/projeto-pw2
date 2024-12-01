@@ -276,36 +276,36 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function abrirModalEditarUsuario(id, nome, username) {
-    // Selecionar os elementos do modal
+  function abrirModalEditarUsuario(id, nome, username, is_admin) {
     const modal = document.getElementById("modal-editar-usuario");
     const inputId = document.getElementById("editar-id-usuario");
     const inputNome = document.getElementById("editar-nome-usuario");
     const inputUsername = document.getElementById("editar-username-usuario");
     const inputSenha = document.getElementById("editar-senha-usuario");
+    const selectIsAdmin = document.getElementById("editar-is-admin-usuario");
 
-    // Preencher os campos com os dados do usuário
+    // Preencher os campos com os valores atuais
     inputId.value = id;
     inputNome.value = nome;
     inputUsername.value = username;
-    inputSenha.value = ""; // Deixar o campo de senha em branco para não alterar
+    inputSenha.value = ""; // Senha em branco para não alterar
+    selectIsAdmin.value = is_admin; // Define o valor de is_admin no select
 
-    // Exibir o modal
+    // Atribuir os valores originais para comparação
+    inputNome.setAttribute("data-original-nome", nome);
+    inputUsername.setAttribute("data-original-username", username);
+    selectIsAdmin.setAttribute("data-original-is_admin", is_admin);
+
+    // Mostrar o modal
     modal.style.display = "block";
 
-    // Fechar o modal ao clicar no botão de fechar
+    // Fechar modal ao clicar no botão de fechar
     const fecharModal = document.getElementById("fechar-modal-usuario");
     fecharModal.addEventListener("click", function () {
       modal.style.display = "none";
     });
-
-    // Fechar o modal ao clicar fora da área do modal
-    window.addEventListener("click", function (event) {
-      if (event.target === modal) {
-        modal.style.display = "none";
-      }
-    });
   }
+
 
   async function listarUsuarios() {
     try {
@@ -315,10 +315,6 @@ document.addEventListener("DOMContentLoaded", function () {
         showPopup("Token não encontrado. Faça login novamente.", "error");
         return;
       }
-
-      // Decodificar o token para obter o ID do usuário autenticado
-      const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decodifica o payload do JWT
-      const userId = decodedToken.id; // Obtém o ID do usuário autenticado
 
       const response = await fetch(`${baseUrl}/usuarios`, {
         method: "GET",
@@ -340,35 +336,85 @@ document.addEventListener("DOMContentLoaded", function () {
       const listaUsuarios = document.getElementById("lista-usuarios");
       listaUsuarios.innerHTML = "";
 
-      // Filtrar para não incluir o usuário autenticado
-      const usuariosFiltrados = usuarios.data.filter(usuario => usuario.id !== userId);
-
-      usuariosFiltrados.forEach((usuario) => {
+      usuarios.data.forEach((usuario) => {
         const usuarioDiv = document.createElement("div");
         usuarioDiv.classList.add("item");
 
         usuarioDiv.innerHTML = `
-                <p><strong>Nome:</strong> ${usuario.nome}</p>
-                <p><strong>Username:</strong> ${usuario.username}</p>
-                <div class="action-buttons">
-                    <button class="editar-usuario" data-id="${usuario.id}" data-nome="${usuario.nome}" data-username="${usuario.username}">Editar</button>
-                    <button class="deletar-usuario" data-id="${usuario.id}">Deletar</button>
-                </div>
-            `;
+        <p><strong>Nome:</strong> ${usuario.nome}</p>
+        <p><strong>Username:</strong> ${usuario.username}</p>
+        <p><strong>Admin:</strong> ${usuario.is_admin ? "Sim" : "Não"}</p>
+        <div class="action-buttons">
+          <button class="editar-usuario" 
+            data-id="${usuario.id}" 
+            data-nome="${usuario.nome}" 
+            data-username="${usuario.username}" 
+            data-is_admin="${usuario.is_admin}">
+            Editar
+          </button>
+          <button class="deletar-usuario" data-id="${usuario.id}">Deletar</button>
+        </div>
+      `;
 
         listaUsuarios.appendChild(usuarioDiv);
       });
 
-      // Eventos para editar e deletar usuários
+      async function deletarUsuario(id) {
+        showConfirm(
+            "Tem certeza que deseja deletar este usuário?",
+            async () => {
+              try {
+                const token = localStorage.getItem("token");
+                const response = await fetch(`${baseUrl}/usuarios/${id}`, {
+                  method: "DELETE",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
+
+                if (response.ok) {
+                  showPopup("Usuário deletado com sucesso!", "success");
+                  await listarUsuarios();
+                } else {
+                  const errorData = await response.json();
+                  showPopup(
+                      `Erro ao deletar usuário: ${
+                          errorData.message || response.statusText
+                      }`,
+                      "error"
+                  );
+                }
+              } catch (error) {
+                console.error("Erro ao deletar usuário:", error.message);
+                showPopup("Erro ao deletar usuário.", "error");
+              }
+            },
+            () => {
+              showPopup("Ação cancelada!", "info");
+            }
+        );
+      }
+
+      // Eventos para editar usuários
       document.querySelectorAll(".editar-usuario").forEach((button) => {
         button.addEventListener("click", function () {
           const id = this.getAttribute("data-id");
           const nome = this.getAttribute("data-nome");
           const username = this.getAttribute("data-username");
-          abrirModalEditarUsuario(id, nome, username);
+          const is_admin = parseInt(this.getAttribute("data-is_admin"), 10); // Converte para número
+
+          console.log("Dados capturados para edição:", {
+            id,
+            nome,
+            username,
+            is_admin,
+          });
+
+          abrirModalEditarUsuario(id, nome, username, is_admin);
         });
       });
 
+      // Eventos para deletar usuários
       document.querySelectorAll(".deletar-usuario").forEach((button) => {
         button.addEventListener("click", async function () {
           const id = this.getAttribute("data-id");
@@ -381,69 +427,64 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  document
-      .getElementById("form-editar-usuario")
-      .addEventListener("submit", async function (e) {
-        e.preventDefault();
+  document.getElementById("form-editar-usuario").addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-        const id = document.getElementById("editar-id-usuario").value; // Corrigido o ID correto
-        const nome = document.getElementById("editar-nome-usuario").value.trim();
-        const username = document.getElementById("editar-username-usuario").value.trim();
-        const senha = document.getElementById("editar-senha-usuario").value.trim();
-        const isAdmin = document.getElementById("editar-is-admin-usuario").checked ? 1 : 0; // Usar checkbox para indicar se é admin
-        const token = localStorage.getItem("token");
+    const id = document.getElementById("editar-id-usuario").value;
+    const nome = document.getElementById("editar-nome-usuario").value.trim();
+    const username = document.getElementById("editar-username-usuario").value.trim();
+    const senha = document.getElementById("editar-senha-usuario").value.trim();
+    const is_admin = parseInt(document.getElementById("editar-is-admin-usuario").value, 10);
+    const token = localStorage.getItem("token");
 
-        // Valores originais para fallback
-        const nomeOriginal = document
-            .getElementById("editar-nome-usuario")
-            .getAttribute("data-original-nome");
-        const usernameOriginal = document
-            .getElementById("editar-username-usuario")
-            .getAttribute("data-original-username");
-        const isAdminOriginal = parseInt(
-            document
-                .getElementById("editar-is-admin-usuario")
-                .getAttribute("data-original-is_admin")
-        );
+    // Valores originais
+    const nomeOriginal = document.getElementById("editar-nome-usuario").getAttribute("data-original-nome");
+    const usernameOriginal = document.getElementById("editar-username-usuario").getAttribute("data-original-username");
+    const is_adminOriginal = parseInt(document.getElementById("editar-is-admin-usuario").getAttribute("data-original-is_admin"), 10);
 
-        // Prepara os dados atualizados, usando os originais como fallback
-        const dadosAtualizados = {
-          nome: nome || nomeOriginal,
-          username: username || usernameOriginal,
-          is_admin: isAdmin !== undefined ? isAdmin : isAdminOriginal, // Corrigido para is_admin
-        };
+    // Construir payload apenas com campos alterados
+    const payload = {};
+    if (nome && nome !== nomeOriginal) payload.nome = nome;
+    if (username && username !== usernameOriginal) payload.username = username;
+    if (senha) payload.novaSenha = senha; // Atualiza a senha apenas se preenchida
+    if (is_admin !== is_adminOriginal) payload.is_admin = is_admin;
 
-        if (senha) {
-          dadosAtualizados.senha = senha; // Adiciona a senha apenas se preenchida
-        }
+    // Verifica se algo foi alterado
+    if (Object.keys(payload).length === 0) {
+      console.log("Nenhuma alteração detectada.");
+      showPopup("Nenhuma alteração foi detectada.", "info");
+      return;
+    }
 
-        try {
-          const response = await fetch(`${baseUrl}/usuarios/${id}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(dadosAtualizados),
-          });
+    console.log("Dados a serem enviados:", payload);
 
-          if (!response.ok) {
-            const errorData = await response.json();
-            showPopup(
-                `Erro ao atualizar usuário: ${errorData.message || response.statusText}`,
-                "error"
-            );
-            return;
-          }
-
-          showPopup("Usuário atualizado com sucesso!", "success");
-          await listarUsuarios();
-          document.getElementById("modal-editar-usuario").style.display = "none";
-        } catch (error) {
-          console.error("Erro ao atualizar usuário:", error.message);
-        }
+    try {
+      const response = await fetch(`${baseUrl}/usuarios/${id}/parcial`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Erro ao atualizar usuário:", errorData);
+        showPopup(`Erro ao atualizar usuário: ${errorData.message || response.statusText}`, "error");
+        return;
+      }
+
+      console.log("Usuário atualizado com sucesso!");
+      showPopup("Usuário atualizado com sucesso!", "success");
+
+      await listarUsuarios();
+      document.getElementById("modal-editar-usuario").style.display = "none";
+    } catch (error) {
+      console.error("Erro ao atualizar usuário:", error.message);
+      showPopup("Erro ao atualizar usuário. Tente novamente.", "error");
+    }
+  });
 
   // Mesas - CRUD
   document
