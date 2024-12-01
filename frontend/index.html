@@ -91,6 +91,7 @@
             <li><a href="#produtos" class="nav-link restricted">Produtos</a></li>
             <li><a href="#pagamentos" class="nav-link restricted">Pagamentos</a></li>
             <li><a href="#produtos-mesa" class="nav-link restricted">Produtos da Mesa</a></li>
+            <li><a href="#adicionar-produto" class="nav-link restricted">Adicionar Produto</a></li>
         </ul>
     </nav>
 
@@ -179,6 +180,27 @@
 
             <!-- Lista de Pagamentos -->
             <div id="lista-pagamentos" class="card-container"></div>
+        </section>
+
+        <section id="adicionar-produto" class="section">
+            <h2>Fazer Pedido</h2>
+            <p>Escolha a mesa e os produtos para adicionar ao seu pedido:</p>
+
+            <!-- Formulário para selecionar mesa -->
+            <form id="form-adicionar-produto">
+                <label for="num-mesa">Número da Mesa:</label>
+                <input type="number" id="num-mesa" placeholder="Número da Mesa" required>
+
+                <button type="submit">Adicionar Produto à Mesa</button>
+            </form>
+
+            <!-- Lista de Produtos a serem exibidos -->
+            <div id="lista-produtos-compra" class="card-container">
+                <!-- Os produtos serão carregados aqui dinamicamente -->
+            </div>
+
+            <!-- Feedback para o cliente -->
+            <div id="mensagem-feedback" class="feedback-message"></div>
         </section>
     </main>
 

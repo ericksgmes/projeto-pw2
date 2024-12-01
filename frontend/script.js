@@ -1142,10 +1142,88 @@ document
       showPopup("Erro ao listar produtos da mesa. Tente novamente mais tarde.", "error");
     }
   }
+  async function listarProdutosParaCompra() {
+    try {
+      const token = localStorage.getItem("token");
 
-// REMOVER O EVENT LISTENER DO FORMULÁRIO
-// Não é necessário mais o listener do formulário. O código abaixo foi removido:
-// document.getElementById("form-produtos-mesa").addEventListener("submit", async function (e) { ... });
+      if (!token) {
+        showPopup("Token não encontrado. Faça login novamente.", "error");
+        return;
+      }
+
+      // Requisição para buscar os produtos disponíveis
+      const response = await fetch(`${baseUrl}/produtos`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        showPopup(`Erro ao listar produtos: ${errorData.message || response.statusText}`, "error");
+        return;
+      }
+
+      const produtos = await response.json();
+      const listaProdutos = document.getElementById("lista-produtos-compra"); // Mudou para 'lista-produtos-compra'
+
+      listaProdutos.innerHTML = ""; // Limpa a lista de produtos antes de repovoá-la
+
+      produtos.data.forEach((produto) => {
+        const imagem =
+            imagemProdutos[produto.nome] || "./assets/imgProducts/default.jpeg"; // Definir uma imagem padrão se não tiver imagem específica
+        const produtoDiv = document.createElement("div");
+        produtoDiv.classList.add("item");
+        produtoDiv.innerHTML = `
+              <img src="${imagem}" alt="${produto.nome}">
+              <p><strong>Nome:</strong> ${produto.nome}</p>
+              <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(2)}</p>
+              
+              <!-- Dropdown para selecionar a quantidade -->
+              <label for="quantidade-${produto.id}"><strong>Quantidade:</strong></label>
+              <select id="quantidade-${produto.id}" class="quantidade-produto">
+                <!-- Vamos criar opções de 1 até 10, mas isso pode ser ajustado -->
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+              </select>
+              
+              <button class="adicionar-produto" data-id="${produto.id}" data-nome="${produto.nome}" data-preco="${produto.preco}">Adicionar à Mesa</button>
+            `;
+        listaProdutos.appendChild(produtoDiv);
+      });
+
+      // Eventos para adicionar o produto à mesa
+      document.querySelectorAll(".adicionar-produto").forEach((button) => {
+        button.addEventListener("click", function () {
+          const idProduto = this.getAttribute("data-id");
+          const nomeProduto = this.getAttribute("data-nome");
+          const precoProduto = this.getAttribute("data-preco");
+          const quantidade = document.getElementById(`quantidade-${idProduto}`).value;
+
+          if (quantidade < 1) {
+            showPopup("Por favor, insira uma quantidade válida.", "error");
+            return;
+          }
+
+          // Chama a função para adicionar o produto à mesa
+          adicionarProdutoMesa(idProduto, quantidade);
+        });
+      });
+
+    } catch (error) {
+      console.error("Erro ao listar produtos:", error.message);
+      showPopup("Erro ao listar produtos. Tente novamente mais tarde.", "error");
+    }
+  }
 
   function mostrarSecao(sectionId) {
     document.querySelectorAll(".section").forEach((section) => {
@@ -1166,6 +1244,8 @@ document
       listarPagamentos();
     } else if (sectionId === "produtos-mesa") {
       listarProdutosMesa();
+    } else if (sectionId === "adicionar-produto") {
+      listarProdutosParaCompra();
     }
   }
 });

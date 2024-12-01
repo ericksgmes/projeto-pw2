@@ -676,3 +676,56 @@ header h1 {
 #logout-button:hover {
   background-color: #e6e6e6;
 }
+
+.quantidade-produto {
+  width: 60px;  /* Largura do dropdown */
+  height: 35px; /* Altura da caixa */
+  padding: 5px;
+  font-size: 1rem;
+  text-align: center; /* Centraliza o número dentro do dropdown */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px; /* Espaçamento abaixo do dropdown */
+  background-color: #fff;
+  color: #333;
+  appearance: none;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor"%3E%3Cpath d="M5 7l5 5 5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3C/path%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+/* Ajuste do foco */
+.quantidade-produto:focus {
+  border-color: #ff7f00;
+  outline: none;
+}
+
+/* Alteração do estilo para as opções no dropdown */
+.quantidade-produto option {
+  background-color: #fff;
+  color: #333;
+  text-align: center;
+}
+
+/* Estilo da opção selecionada */
+.quantidade-produto option:checked {
+  background-color: #ff7f00;
+  color: white;
+}
+
+/* Botão de adicionar à mesa */
+.adicionar-produto {
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.adicionar-produto:hover {
+  background-color: #45a049;
+}
