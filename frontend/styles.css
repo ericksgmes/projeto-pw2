@@ -1,8 +1,30 @@
+:root {
+  --background-main: #f8f8f8; /* Cinza bem claro para o fundo */
+  --text-main: #333333; /* Cinza escuro para o texto principal */
+  --nav-border: #dcdcdc; /* Cinza suave para bordas da navegação */
+  --header-text: #ffffff; /* Branco para o texto do header */
+  --nav-hover: #666666; /* Cinza médio no hover */
+  --form-border: #cccccc; /* Cinza claro para bordas de formulários */
+  --form-button-background: #4a4a4a; /* Cinza escuro para botões */
+  --form-button-hover: #333333; /* Preto para hover dos botões */
+  --card-shadow: rgba(0, 0, 0, 0.1); /* Sombra suave para cartões */
+  --card-hover-shadow: rgba(0, 0, 0, 0.2); /* Sombra mais intensa no hover */
+  --progress-background: #4a4a4a; /* Cinza escuro para progresso */
+  --popup-success: rgba(76, 175, 80, 0.9); /* Verde para sucesso */
+  --popup-success-progress: #388e3c;
+  --popup-error: rgba(231, 76, 60, 0.9); /* Vermelho para erros */
+  --popup-error-progress: #c0392b;
+  --popup-info: rgba(52, 152, 219, 0.9); /* Azul suave para informações */
+  --popup-info-progress: #2980b9;
+  --header-background: #4a4a4a; /* Cinza escuro para o header */
+  --footer-background: #4a4a4a; /* Mesma cor do header */
+}
+
 /* Estilos Gerais */
 body {
   font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
+  background-color: var(--background-main);
+  color: var(--text-main);
   margin: 0;
   padding: 0;
 }
@@ -11,7 +33,7 @@ body {
 /* Navegação Vertical */
 nav {
   width: 200px;
-  background-color: #333;
+  background-color: var(--text-main);
   position: fixed;
   top: 140px; /* Altura do header ajustada */
   bottom: 0;
@@ -27,18 +49,18 @@ nav ul {
 }
 
 nav ul li {
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid var(--nav-border);
 }
 
 nav ul li a {
   display: block;
-  color: #fff;
+  color: var(--header-text);
   text-decoration: none;
   padding: 12px 15px;
 }
 
 nav ul li a:hover {
-  background-color: #575757;
+  background-color: var(--nav-hover);
 }
 
 /* Conteúdo Principal */
@@ -48,11 +70,11 @@ nav ul li a:hover {
 
 main {
   margin-left: 220px; /* Largura da nav + espaçamento */
-  padding: 20px;
   min-height: calc(
-    100vh - 60px - 40px
+          100vh - 60px - 40px
   ); /* Altura total menos header e footer */
-  padding-bottom: 60px; /* Altura do footer */
+  /* Altura do footer */
+  padding: 20px 20px 60px;
 }
 
 .section {
@@ -79,13 +101,13 @@ form button {
 }
 
 form input {
-  border: 1px solid #ccc;
+  border: 1px solid var(--form-border);
   border-radius: 5px;
 }
 
 form button {
-  background-color: #ff7f00; /* Laranja */
-  color: #fff;
+  background-color: var(--form-button-background); /* Laranja */
+  color: var(--header-text);
   border: none;
   cursor: pointer;
   border-radius: 5px;
@@ -93,7 +115,7 @@ form button {
 }
 
 form button:hover {
-  background-color: #e67300; /* Laranja mais escura no hover */
+  background-color: var(--form-button-hover); /* Laranja mais escura no hover */
 }
 
 /* Lista de Itens */
@@ -106,16 +128,16 @@ form button:hover {
 
 .item {
   padding: 20px;
-  background-color: #fff;
+  background-color: var(--header-text);
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 5px var(--card-shadow);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-align: center;
 }
 
 .item:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 15px var(--card-hover-shadow);
 }
 
 .item img {
@@ -128,7 +150,7 @@ form button:hover {
 
 .item p {
   font-size: 16px;
-  color: #333;
+  color: var(--text-main);
   margin: 10px 0;
 }
 
@@ -141,7 +163,7 @@ form button:hover {
   padding: 10px 20px;
   margin-top: 10px;
   background-color: #f57c00; /* Alaranjado */
-  color: #fff;
+  color: var(--header-text);
   border: none;
   border-radius: 4px;
   transition: background-color 0.3s ease;
@@ -163,11 +185,12 @@ form button:hover {
 footer {
   text-align: center;
   padding: 5px 0; /* Diminuído o padding */
-  background-color: #ff7f00; /* Laranja */
-  color: #fff;
+  background-color: var(--form-button-background); /* Laranja */
+  color: var(--header-text);
   position: fixed;
   bottom: 0;
   width: 100%;
+  z-index: 10000;
 }
 
 /* Seção de Login */
@@ -184,11 +207,11 @@ footer {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #ff7f00; /* Laranja */
+  background-color: var(--form-button-background); /* Laranja */
 }
 
 .login-box {
-  background-color: #fff;
+  background-color: var(--header-text);
   padding: 30px;
   width: 100%;
   max-width: 400px;
@@ -214,15 +237,15 @@ footer {
 .input-group input {
   width: calc(100% - 20px);
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--form-border);
   border-radius: 5px;
 }
 
 .login-button {
   width: 100%;
   padding: 10px;
-  background-color: #ff7f00; /* Laranja */
-  color: #fff;
+  background-color: var(--form-button-background); /* Laranja */
+  color: var(--header-text);
   border: none;
   cursor: pointer;
   border-radius: 5px;
@@ -231,7 +254,7 @@ footer {
 }
 
 .login-button:hover {
-  background-color: #e67300; /* Laranja mais escura no hover */
+  background-color: var(--form-button-hover); /* Laranja mais escura no hover */
 }
 
 .error-message {
@@ -254,7 +277,7 @@ footer {
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: var(--header-text);
   margin: 10% auto;
   padding: 20px;
   border-radius: 5px;
@@ -343,7 +366,7 @@ footer {
   bottom: 0;
   left: 0;
   height: 6px;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--progress-background);
   width: 0;
   border-radius: 0 0 5px 5px;
   transition: width 0.3s linear;
@@ -351,27 +374,27 @@ footer {
 
 /* Esquema de cores para diferentes tipos */
 .popup.success {
-  background-color: rgba(76, 175, 80, 0.9); /* Verde com transparência */
+  background-color: var(--popup-success); /* Verde com transparência */
 }
 
 .popup.success .popup-progress {
-  background-color: #388e3c;
+  background-color: var(--popup-success-progress);
 }
 
 .popup.error {
-  background-color: rgba(244, 67, 54, 0.9); /* Vermelho com transparência */
+  background-color: var(--popup-error); /* Vermelho com transparência */
 }
 
 .popup.error .popup-progress {
-  background-color: #d32f2f;
+  background-color: var(--popup-error-progress);
 }
 
 .popup.info {
-  background-color: rgba(33, 150, 243, 0.9); /* Azul com transparência */
+  background-color: var(--popup-info); /* Azul com transparência */
 }
 
 .popup.info .popup-progress {
-  background-color: #1976d2;
+  background-color: var(--popup-info-progress);
 }
 
 /* Remoção da transparência */
@@ -411,7 +434,7 @@ footer {
 /* Texto da mensagem */
 .confirm-box p {
   font-size: 18px;
-  color: #333;
+  color: var(--text-main);
   margin-bottom: 20px;
 }
 
@@ -437,7 +460,7 @@ footer {
 }
 
 #confirm-yes:hover {
-  background-color: #388e3c;
+  background-color: var(--popup-success-progress);
 }
 
 #confirm-no {
@@ -446,7 +469,7 @@ footer {
 }
 
 #confirm-no:hover {
-  background-color: #d32f2f;
+  background-color: var(--popup-error-progress);
 }
 
 /* Animação */
@@ -465,14 +488,14 @@ footer {
   display: block;
   text-align: center;
   margin-top: 10px;
-  color: #ff7f00; /* Cor laranja */
+  color: var(--form-button-background); /* Cor laranja */
   text-decoration: none;
   font-size: 1em; /* Tamanho consistente */
   transition: color 0.3s ease-in-out;
 }
 
 #go-to-register:hover, #go-to-login:hover {
-  color: #e67300; /* Laranja mais escura no hover */
+  color: var(--form-button-hover); /* Laranja mais escura no hover */
 }
 
 /* Seção de Registro */
@@ -489,11 +512,11 @@ footer {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #ff7f00; /* Laranja de fundo */
+  background-color: var(--form-button-background); /* Laranja de fundo */
 }
 
 .register-box {
-  background-color: #fff;
+  background-color: var(--header-text);
   padding: 30px;
   width: 100%;
   max-width: 400px;
@@ -519,7 +542,7 @@ footer {
 .register-box .input-group input {
   width: calc(100% - 20px);
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--form-border);
   border-radius: 5px;
 }
 
@@ -527,8 +550,8 @@ footer {
 .register-box .register-button {
   width: 100%;
   padding: 10px;
-  background-color: #ff7f00; /* Laranja */
-  color: #fff;
+  background-color: var(--form-button-background); /* Laranja */
+  color: var(--header-text);
   border: none;
   cursor: pointer;
   border-radius: 5px;
@@ -537,7 +560,7 @@ footer {
 }
 
 .register-box .register-button:hover {
-  background-color: #e67300; /* Laranja mais escura no hover */
+  background-color: var(--form-button-hover); /* Laranja mais escura no hover */
 }
 
 /* Estilo para o link "Cadastre-se" */
@@ -563,9 +586,9 @@ select {
   width: 100%; /* Preenche a largura disponível */
   padding: 10px;
   font-size: 1em;
-  border: 1px solid #ccc;
+  border: 1px solid var(--form-border);
   border-radius: 5px;
-  background-color: #fff;
+  background-color: var(--header-text);
   appearance: none; /* Remove o estilo padrão do navegador */
 }
 
@@ -576,8 +599,8 @@ select:focus {
 
 /* Header */
 header {
-  background-color: #656565;
-  color: #fff;
+  background-color: var(--header-background);
+  color: var(--header-text);
   /*padding: 10px 20px;*/
   padding-right: 30px;
   padding-left: 30px;
@@ -605,7 +628,8 @@ header {
 /* Título */
 header h1 {
   margin: 0;
-  font-size: 1.5em;
+  font-size: 2em;
+  font-weight: bold;
 }
 
 /* Container de informações do usuário e botão de logout */
@@ -620,8 +644,8 @@ header h1 {
   display: flex;
   flex-direction: column; /* Nome e username em coluna */
   align-items: flex-end; /* Alinhar o texto à direita */
-  font-size: 0.9em;
-  margin-right: 5px; /* Reduz o espaço entre o texto e o botão */
+  font-size: 1em; /* Aumentado para maior destaque */
+  margin-right: 10px; /* Espaço maior entre o texto e o botão */
 }
 
 #usuario-logado span {
@@ -629,24 +653,23 @@ header h1 {
 }
 
 #usuario-logado span:first-child {
-  font-size: 1em; /* Nome do usuário maior */
-  font-weight: bold;
+  font-size: 1.2em; /* Nome do usuário maior */
+  font-weight: bold; /* Destaque adicional */
 }
 
 #usuario-logado span:last-child {
-  font-size: 0.85em; /* Username menor */
-  opacity: 0.8; /* Tom mais claro */
+  font-size: 1.1em; /* Username maior */
+  opacity: 0.9; /* Menor transparência */
 }
 
-/* Botão de Logout */
 #logout-button {
-  background-color: #fff;
-  color: #ff7f00;
-  border: 2px solid #fff;
-  padding: 5px 10px;
-  font-size: 0.9em;
+  background-color: var(--header-text);
+  color: var(--form-button-background);
+  border: 2px solid var(--header-text);
+  padding: 10px 20px; /* Aumentado */
+  font-size: 1.1em; /* Aumentado */
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 8px; /* Suaviza mais os cantos */
   transition: background-color 0.3s ease;
 }
 
