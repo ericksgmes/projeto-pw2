@@ -1,6 +1,33 @@
 document.addEventListener("DOMContentLoaded", function () {
   const baseUrl = "http://localhost/restaurante-webservice";
 
+  verificarPermissoes(); // Chama a função ao carregar a página
+
+  // Função para verificar se o usuário é admin e esconder as opções restritas
+  function verificarPermissoes() {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        const decodedToken = jwt_decode(token); // Decodifica o token JWT
+
+        // Verifica se o usuário é admin
+        const isAdmin = decodedToken.is_admin;
+
+        // Se o usuário não for admin, oculta as opções restritas
+        if (!isAdmin) {
+          const restrictedItems = document.querySelectorAll(".nav-link.restricted"); // Seleciona todas as opções com as classes 'nav-link' e 'restricted'
+
+          restrictedItems.forEach(item => {
+            item.style.display = "none"; // Oculta a opção
+          });
+        }
+      } catch (e) {
+        console.error("Erro ao decodificar o token:", e);
+      }
+    }
+  }
+
   const imagemProdutos = {
     Bruschetta: "./assets/imgProducts/bruschetta.jpeg",
     "Tábua de Queijos": "./assets/imgProducts/tabua_queijos.jpeg",
