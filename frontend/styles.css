@@ -13,10 +13,11 @@ nav {
   width: 200px;
   background-color: #333;
   position: fixed;
-  top: 60px; /* Altura do header ajustada */
+  top: 140px; /* Altura do header ajustada */
   bottom: 0;
   left: 0;
   overflow-y: auto;
+  z-index: 1000;
 }
 
 nav ul {
@@ -569,15 +570,17 @@ select {
 }
 
 select:focus {
-  border-color: #bc5e08; /* Laranja */
+  border-color: #bc5e08;
   outline: none;
 }
 
 /* Header */
 header {
-  background-color: #ff7f00; /* Laranja */
+  background-color: #656565;
   color: #fff;
-  padding: 10px 20px;
+  /*padding: 10px 20px;*/
+  padding-right: 30px;
+  padding-left: 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -591,10 +594,13 @@ header {
 
 /* Logo */
 .header-container .logo {
-  width: 50px;
-  height: auto;
+  max-width: 140px; /* Aumenta a largura máxima */
+  height: auto; /* Mantém a proporção da imagem */
   margin-right: 15px;
+  display: block; /* Garante que a logo seja exibida como bloco */
+  object-fit: contain; /* Ajusta a logo dentro do container sem distorção */
 }
+
 
 /* Título */
 header h1 {
