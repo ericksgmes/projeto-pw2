@@ -17,11 +17,12 @@ document.addEventListener("DOMContentLoaded", function () {
     "Água com Gás": "./assets/imgProducts/agua_com_gas.jpeg",
   };
 
-  const imagemUsuarios = {
-    "Carlos Souza": ".assets/imgUsers/carlos_souza.webp",
-    "João Silva": "./assets/imgUsers/joao_silva.webp",
-    "Maria Oliveira": ".assets/imgUsers/maria_oliveira.webp",
-  };
+  // const imagemUsuarios = {
+  //   "Carlos Souza": ".assets/imgUsers/carlos_souza.webp",
+  //   "João Silva": "./assets/imgUsers/joao_silva.webp",
+  //   "Maria Oliveira": ".assets/imgUsers/maria_oliveira.webp",
+  // };
+
   // Elementos
   const loginSection = document.getElementById("login-section");
   const mainContent = document.getElementById("main-content");
@@ -507,7 +508,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (response.status === 201) {
           showPopup("Mesa criada com sucesso!", "success");
-          listarMesas();
+          await listarMesas();
           e.target.reset();
         } else {
           const errorData = await response.json();
@@ -577,7 +578,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (response.ok) {
               showPopup("Mesa deletada com sucesso!", "success");
-              listarMesas();
+              await listarMesas();
             } else {
               const errorData = await response.json();
               showPopup(`Erro ao deletar mesa: ${errorData.message || response.statusText}`, "error");
@@ -614,7 +615,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (response.status === 201) {
           showPopup("Produto criado com sucesso!", "success");
-          listarProdutos();
+          await listarProdutos();
           e.target.reset();
         } else {
           const errorData = await response.json();
@@ -704,7 +705,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (response.ok) {
               showPopup("Produto deletado com sucesso!", "success");
-              listarProdutos();
+              await listarProdutos();
             } else {
               const errorData = await response.json();
               showPopup(`Erro ao deletar produto: ${errorData.message || response.statusText}`, "error");
@@ -788,7 +789,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             showPopup("Preço atualizado com sucesso!", "success");
-            listarProdutos();
+            await listarProdutos();
             modalEditarProduto.style.display = "none";
           } catch (error) {
             console.error("Erro ao atualizar preço:", error.message);
@@ -819,7 +820,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
 
           showPopup("Produto atualizado com sucesso!", "success");
-          listarProdutos();
+          await listarProdutos();
           modalEditarProduto.style.display = "none";
         } catch (error) {
           console.error("Erro ao atualizar produto:", error.message);
@@ -859,7 +860,7 @@ document
 
         if (response.status === 201) {
           showPopup("Pagamento adicionado com sucesso", "success");
-          listarPagamentos();
+          await listarPagamentos();
           e.target.reset();
         } else {
           const errorData = await response.json();
