@@ -29,7 +29,6 @@ body {
   padding: 0;
 }
 
-
 /* Navegação Vertical */
 nav {
   width: 200px;
@@ -71,7 +70,7 @@ nav ul li a:hover {
 main {
   margin-left: 220px; /* Largura da nav + espaçamento */
   min-height: calc(
-          100vh - 60px - 40px
+    100vh - 60px - 40px
   ); /* Altura total menos header e footer */
   /* Altura do footer */
   padding: 20px 20px 60px;
@@ -484,7 +483,8 @@ footer {
   }
 }
 /* Link "Cadastre-se" */
-#go-to-register, #go-to-login {
+#go-to-register,
+#go-to-login {
   display: block;
   text-align: center;
   margin-top: 10px;
@@ -494,7 +494,8 @@ footer {
   transition: color 0.3s ease-in-out;
 }
 
-#go-to-register:hover, #go-to-login:hover {
+#go-to-register:hover,
+#go-to-login:hover {
   color: var(--form-button-hover); /* Laranja mais escura no hover */
 }
 
@@ -624,7 +625,6 @@ header {
   object-fit: contain; /* Ajusta a logo dentro do container sem distorção */
 }
 
-
 /* Título */
 header h1 {
   margin: 0;
@@ -678,7 +678,7 @@ header h1 {
 }
 
 .quantidade-produto {
-  width: 60px;  /* Largura do dropdown */
+  width: 60px; /* Largura do dropdown */
   height: 35px; /* Altura da caixa */
   padding: 5px;
   font-size: 1rem;
@@ -771,6 +771,20 @@ header h1 {
 }
 
 /* Estilos do carrinho */
+
+#btn-exibir-carrinho {
+  background-color: transparent; /* Tornar o fundo transparente */
+  border: none; /* Remover bordas */
+  cursor: pointer; /* Apontador de clique */
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  width: 8%;
+}
+#btn-exibir-carrinho img {
+  width: 100%;
+}
+
 #carrinho-lista {
   list-style-type: none;
   padding: 0;
@@ -782,7 +796,7 @@ header h1 {
 }
 
 button#finalizar-pedido {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 10px 20px;
   border: none;
@@ -795,4 +809,3 @@ button#finalizar-pedido {
 button#finalizar-pedido:hover {
   background-color: #45a049;
 }
-

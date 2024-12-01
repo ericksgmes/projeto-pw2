@@ -9,315 +9,295 @@
 </head>
 
 <body>
-<!-- Tela de Login -->
-<div id="login-section" class="section active">
-    <div class="login-container">
-        <div class="login-box">
-            <h2>Login</h2>
-            <form id="login-form">
-                <div class="input-group">
-                    <label for="username-login">Usuário</label>
-                    <input type="text" id="username-login" name="login" placeholder="Digite seu login" required>
-                </div>
-                <div class="input-group">
-                    <label for="senha-login">Senha</label>
-                    <input type="password" id="senha-login" name="senha" placeholder="Digite sua senha" required>
-                </div>
-                <button type="submit" class="login-button">Entrar</button>
-                <p id="login-error" class="error-message" style="display: none;">Usuário ou senha incorretos!</p>
-            </form>
-            <p id="register-link">
-                Não tem uma conta?
-                <a href="#" id="go-to-register" class="link-button">Cadastre-se</a>
-            </p>
-        </div>
-    </div>
-</div>
-
-<div id="register-section" class="section" style="display: none;">
-    <div class="register-container">
-        <div class="register-box">
-            <h2>Cadastre-se</h2>
-            <form id="register-form">
-                <div class="input-group">
-                    <label for="register-name">Nome Completo</label>
-                    <input type="text" id="register-name" name="name" placeholder="Digite seu nome completo" required>
-                </div>
-                <div class="input-group">
-                    <label for="register-username">Usuário</label>
-                    <input type="text" id="register-username" name="username" placeholder="Digite seu usuário" required>
-                </div>
-                <div class="input-group">
-                    <label for="register-password">Senha</label>
-                    <input type="password" id="register-password" name="password" placeholder="Digite sua senha" required>
-                </div>
-                <div class="input-group">
-                    <label for="register-confirm-password">Confirme sua Senha</label>
-                    <input type="password" id="register-confirm-password" name="confirm-password" placeholder="Confirme sua senha" required>
-                </div>
-                <button type="submit" class="register-button">Cadastrar</button>
-            </form>
-            <p class="login-link">
-                Já tem uma conta? <a id="go-to-login" href="#">Faça login</a>
-            </p>
-        </div>
-    </div>
-</div>
-
-<!-- Conteúdo Principal -->
-<div id="main-content" style="display: none;">
-    <header>
-        <div class="header-container">
-            <img src="assets/logo.png" alt="Logo" class="logo">
-            <h1>Tempero Delícia</h1>
-        </div>
-        <div class="header-right">
-            <div id="usuario-logado">
-                <span id="usuario-logado-nome"></span>
-                <span id="usuario-logado-username"></span>
-            </div>
-            <button id="logout-button">Logout</button>
-        </div>
-    </header>
-
-
-
-
-    <nav>
-        <ul>
-            <li><a href="#home" class="nav-link">Home</a></li>
-            <li><a href="#usuarios" class="nav-link restricted">Usuários</a></li>
-            <li><a href="#mesas" class="nav-link restricted">Mesas</a></li>
-            <li><a href="#produtos" class="nav-link restricted">Produtos</a></li>
-            <li><a href="#pagamentos" class="nav-link restricted">Pagamentos</a></li>
-            <li><a href="#produtos-mesa" class="nav-link restricted">Produtos da Mesa</a></li>
-            <li><a href="#adicionar-produto" class="nav-link restricted">Adicionar Produto</a></li>
-        </ul>
-    </nav>
-
-    <main>
-        <!-- Seções -->
-        <section id="home" class="section">
-            <h2>Bem-vindo ao Gerenciamento de Restaurante</h2>
-            <p>Abaixo estão todos os produtos disponíveis no restaurante:</p>
-            <div id="lista-produtos-home" class="card-container"></div>
-        </section>
-
-        <section id="produtos-mesa" class="section">
-            <h2>Gerenciamento de Produtos da Mesa</h2>
-            <p>Visualize os produtos adicionados a uma mesa específica:</p>
-
-            <!-- Formulário para buscar produtos de uma mesa -->
-            <form id="form-produtos-mesa">
-                <label for="mesa-id-produtos">Número da Mesa:</label>
-                <input type="number" id="mesa-id-produtos" placeholder="Insira o número da mesa" required>
-                <button id="buscar-produtos-button" type="button">Buscar Produtos</button> <!-- Alterado para type="button" -->
-            </form>
-
-            <!-- Lista de Produtos da Mesa -->
-            <div id="lista-produtos-mesa" class="card-container">
-                <!-- Os produtos da mesa serão exibidos aqui -->
-            </div>
-        </section>
-
-        <section id="usuarios" class="section">
-            <h2>Gerenciamento de Usuários</h2>
-
-            <!-- Formulário para adicionar Usuário -->
-            <form id="form-usuario">
-                <input type="text" id="nome-usuario" placeholder="Nome do Usuário" required>
-                <input type="text" id="username-usuario" placeholder="Username" required>
-                <input type="password" id="senha-usuario" placeholder="Senha" required>
-                <button type="submit">Adicionar Usuário</button>
-            </form>
-
-            <!-- Lista de Usuários -->
-            <div id="lista-usuarios" class="card-container"></div>
-        </section>
-
-        <section id="mesas" class="section">
-            <h2>Gerenciamento de Mesas</h2>
-
-            <!-- Formulário para adicionar Mesa -->
-            <form id="form-mesa">
-                <input type="number" id="numero-mesa" placeholder="Número da Mesa" required>
-                <button type="submit">Adicionar Mesa</button>
-            </form>
-
-            <!-- Lista de Mesas -->
-            <div id="lista-mesas" class="card-container"></div>
-        </section>
-
-        <section id="produtos" class="section">
-            <h2>Gerenciamento de Produtos</h2>
-
-            <!-- Formulário para adicionar Produto -->
-            <form id="form-produto">
-                <input type="text" id="nome-produto" placeholder="Nome do Produto" required>
-                <input type="number" step="0.01" id="preco-produto" placeholder="Preço do Produto" required>
-                <button type="submit">Adicionar Produto</button>
-            </form>
-
-            <!-- Lista de Produtos -->
-            <div id="lista-produtos" class="card-container"></div>
-        </section>
-
-        <section id="pagamentos" class="section">
-            <h2>Gerenciamento de Pagamentos</h2>
-
-            <!-- Formulário para adicionar Pagamento -->
-            <form id="form-pagamento">
-                <input type="number" id="numero-mesa-pagamento" placeholder="Número da Mesa" required>
-                <select id="metodo-pagamento" required>
-                    <option value="" disabled selected>Selecione um método de pagamento</option>
-                    <option value="CREDITO">Crédito</option>
-                    <option value="DEBITO">Débito</option>
-                    <option value="PIX">Pix</option>
-                </select>
-                <input type="number" step="0.01" id="valor-pagamento" placeholder="Valor do Pagamento" required>
-                <button type="submit">Adicionar Pagamento</button>
-            </form>
-
-            <!-- Lista de Pagamentos -->
-            <div id="lista-pagamentos" class="card-container"></div>
-        </section>
-
-        <section id="adicionar-produto" class="section">
-            <h2>Fazer Pedido</h2>
-            <p>Escolha os produtos para adicionar ao seu pedido:</p>
-            <!-- Lista de Produtos a serem exibidos -->
-            <div id="lista-produtos-compra" class="card-container">
-                <!-- Os produtos serão carregados aqui dinamicamente -->
-            </div>
-
-            <!-- Carrinho (Modal) -->
-            <div id="modal-carrinho" class="modal">
-                <div class="modal-content">
-                    <span class="close" id="fechar-modal-carrinho">&times;</span>
-                    <h3>Carrinho de Compras</h3>
-
-                    <!-- Número da mesa dentro do modal -->
-                    <div>
-                        <label for="numero-mesa-modal">Número da Mesa:</label>
-                        <input type="number" id="numero-mesa-modal" placeholder="Digite o número da mesa" required>
+    <!-- Tela de Login -->
+    <div id="login-section" class="section active">
+        <div class="login-container">
+            <div class="login-box">
+                <h2>Login</h2>
+                <form id="login-form">
+                    <div class="input-group">
+                        <label for="username-login">Usuário</label>
+                        <input type="text" id="username-login" name="login" placeholder="Digite seu login" required>
                     </div>
-
-                    <ul id="carrinho-lista">
-                        <!-- Produtos adicionados ao carrinho serão exibidos aqui -->
-                    </ul>
-
-                    <button id="finalizar-pedido">Finalizar Pedido</button>
-                </div>
+                    <div class="input-group">
+                        <label for="senha-login">Senha</label>
+                        <input type="password" id="senha-login" name="senha" placeholder="Digite sua senha" required>
+                    </div>
+                    <button type="submit" class="login-button">Entrar</button>
+                    <p id="login-error" class="error-message" style="display: none;">Usuário ou senha incorretos!</p>
+                </form>
+                <p id="register-link">
+                    Não tem uma conta?
+                    <a href="#" id="go-to-register" class="link-button">Cadastre-se</a>
+                </p>
             </div>
-
-            <!-- Carrinho Button -->
-            <button id="btn-exibir-carrinho">Ver Carrinho</button>
-
-            <!-- Feedback para o cliente -->
-            <div id="mensagem-feedback" class="feedback-message"></div>
-        </section>
-
-    </main>
-
-    <footer>
-        <p>Restaurante Webservice &copy; 2024</p>
-    </footer>
-</div>
-
-<!-- Modal de Edição de Produto -->
-<div id="modal-editar-produto" class="modal">
-    <div class="modal-content">
-        <span class="close" id="fechar-modal-produto">&times;</span>
-        <h2>Editar Produto</h2>
-        <form id="form-editar-produto">
-            <input type="hidden" id="editar-id-produto">
-            <input type="text" id="editar-nome-produto" placeholder="Nome do Produto" required>
-            <input type="number" step="0.01" id="editar-preco-produto" placeholder="Preço do Produto" required>
-            <button type="submit">Salvar Alterações</button>
-        </form>
+        </div>
     </div>
-</div>
 
-<!-- Modal de Edição de Usuário -->
-<div id="modal-editar-usuario" class="modal">
-    <div class="modal-content">
-        <span class="close" id="fechar-modal-usuario">&times;</span>
-        <h2>Editar Usuário</h2>
-        <form id="form-editar-usuario">
-            <input type="hidden" id="editar-id-usuario">
-            <input
-                    type="text"
-                    id="editar-nome-usuario"
-                    placeholder="Nome do Usuário"
-                    data-original-nome=""
-                    required
-            >
-            <input
-                    type="text"
-                    id="editar-username-usuario"
-                    placeholder="Username"
-                    data-original-username=""
-                    required
-            >
-            <input
-                    type="password"
-                    id="editar-senha-usuario"
-                    placeholder="Senha (deixe em branco para não alterar)"
-            >
-            <select
-                    id="editar-is-admin-usuario"
-                    data-original-is_admin=""
-                    required
-            >
-                <option value="" disabled>Selecione o tipo de usuário</option>
-                <option value="1">Administrador</option>
-                <option value="0">Usuário Comum</option>
-            </select>
-            <button type="submit">Salvar Alterações</button>
-        </form>
+    <div id="register-section" class="section" style="display: none;">
+        <div class="register-container">
+            <div class="register-box">
+                <h2>Cadastre-se</h2>
+                <form id="register-form">
+                    <div class="input-group">
+                        <label for="register-name">Nome Completo</label>
+                        <input type="text" id="register-name" name="name" placeholder="Digite seu nome completo"
+                            required>
+                    </div>
+                    <div class="input-group">
+                        <label for="register-username">Usuário</label>
+                        <input type="text" id="register-username" name="username" placeholder="Digite seu usuário"
+                            required>
+                    </div>
+                    <div class="input-group">
+                        <label for="register-password">Senha</label>
+                        <input type="password" id="register-password" name="password" placeholder="Digite sua senha"
+                            required>
+                    </div>
+                    <div class="input-group">
+                        <label for="register-confirm-password">Confirme sua Senha</label>
+                        <input type="password" id="register-confirm-password" name="confirm-password"
+                            placeholder="Confirme sua senha" required>
+                    </div>
+                    <button type="submit" class="register-button">Cadastrar</button>
+                </form>
+                <p class="login-link">
+                    Já tem uma conta? <a id="go-to-login" href="#">Faça login</a>
+                </p>
+            </div>
+        </div>
     </div>
-</div>
 
-<!-- Modal de Edição de Produto -->
-<div id="modal-editar-produto-id" class="modal">
-    <div class="modal-content">
-        <span class="close" id="fechar-modal-editar-produto-id">&times;</span>
-        <h2>Editar Produto</h2>
-        <form id="form-editar-produto-id">
-            <input type="hidden" id="editar-id-produto-id">
-            <input
-                    type="text"
-                    id="editar-nome-produto-id"
-                    placeholder="Nome do Produto"
-                    readonly>
-            <input
-                    type="number"
-                    id="editar-quantidade-produto-id"
-                    placeholder="Quantidade"
+    <!-- Conteúdo Principal -->
+    <div id="main-content" style="display: block;">
+        <header>
+            <div class="header-container">
+                <img src="assets/logo.png" alt="Logo" class="logo">
+                <h1>Tempero Delícia</h1>
+            </div>
+            <div class="header-right">
+                <div id="usuario-logado">
+                    <span id="usuario-logado-nome">teste</span>
+                    <span id="usuario-logado-username">teste</span>
+                </div>
+                <button id="btn-exibir-carrinho"><img src="./assets/carrinho.png" alt=""></button>
+                <button id="logout-button">Logout</button>
+            </div>
+        </header>
+
+
+
+
+        <nav>
+            <ul>
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#usuarios" class="nav-link restricted">Usuários</a></li>
+                <li><a href="#mesas" class="nav-link restricted">Mesas</a></li>
+                <li><a href="#produtos" class="nav-link restricted">Produtos</a></li>
+                <li><a href="#pagamentos" class="nav-link restricted">Pagamentos</a></li>
+                <li><a href="#produtos-mesa" class="nav-link restricted">Produtos da Mesa</a></li>
+                <li><a href="#adicionar-produto" class="nav-link restricted">Adicionar Produto</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <!-- Seções -->
+            <section id="home" class="section">
+                <h2>Bem-vindo ao Gerenciamento de Restaurante</h2>
+                <p>Abaixo estão todos os produtos disponíveis no restaurante:</p>
+                <div id="lista-produtos-home" class="card-container"></div>
+            </section>
+
+            <section id="produtos-mesa" class="section">
+                <h2>Gerenciamento de Produtos da Mesa</h2>
+                <p>Visualize os produtos adicionados a uma mesa específica:</p>
+
+                <!-- Formulário para buscar produtos de uma mesa -->
+                <form id="form-produtos-mesa">
+                    <label for="mesa-id-produtos">Número da Mesa:</label>
+                    <input type="number" id="mesa-id-produtos" placeholder="Insira o número da mesa" required>
+                    <button id="buscar-produtos-button" type="button">Buscar Produtos</button>
+                    <!-- Alterado para type="button" -->
+                </form>
+
+                <!-- Lista de Produtos da Mesa -->
+                <div id="lista-produtos-mesa" class="card-container">
+                    <!-- Os produtos da mesa serão exibidos aqui -->
+                </div>
+            </section>
+
+            <section id="usuarios" class="section">
+                <h2>Gerenciamento de Usuários</h2>
+
+                <!-- Formulário para adicionar Usuário -->
+                <form id="form-usuario">
+                    <input type="text" id="nome-usuario" placeholder="Nome do Usuário" required>
+                    <input type="text" id="username-usuario" placeholder="Username" required>
+                    <input type="password" id="senha-usuario" placeholder="Senha" required>
+                    <button type="submit">Adicionar Usuário</button>
+                </form>
+
+                <!-- Lista de Usuários -->
+                <div id="lista-usuarios" class="card-container"></div>
+            </section>
+
+            <section id="mesas" class="section">
+                <h2>Gerenciamento de Mesas</h2>
+
+                <!-- Formulário para adicionar Mesa -->
+                <form id="form-mesa">
+                    <input type="number" id="numero-mesa" placeholder="Número da Mesa" required>
+                    <button type="submit">Adicionar Mesa</button>
+                </form>
+
+                <!-- Lista de Mesas -->
+                <div id="lista-mesas" class="card-container"></div>
+            </section>
+
+            <section id="produtos" class="section">
+                <h2>Gerenciamento de Produtos</h2>
+
+                <!-- Formulário para adicionar Produto -->
+                <form id="form-produto">
+                    <input type="text" id="nome-produto" placeholder="Nome do Produto" required>
+                    <input type="number" step="0.01" id="preco-produto" placeholder="Preço do Produto" required>
+                    <button type="submit">Adicionar Produto</button>
+                </form>
+
+                <!-- Lista de Produtos -->
+                <div id="lista-produtos" class="card-container"></div>
+            </section>
+
+            <section id="pagamentos" class="section">
+                <h2>Gerenciamento de Pagamentos</h2>
+
+                <!-- Formulário para adicionar Pagamento -->
+                <form id="form-pagamento">
+                    <input type="number" id="numero-mesa-pagamento" placeholder="Número da Mesa" required>
+                    <select id="metodo-pagamento" required>
+                        <option value="" disabled selected>Selecione um método de pagamento</option>
+                        <option value="CREDITO">Crédito</option>
+                        <option value="DEBITO">Débito</option>
+                        <option value="PIX">Pix</option>
+                    </select>
+                    <input type="number" step="0.01" id="valor-pagamento" placeholder="Valor do Pagamento" required>
+                    <button type="submit">Adicionar Pagamento</button>
+                </form>
+
+                <!-- Lista de Pagamentos -->
+                <div id="lista-pagamentos" class="card-container"></div>
+            </section>
+
+            <section id="adicionar-produto" class="section">
+                <h2>Fazer Pedido</h2>
+                <p>Escolha os produtos para adicionar ao seu pedido:</p>
+                <!-- Lista de Produtos a serem exibidos -->
+                <div id="lista-produtos-compra" class="card-container">
+                    <!-- Os produtos serão carregados aqui dinamicamente -->
+                </div>
+
+                <!-- Carrinho (Modal) -->
+                <div id="modal-carrinho" class="modal">
+                    <div class="modal-content">
+                        <span class="close" id="fechar-modal-carrinho">&times;</span>
+                        <h3>Carrinho de Compras</h3>
+
+                        <!-- Número da mesa dentro do modal -->
+                        <div>
+                            <label for="numero-mesa-modal">Número da Mesa:</label>
+                            <input type="number" id="numero-mesa-modal" placeholder="Digite o número da mesa" required>
+                        </div>
+
+                        <ul id="carrinho-lista">
+                            <!-- Produtos adicionados ao carrinho serão exibidos aqui -->
+                        </ul>
+
+                        <button id="finalizar-pedido">Finalizar Pedido</button>
+                    </div>
+                </div>
+
+                <!-- Carrinho Button -->
+
+
+                <!-- Feedback para o cliente -->
+                <div id="mensagem-feedback" class="feedback-message"></div>
+            </section>
+
+        </main>
+
+        <footer>
+            <p>Restaurante Webservice &copy; 2024</p>
+        </footer>
+    </div>
+
+    <!-- Modal de Edição de Produto -->
+    <div id="modal-editar-produto" class="modal">
+        <div class="modal-content">
+            <span class="close" id="fechar-modal-produto">&times;</span>
+            <h2>Editar Produto</h2>
+            <form id="form-editar-produto">
+                <input type="hidden" id="editar-id-produto">
+                <input type="text" id="editar-nome-produto" placeholder="Nome do Produto" required>
+                <input type="number" step="0.01" id="editar-preco-produto" placeholder="Preço do Produto" required>
+                <button type="submit">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Usuário -->
+    <div id="modal-editar-usuario" class="modal">
+        <div class="modal-content">
+            <span class="close" id="fechar-modal-usuario">&times;</span>
+            <h2>Editar Usuário</h2>
+            <form id="form-editar-usuario">
+                <input type="hidden" id="editar-id-usuario">
+                <input type="text" id="editar-nome-usuario" placeholder="Nome do Usuário" data-original-nome=""
                     required>
-            <button type="submit">Salvar Alterações</button>
-        </form>
+                <input type="text" id="editar-username-usuario" placeholder="Username" data-original-username=""
+                    required>
+                <input type="password" id="editar-senha-usuario" placeholder="Senha (deixe em branco para não alterar)">
+                <select id="editar-is-admin-usuario" data-original-is_admin="" required>
+                    <option value="" disabled>Selecione o tipo de usuário</option>
+                    <option value="1">Administrador</option>
+                    <option value="0">Usuário Comum</option>
+                </select>
+                <button type="submit">Salvar Alterações</button>
+            </form>
+        </div>
     </div>
-</div>
+
+    <!-- Modal de Edição de Produto -->
+    <div id="modal-editar-produto-id" class="modal">
+        <div class="modal-content">
+            <span class="close" id="fechar-modal-editar-produto-id">&times;</span>
+            <h2>Editar Produto</h2>
+            <form id="form-editar-produto-id">
+                <input type="hidden" id="editar-id-produto-id">
+                <input type="text" id="editar-nome-produto-id" placeholder="Nome do Produto" readonly>
+                <input type="number" id="editar-quantidade-produto-id" placeholder="Quantidade" required>
+                <button type="submit">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
 
 
-<div id="form-adicionar-produtos">
-    <label for="mesa-id">Número da Mesa:</label>
-    <input type="number" id="mesa-id" required />
+    <div id="form-adicionar-produtos">
+        <label for="mesa-id">Número da Mesa:</label>
+        <input type="number" id="mesa-id" required />
 
-    <label for="produto-id">ID do Produto:</label>
-    <input type="number" id="produto-id" required />
+        <label for="produto-id">ID do Produto:</label>
+        <input type="number" id="produto-id" required />
 
-    <label for="quantidade-produto">Quantidade:</label>
-    <input type="number" id="quantidade-produto" required min="1" />
+        <label for="quantidade-produto">Quantidade:</label>
+        <input type="number" id="quantidade-produto" required min="1" />
 
-    <button id="adicionar-produto-button">Adicionar Produto</button>
-</div>
+        <button id="adicionar-produto-button">Adicionar Produto</button>
+    </div>
 
-<!-- Container para pop-ups e confirmações -->
-<div id="popup-container"></div>
+    <!-- Container para pop-ups e confirmações -->
+    <div id="popup-container"></div>
 
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>

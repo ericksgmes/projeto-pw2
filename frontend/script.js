@@ -42,113 +42,122 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Login
   document
-      .getElementById("login-form")
-      .addEventListener("submit", async function (e) {
-        e.preventDefault();
+    .getElementById("login-form")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-        const username = document.getElementById("username-login").value.trim();
-        const senha = document.getElementById("senha-login").value.trim();
+      const username = document.getElementById("username-login").value.trim();
+      const senha = document.getElementById("senha-login").value.trim();
 
-        try {
-          // Fazer requisição ao backend para autenticação
-          const response = await fetch(`${baseUrl}/auth`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username, senha }), // Enviar username e senha no corpo da requisição
+      try {
+        // Fazer requisição ao backend para autenticação
+        const response = await fetch(`${baseUrl}/auth`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, senha }), // Enviar username e senha no corpo da requisição
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          // Armazenar o token no localStorage
+          localStorage.setItem("token", result.data.token);
+
+          showPopup("Login bem-sucedido!", "success");
+          loginSection.style.display = "none";
+          mainContent.style.display = "block";
+          await exibirUsuarioLogado();
+          mostrarSecao("home");
+
+          // Exibir links restritos se necessário
+          document.querySelectorAll(".restricted").forEach((link) => {
+            link.style.display = "block";
           });
-
-          const result = await response.json();
-
-          if (response.ok) {
-            // Armazenar o token no localStorage
-            localStorage.setItem("token", result.data.token);
-
-            showPopup("Login bem-sucedido!", "success");
-            loginSection.style.display = "none";
-            mainContent.style.display = "block";
-            await exibirUsuarioLogado();
-            mostrarSecao("home");
-
-            // Exibir links restritos se necessário
-            document.querySelectorAll(".restricted").forEach((link) => {
-              link.style.display = "block";
-            });
-          } else {
-            // Exibir erro retornado pelo backend
-            showPopup(result.message || "Erro no login.", "error");
-          }
-        } catch (error) {
-          console.error("Erro ao tentar fazer login:", error.message);
-          showPopup("Erro ao tentar fazer login. Tente novamente.", "error");
+        } else {
+          // Exibir erro retornado pelo backend
+          showPopup(result.message || "Erro no login.", "error");
         }
-      });
+      } catch (error) {
+        console.error("Erro ao tentar fazer login:", error.message);
+        showPopup("Erro ao tentar fazer login. Tente novamente.", "error");
+      }
+    });
 
   // Cadastro
-  document.getElementById("register-form").addEventListener("submit", async function (e) {
-    e.preventDefault();
+  document
+    .getElementById("register-form")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    // Capturar valores do formulário
-    const nome = document.getElementById("register-name").value.trim();
-    const username = document.getElementById("register-username").value.trim();
-    const senha = document.getElementById("register-password").value.trim();
-    const confirmSenha = document.getElementById("register-confirm-password").value.trim();
+      // Capturar valores do formulário
+      const nome = document.getElementById("register-name").value.trim();
+      const username = document
+        .getElementById("register-username")
+        .value.trim();
+      const senha = document.getElementById("register-password").value.trim();
+      const confirmSenha = document
+        .getElementById("register-confirm-password")
+        .value.trim();
 
-    // Validações básicas
-    if (!nome || !username || !senha || !confirmSenha) {
-      showPopup("Todos os campos são obrigatórios.", "error");
-      return;
-    }
-
-    if (senha !== confirmSenha) {
-      showPopup("As senhas não coincidem. Tente novamente.", "error");
-      return;
-    }
-
-    try {
-      // Enviar os dados para o servidor
-      const response = await fetch(`${baseUrl}/signup`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ nome, username, senha}),
-      });
-
-      if (response.status === 201) {
-        showPopup("Cadastro realizado com sucesso! Faça login para continuar.", "success");
-        // Limpar formulário e retornar ao login
-        document.getElementById("register-form").reset();
-        registerSection.style.display = "none";
-        loginSection.style.display = "block";
+      // Validações básicas
+      if (!nome || !username || !senha || !confirmSenha) {
+        showPopup("Todos os campos são obrigatórios.", "error");
+        return;
       }
-    } catch (error) {
-      console.error("Erro ao cadastrar usuário:", error.message);
-      showPopup("Erro ao cadastrar usuário. Tente novamente.", "error");
-    }
-  });
+
+      if (senha !== confirmSenha) {
+        showPopup("As senhas não coincidem. Tente novamente.", "error");
+        return;
+      }
+
+      try {
+        // Enviar os dados para o servidor
+        const response = await fetch(`${baseUrl}/signup`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ nome, username, senha }),
+        });
+
+        if (response.status === 201) {
+          showPopup(
+            "Cadastro realizado com sucesso! Faça login para continuar.",
+            "success"
+          );
+          // Limpar formulário e retornar ao login
+          document.getElementById("register-form").reset();
+          registerSection.style.display = "none";
+          loginSection.style.display = "block";
+        }
+      } catch (error) {
+        console.error("Erro ao cadastrar usuário:", error.message);
+        showPopup("Erro ao cadastrar usuário. Tente novamente.", "error");
+      }
+    });
 
   // Logout
   logoutButton.addEventListener("click", function () {
     showConfirm(
-        "Tem certeza que deseja sair?",
-        () => {
-          // Callback de confirmação
-          localStorage.removeItem("token"); // Remove o token do localStorage
-          document.getElementById("main-content").style.display = "none";
-          document.getElementById("login-section").style.display = "block";
-          document.getElementById("login-form").reset();
-          document.getElementById("login-error").style.display = "none";
-          document.querySelectorAll(".restricted").forEach((link) => {
-            link.style.display = "none";
-          });
-          showPopup("Logout realizado com sucesso!", "success");
-        },
-        () => {
-          // Callback de cancelamento
-          showPopup("Logout cancelado!", "info");
-        }
+      "Tem certeza que deseja sair?",
+      () => {
+        // Callback de confirmação
+        localStorage.removeItem("token"); // Remove o token do localStorage
+        document.getElementById("main-content").style.display = "none";
+        document.getElementById("login-section").style.display = "block";
+        document.getElementById("login-form").reset();
+        document.getElementById("login-error").style.display = "none";
+        document.querySelectorAll(".restricted").forEach((link) => {
+          link.style.display = "none";
+        });
+        showPopup("Logout realizado com sucesso!", "success");
+      },
+      () => {
+        // Callback de cancelamento
+        showPopup("Logout cancelado!", "info");
+      }
     );
   });
 
@@ -159,13 +168,12 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("register-section").style.display = "block";
   });
 
-// Alternar para a tela de login
+  // Alternar para a tela de login
   goToLogin.addEventListener("click", function (e) {
     e.preventDefault();
     document.getElementById("register-section").style.display = "none";
     document.getElementById("login-section").style.display = "block";
   });
-
 
   // Listar Produtos na Home
   async function listarProdutosHome() {
@@ -174,13 +182,18 @@ document.addEventListener("DOMContentLoaded", function () {
       const response = await fetch(`${baseUrl}/produtos`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        showPopup(`Erro ao listar produtos: ${errorData.message || response.statusText}`, "error");
+        showPopup(
+          `Erro ao listar produtos: ${
+            errorData.message || response.statusText
+          }`,
+          "error"
+        );
         return;
       }
 
@@ -211,48 +224,48 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-// Usuários - CRUD
+  // Usuários - CRUD
   document
-      .getElementById("form-usuario")
-      .addEventListener("submit", async function (e) {
-        e.preventDefault();
+    .getElementById("form-usuario")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-        const nome = document.getElementById("nome-usuario").value.trim();
-        const username = document.getElementById("username-usuario").value.trim();
-        const senha = document.getElementById("senha-usuario").value.trim();
+      const nome = document.getElementById("nome-usuario").value.trim();
+      const username = document.getElementById("username-usuario").value.trim();
+      const senha = document.getElementById("senha-usuario").value.trim();
 
-        try {
-          const token = localStorage.getItem("token");
-          const response = await fetch(`${baseUrl}/usuarios`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              nome,
-              username,
-              senha,
-            }),
-          });
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${baseUrl}/usuarios`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            nome,
+            username,
+            senha,
+          }),
+        });
 
-          if (response.status === 201) {
-            showPopup("Usuário criado com sucesso!", "success");
-            await listarUsuarios();
-            e.target.reset();
-          } else {
-            const errorData = await response.json();
-            showPopup(
-                `Erro ao criar usuário: ${
-                    errorData.message || response.statusText
-                }`,
-                "error"
-            );
-          }
-        } catch (error) {
-          console.error("Erro ao criar usuário:", error.message);
+        if (response.status === 201) {
+          showPopup("Usuário criado com sucesso!", "success");
+          await listarUsuarios();
+          e.target.reset();
+        } else {
+          const errorData = await response.json();
+          showPopup(
+            `Erro ao criar usuário: ${
+              errorData.message || response.statusText
+            }`,
+            "error"
+          );
         }
-      });
+      } catch (error) {
+        console.error("Erro ao criar usuário:", error.message);
+      }
+    });
 
   async function exibirUsuarioLogado() {
     try {
@@ -264,13 +277,15 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // Decodificar o token JWT para obter as informações do usuário logado
-      const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decodifica o payload do JWT
+      const decodedToken = JSON.parse(atob(token.split(".")[1])); // Decodifica o payload do JWT
       const nome = decodedToken.nome; // Obtém o nome do usuário logado
       const username = decodedToken.username; // Obtém o username do usuário logado
 
       // Preencher as informações na barra superior
       document.getElementById("usuario-logado-nome").textContent = nome;
-      document.getElementById("usuario-logado-username").textContent = `@${username}`;
+      document.getElementById(
+        "usuario-logado-username"
+      ).textContent = `@${username}`;
     } catch (error) {
       console.error("Erro ao exibir usuário logado:", error.message);
       showPopup("Erro ao carregar informações do usuário logado.", "error");
@@ -307,7 +322,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-
   async function listarUsuarios() {
     try {
       const token = localStorage.getItem("token");
@@ -327,8 +341,10 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!response.ok) {
         const errorData = await response.json();
         showPopup(
-            `Erro ao listar usuários: ${errorData.message || response.statusText}`,
-            "error"
+          `Erro ao listar usuários: ${
+            errorData.message || response.statusText
+          }`,
+          "error"
         );
         return;
       }
@@ -353,7 +369,9 @@ document.addEventListener("DOMContentLoaded", function () {
             data-is_admin="${usuario.is_admin}">
             Editar
           </button>
-          <button class="deletar-usuario" data-id="${usuario.id}">Deletar</button>
+          <button class="deletar-usuario" data-id="${
+            usuario.id
+          }">Deletar</button>
         </div>
       `;
 
@@ -362,37 +380,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
       async function deletarUsuario(id) {
         showConfirm(
-            "Tem certeza que deseja deletar este usuário?",
-            async () => {
-              try {
-                const token = localStorage.getItem("token");
-                const response = await fetch(`${baseUrl}/usuarios/${id}`, {
-                  method: "DELETE",
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                });
+          "Tem certeza que deseja deletar este usuário?",
+          async () => {
+            try {
+              const token = localStorage.getItem("token");
+              const response = await fetch(`${baseUrl}/usuarios/${id}`, {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
 
-                if (response.ok) {
-                  showPopup("Usuário deletado com sucesso!", "success");
-                  await listarUsuarios();
-                } else {
-                  const errorData = await response.json();
-                  showPopup(
-                      `Erro ao deletar usuário: ${
-                          errorData.message || response.statusText
-                      }`,
-                      "error"
-                  );
-                }
-              } catch (error) {
-                console.error("Erro ao deletar usuário:", error.message);
-                showPopup("Erro ao deletar usuário.", "error");
+              if (response.ok) {
+                showPopup("Usuário deletado com sucesso!", "success");
+                await listarUsuarios();
+              } else {
+                const errorData = await response.json();
+                showPopup(
+                  `Erro ao deletar usuário: ${
+                    errorData.message || response.statusText
+                  }`,
+                  "error"
+                );
               }
-            },
-            () => {
-              showPopup("Ação cancelada!", "info");
+            } catch (error) {
+              console.error("Erro ao deletar usuário:", error.message);
+              showPopup("Erro ao deletar usuário.", "error");
             }
+          },
+          () => {
+            showPopup("Ação cancelada!", "info");
+          }
         );
       }
 
@@ -424,68 +442,95 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     } catch (error) {
       console.error("Erro ao listar usuários:", error.message);
-      showPopup("Erro ao listar usuários. Tente novamente mais tarde.", "error");
+      showPopup(
+        "Erro ao listar usuários. Tente novamente mais tarde.",
+        "error"
+      );
     }
   }
 
-  document.getElementById("form-editar-usuario").addEventListener("submit", async function (e) {
-    e.preventDefault();
+  document
+    .getElementById("form-editar-usuario")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    const id = document.getElementById("editar-id-usuario").value;
-    const nome = document.getElementById("editar-nome-usuario").value.trim();
-    const username = document.getElementById("editar-username-usuario").value.trim();
-    const senha = document.getElementById("editar-senha-usuario").value.trim();
-    const is_admin = parseInt(document.getElementById("editar-is-admin-usuario").value, 10);
-    const token = localStorage.getItem("token");
+      const id = document.getElementById("editar-id-usuario").value;
+      const nome = document.getElementById("editar-nome-usuario").value.trim();
+      const username = document
+        .getElementById("editar-username-usuario")
+        .value.trim();
+      const senha = document
+        .getElementById("editar-senha-usuario")
+        .value.trim();
+      const is_admin = parseInt(
+        document.getElementById("editar-is-admin-usuario").value,
+        10
+      );
+      const token = localStorage.getItem("token");
 
-    // Valores originais
-    const nomeOriginal = document.getElementById("editar-nome-usuario").getAttribute("data-original-nome");
-    const usernameOriginal = document.getElementById("editar-username-usuario").getAttribute("data-original-username");
-    const is_adminOriginal = parseInt(document.getElementById("editar-is-admin-usuario").getAttribute("data-original-is_admin"), 10);
+      // Valores originais
+      const nomeOriginal = document
+        .getElementById("editar-nome-usuario")
+        .getAttribute("data-original-nome");
+      const usernameOriginal = document
+        .getElementById("editar-username-usuario")
+        .getAttribute("data-original-username");
+      const is_adminOriginal = parseInt(
+        document
+          .getElementById("editar-is-admin-usuario")
+          .getAttribute("data-original-is_admin"),
+        10
+      );
 
-    // Construir payload apenas com campos alterados
-    const payload = {};
-    if (nome && nome !== nomeOriginal) payload.nome = nome;
-    if (username && username !== usernameOriginal) payload.username = username;
-    if (senha) payload.novaSenha = senha; // Atualiza a senha apenas se preenchida
-    if (is_admin !== is_adminOriginal) payload.is_admin = is_admin;
+      // Construir payload apenas com campos alterados
+      const payload = {};
+      if (nome && nome !== nomeOriginal) payload.nome = nome;
+      if (username && username !== usernameOriginal)
+        payload.username = username;
+      if (senha) payload.novaSenha = senha; // Atualiza a senha apenas se preenchida
+      if (is_admin !== is_adminOriginal) payload.is_admin = is_admin;
 
-    // Verifica se algo foi alterado
-    if (Object.keys(payload).length === 0) {
-      console.log("Nenhuma alteração detectada.");
-      showPopup("Nenhuma alteração foi detectada.", "info");
-      return;
-    }
-
-    console.log("Dados a serem enviados:", payload);
-
-    try {
-      const response = await fetch(`${baseUrl}/usuarios/${id}/parcial`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Erro ao atualizar usuário:", errorData);
-        showPopup(`Erro ao atualizar usuário: ${errorData.message || response.statusText}`, "error");
+      // Verifica se algo foi alterado
+      if (Object.keys(payload).length === 0) {
+        console.log("Nenhuma alteração detectada.");
+        showPopup("Nenhuma alteração foi detectada.", "info");
         return;
       }
 
-      console.log("Usuário atualizado com sucesso!");
-      showPopup("Usuário atualizado com sucesso!", "success");
+      console.log("Dados a serem enviados:", payload);
 
-      await listarUsuarios();
-      document.getElementById("modal-editar-usuario").style.display = "none";
-    } catch (error) {
-      console.error("Erro ao atualizar usuário:", error.message);
-      showPopup("Erro ao atualizar usuário. Tente novamente.", "error");
-    }
-  });
+      try {
+        const response = await fetch(`${baseUrl}/usuarios/${id}/parcial`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Erro ao atualizar usuário:", errorData);
+          showPopup(
+            `Erro ao atualizar usuário: ${
+              errorData.message || response.statusText
+            }`,
+            "error"
+          );
+          return;
+        }
+
+        console.log("Usuário atualizado com sucesso!");
+        showPopup("Usuário atualizado com sucesso!", "success");
+
+        await listarUsuarios();
+        document.getElementById("modal-editar-usuario").style.display = "none";
+      } catch (error) {
+        console.error("Erro ao atualizar usuário:", error.message);
+        showPopup("Erro ao atualizar usuário. Tente novamente.", "error");
+      }
+    });
 
   // Mesas - CRUD
   document
@@ -501,7 +546,7 @@ document.addEventListener("DOMContentLoaded", function () {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ numero }),
         });
@@ -512,7 +557,10 @@ document.addEventListener("DOMContentLoaded", function () {
           e.target.reset();
         } else {
           const errorData = await response.json();
-          showPopup(`Erro ao criar mesa: ${errorData.message || response.statusText}`, "error");
+          showPopup(
+            `Erro ao criar mesa: ${errorData.message || response.statusText}`,
+            "error"
+          );
         }
       } catch (error) {
         console.error("Erro ao criar mesa:", error.message);
@@ -525,13 +573,16 @@ document.addEventListener("DOMContentLoaded", function () {
       const response = await fetch(`${baseUrl}/mesas`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        showPopup(`Erro ao listar mesas: ${errorData.message || response.statusText}`, "error");
+        showPopup(
+          `Erro ao listar mesas: ${errorData.message || response.statusText}`,
+          "error"
+        );
         return;
       }
 
@@ -565,31 +616,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function deletarMesa(id) {
     showConfirm(
-        "Tem certeza que deseja deletar esta mesa?",
-        async () => {
-          try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${baseUrl}/mesas/${id}`, {
-              method: "DELETE",
-              headers: {
-                "Authorization": `Bearer ${token}`
-              },
-            });
+      "Tem certeza que deseja deletar esta mesa?",
+      async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(`${baseUrl}/mesas/${id}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-            if (response.ok) {
-              showPopup("Mesa deletada com sucesso!", "success");
-              await listarMesas();
-            } else {
-              const errorData = await response.json();
-              showPopup(`Erro ao deletar mesa: ${errorData.message || response.statusText}`, "error");
-            }
-          } catch (error) {
-            console.error("Erro ao deletar mesa:", error.message);
+          if (response.ok) {
+            showPopup("Mesa deletada com sucesso!", "success");
+            await listarMesas();
+          } else {
+            const errorData = await response.json();
+            showPopup(
+              `Erro ao deletar mesa: ${
+                errorData.message || response.statusText
+              }`,
+              "error"
+            );
           }
-        },
-        () => {
-          showPopup("Ação cancelada!", "info");
+        } catch (error) {
+          console.error("Erro ao deletar mesa:", error.message);
         }
+      },
+      () => {
+        showPopup("Ação cancelada!", "info");
+      }
     );
   }
 
@@ -608,7 +664,7 @@ document.addEventListener("DOMContentLoaded", function () {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ nome, preco }),
         });
@@ -619,7 +675,12 @@ document.addEventListener("DOMContentLoaded", function () {
           e.target.reset();
         } else {
           const errorData = await response.json();
-          showPopup(`Erro ao criar produto: ${errorData.message || response.statusText}`, "error");
+          showPopup(
+            `Erro ao criar produto: ${
+              errorData.message || response.statusText
+            }`,
+            "error"
+          );
         }
       } catch (error) {
         console.error("Erro ao criar produto:", error.message);
@@ -632,13 +693,18 @@ document.addEventListener("DOMContentLoaded", function () {
       const response = await fetch(`${baseUrl}/produtos`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        showPopup(`Erro ao listar produtos: ${errorData.message || response.statusText}`, "error");
+        showPopup(
+          `Erro ao listar produtos: ${
+            errorData.message || response.statusText
+          }`,
+          "error"
+        );
         return;
       }
 
@@ -692,31 +758,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function deletarProduto(id) {
     showConfirm(
-        "Tem certeza que deseja deletar este produto?",
-        async () => {
-          try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${baseUrl}/produtos/${id}`, {
-              method: "DELETE",
-              headers: {
-                "Authorization": `Bearer ${token}`
-              },
-            });
+      "Tem certeza que deseja deletar este produto?",
+      async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(`${baseUrl}/produtos/${id}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-            if (response.ok) {
-              showPopup("Produto deletado com sucesso!", "success");
-              await listarProdutos();
-            } else {
-              const errorData = await response.json();
-              showPopup(`Erro ao deletar produto: ${errorData.message || response.statusText}`, "error");
-            }
-          } catch (error) {
-            console.error("Erro ao deletar produto:", error.message);
+          if (response.ok) {
+            showPopup("Produto deletado com sucesso!", "success");
+            await listarProdutos();
+          } else {
+            const errorData = await response.json();
+            showPopup(
+              `Erro ao deletar produto: ${
+                errorData.message || response.statusText
+              }`,
+              "error"
+            );
           }
-        },
-        () => {
-          showPopup("Ação cancelada!", "info");
+        } catch (error) {
+          console.error("Erro ao deletar produto:", error.message);
         }
+      },
+      () => {
+        showPopup("Ação cancelada!", "info");
+      }
     );
   }
 
@@ -748,97 +819,106 @@ document.addEventListener("DOMContentLoaded", function () {
     modalEditarProduto.style.display = "block";
   }
 
-
   document
-      .getElementById("form-editar-produto")
-      .addEventListener("submit", async function (e) {
-        e.preventDefault();
+    .getElementById("form-editar-produto")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-        const id = document.getElementById("editar-id-produto").value;
-        const nome = document.getElementById("editar-nome-produto").value.trim();
-        const preco = parseFloat(
-            document.getElementById("editar-preco-produto").value
-        );
+      const id = document.getElementById("editar-id-produto").value;
+      const nome = document.getElementById("editar-nome-produto").value.trim();
+      const preco = parseFloat(
+        document.getElementById("editar-preco-produto").value
+      );
 
-        // Capturar valores originais para verificação
-        const nomeOriginal = document
-            .getElementById("editar-nome-produto")
-            .getAttribute("data-original-nome");
-        const precoOriginal = parseFloat(
-            document
-                .getElementById("editar-preco-produto")
-                .getAttribute("data-original-preco")
-        );
+      // Capturar valores originais para verificação
+      const nomeOriginal = document
+        .getElementById("editar-nome-produto")
+        .getAttribute("data-original-nome");
+      const precoOriginal = parseFloat(
+        document
+          .getElementById("editar-preco-produto")
+          .getAttribute("data-original-preco")
+      );
 
-        if (preco !== precoOriginal && nome === nomeOriginal) {
-          try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${baseUrl}/produtos/${id}/preco`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-              },
-              body: JSON.stringify({ preco }),
-            });
-
-            if (!response.ok) {
-              const errorData = await response.json();
-              showPopup(`Erro ao atualizar preço: ${errorData.message || response.statusText}`, "error");
-              return;
-            }
-
-            showPopup("Preço atualizado com sucesso!", "success");
-            await listarProdutos();
-            modalEditarProduto.style.display = "none";
-          } catch (error) {
-            console.error("Erro ao atualizar preço:", error.message);
-          }
-          return;
-        }
-
-        const dadosAtualizados = {
-          nome: nome || nomeOriginal,
-          preco: preco || precoOriginal,
-        };
-
+      if (preco !== precoOriginal && nome === nomeOriginal) {
         try {
           const token = localStorage.getItem("token");
-          const response = await fetch(`${baseUrl}/produtos/${id}`, {
+          const response = await fetch(`${baseUrl}/produtos/${id}/preco`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
+              Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify(dadosAtualizados),
+            body: JSON.stringify({ preco }),
           });
 
           if (!response.ok) {
             const errorData = await response.json();
-            showPopup(`Erro ao atualizar produto: ${errorData.message || response.statusText}`, "error");
+            showPopup(
+              `Erro ao atualizar preço: ${
+                errorData.message || response.statusText
+              }`,
+              "error"
+            );
             return;
           }
 
-          showPopup("Produto atualizado com sucesso!", "success");
+          showPopup("Preço atualizado com sucesso!", "success");
           await listarProdutos();
           modalEditarProduto.style.display = "none";
         } catch (error) {
-          console.error("Erro ao atualizar produto:", error.message);
+          console.error("Erro ao atualizar preço:", error.message);
         }
-      });
+        return;
+      }
 
-// Pagamentos - CRUD
-document
+      const dadosAtualizados = {
+        nome: nome || nomeOriginal,
+        preco: preco || precoOriginal,
+      };
+
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${baseUrl}/produtos/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(dadosAtualizados),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          showPopup(
+            `Erro ao atualizar produto: ${
+              errorData.message || response.statusText
+            }`,
+            "error"
+          );
+          return;
+        }
+
+        showPopup("Produto atualizado com sucesso!", "success");
+        await listarProdutos();
+        modalEditarProduto.style.display = "none";
+      } catch (error) {
+        console.error("Erro ao atualizar produto:", error.message);
+      }
+    });
+
+  // Pagamentos - CRUD
+  document
     .getElementById("form-pagamento")
     .addEventListener("submit", async function (e) {
       e.preventDefault();
 
       const numero = parseInt(
-          document.getElementById("numero-mesa-pagamento").value
+        document.getElementById("numero-mesa-pagamento").value
       );
       const metodo = document.getElementById("metodo-pagamento").value.trim();
       const valor = parseFloat(
-          document.getElementById("valor-pagamento").value
+        document.getElementById("valor-pagamento").value
       );
 
       // Verificar se os campos estão preenchidos corretamente
@@ -864,7 +944,12 @@ document
           e.target.reset();
         } else {
           const errorData = await response.json();
-          showPopup(`Erro ao adicionar pagamentos: ${errorData.message || response.statusText}`, "error");
+          showPopup(
+            `Erro ao adicionar pagamentos: ${
+              errorData.message || response.statusText
+            }`,
+            "error"
+          );
         }
       } catch (error) {
         console.error("Erro ao adicionar pagamento:", error.message);
@@ -883,7 +968,12 @@ document
 
       if (!response.ok) {
         const errorData = await response.json();
-        showPopup(`Erro ao listar pagamentos: ${errorData.message || response.statusText}`, "error");
+        showPopup(
+          `Erro ao listar pagamentos: ${
+            errorData.message || response.statusText
+          }`,
+          "error"
+        );
         return;
       }
 
@@ -923,31 +1013,36 @@ document
 
   async function deletarPagamento(id) {
     showConfirm(
-        "Tem certeza que deseja deletar este pagamento?",
-        async () => {
-          try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${baseUrl}/pagamentos/${id}`, {
-              method: "DELETE",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
+      "Tem certeza que deseja deletar este pagamento?",
+      async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(`${baseUrl}/pagamentos/${id}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-            if (response.ok) {
-              showPopup("Pagamento deletado com sucesso!", "success");
-              await listarPagamentos();
-            } else {
-              const errorData = await response.json();
-              showPopup(`Erro ao deletar pagamento: ${errorData.message || response.statusText}`, "error");
-            }
-          } catch (error) {
-            console.error("Erro ao deletar pagamento:", error.message);
+          if (response.ok) {
+            showPopup("Pagamento deletado com sucesso!", "success");
+            await listarPagamentos();
+          } else {
+            const errorData = await response.json();
+            showPopup(
+              `Erro ao deletar pagamento: ${
+                errorData.message || response.statusText
+              }`,
+              "error"
+            );
           }
-        },
-        () => {
-          showPopup("Ação cancelada!", "info");
+        } catch (error) {
+          console.error("Erro ao deletar pagamento:", error.message);
         }
+      },
+      () => {
+        showPopup("Ação cancelada!", "info");
+      }
     );
   }
 
@@ -1029,63 +1124,104 @@ document
     closeButton.addEventListener("click", () => clearTimeout(timeout));
   }
 
-  document.getElementById("adicionar-produto-button").addEventListener("click", async function (e) {
-    e.preventDefault();
+  document
+    .getElementById("adicionar-produto-button")
+    .addEventListener("click", async function (e) {
+      e.preventDefault();
 
-    const mesaId = document.getElementById("mesa-id").value.trim();
-    const produtoId = document.getElementById("produto-id").value.trim();
-    const quantidade = document.getElementById("quantidade-produto").value.trim();
+      const mesaId = document.getElementById("mesa-id").value.trim();
+      const produtoId = document.getElementById("produto-id").value.trim();
+      const quantidade = document
+        .getElementById("quantidade-produto")
+        .value.trim();
 
-    if (!mesaId || !produtoId || !quantidade) {
-      showPopup("Por favor, preencha todos os campos.", "info");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${baseUrl}/produtos-mesa`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          mesa_id: parseInt(mesaId),
-          produto_id: parseInt(produtoId),
-          quantidade: parseInt(quantidade),
-        }),
-      });
-
-      if (response.ok) {
-        showPopup("Produto adicionado à mesa com sucesso!", "success");
-        // Você pode chamar uma função para listar produtos da mesa, se necessário
-      } else {
-        const errorData = await response.json();
-        showPopup(`Erro ao adicionar produto: ${errorData.message || response.statusText}`, "error");
+      if (!mesaId || !produtoId || !quantidade) {
+        showPopup("Por favor, preencha todos os campos.", "info");
+        return;
       }
-    } catch (error) {
-      console.error("Erro ao adicionar produto:", error.message);
-      showPopup("Erro ao adicionar produto. Tente novamente.", "error");
-    }
-  });
 
-// Listener para o botão de "Buscar Produtos"
-  document.getElementById("buscar-produtos-button").addEventListener("click", async () => {
-    const numeroMesa = document.getElementById("mesa-id-produtos").value.trim();
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${baseUrl}/produtos-mesa`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            mesa_id: parseInt(mesaId),
+            produto_id: parseInt(produtoId),
+            quantidade: parseInt(quantidade),
+          }),
+        });
 
-    // Verifica se o número da mesa foi preenchido
-    if (!numeroMesa) {
-      showPopup("Por favor, insira o número da mesa.", "error");
-      return;
-    }
+        if (response.ok) {
+          showPopup("Produto adicionado à mesa com sucesso!", "success");
+          // Você pode chamar uma função para listar produtos da mesa, se necessário
+        } else {
+          const errorData = await response.json();
+          showPopup(
+            `Erro ao adicionar produto: ${
+              errorData.message || response.statusText
+            }`,
+            "error"
+          );
+        }
+      } catch (error) {
+        console.error("Erro ao adicionar produto:", error.message);
+        showPopup("Erro ao adicionar produto. Tente novamente.", "error");
+      }
+    });
 
-    await listarProdutosMesa(numeroMesa); // Chama a função para listar os produtos da mesa específica
-  });
+  // Listener para o botão de "Buscar Produtos"
+  document
+    .getElementById("buscar-produtos-button")
+    .addEventListener("click", async () => {
+      const numeroMesa = document
+        .getElementById("mesa-id-produtos")
+        .value.trim();
 
+      // Verifica se o número da mesa foi preenchido
+      if (!numeroMesa) {
+        showPopup("Por favor, insira o número da mesa.", "error");
+        return;
+      }
+
+      await listarProdutosMesa(numeroMesa); // Chama a função para listar os produtos da mesa específica
+    });
 
   let carrinho = [];
+  document
+    .getElementById("btn-exibir-carrinho")
+    .addEventListener("click", () => {
+      const modal = document.getElementById("modal-carrinho");
+      const carrinhoLista = document.getElementById("carrinho-lista");
 
-  function adicionarAoCarrinho(idProduto, nomeProduto, precoProduto, quantidade) {
+      carrinhoLista.innerHTML = "";
+      // Adicionar produtos ao modal
+      carrinho.forEach((produto) => {
+        const item = document.createElement("li");
+        item.textContent = `${produto.nome} - Quantidade: ${produto.quantidade}`;
+        carrinhoLista.appendChild(item);
+      });
+
+      // Exibir modal
+      modal.style.display = "block";
+    });
+
+  // Fechar o modal quando clicar no botão de fechar
+  document
+    .getElementById("fechar-modal-carrinho")
+    .addEventListener("click", () => {
+      document.getElementById("modal-carrinho").style.display = "none";
+    });
+
+  function adicionarAoCarrinho(
+    idProduto,
+    nomeProduto,
+    precoProduto,
+    quantidade
+  ) {
     // Garantir que a quantidade seja um número inteiro
     const quantidadeInt = Math.max(1, parseInt(quantidade, 10)); // A quantidade mínima será 1
 
@@ -1097,7 +1233,12 @@ document
       produtoExistente.quantidade += quantidadeInt;
     } else {
       // Se não existir, adiciona um novo produto
-      carrinho.push({ id: idProduto, nome: nomeProduto, preco: precoProduto, quantidade: quantidadeInt });
+      carrinho.push({
+        id: idProduto,
+        nome: nomeProduto,
+        preco: precoProduto,
+        quantidade: quantidadeInt,
+      });
     }
 
     // Atualiza a renderização do carrinho
@@ -1126,10 +1267,15 @@ document
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Erro ao buscar produtos da mesa:", errorData.message || response.statusText);
+        console.error(
+          "Erro ao buscar produtos da mesa:",
+          errorData.message || response.statusText
+        );
         showPopup(
-            `Erro ao listar produtos da mesa: ${errorData.message || response.statusText}`,
-            "error"
+          `Erro ao listar produtos da mesa: ${
+            errorData.message || response.statusText
+          }`,
+          "error"
         );
         return;
       }
@@ -1141,7 +1287,8 @@ document
       listaProdutosMesa.innerHTML = "";
 
       if (produtosMesa.data.length === 0) {
-        listaProdutosMesa.innerHTML = "<p>Nenhum produto adicionado a esta mesa.</p>";
+        listaProdutosMesa.innerHTML =
+          "<p>Nenhum produto adicionado a esta mesa.</p>";
         return;
       }
 
@@ -1151,12 +1298,22 @@ document
 
         produtoDiv.innerHTML = `
                 <p><strong>Produto:</strong> ${produto.nome_produto}</p>
-                <p><strong>Preço:</strong> R$${parseFloat(produto.preco_produto).toFixed(2)}</p>
+                <p><strong>Preço:</strong> R$${parseFloat(
+                  produto.preco_produto
+                ).toFixed(2)}</p>
                 <p><strong>Quantidade:</strong> ${produto.quantidade}</p>
-                <p><strong>Total:</strong> R$${(produto.quantidade * produto.preco_produto).toFixed(2)}</p>
+                <p><strong>Total:</strong> R$${(
+                  produto.quantidade * produto.preco_produto
+                ).toFixed(2)}</p>
                 <!-- Botões para editar e deletar -->
-                <button class="editar-produto" data-id="${produto.id}" data-nome="${produto.nome_produto}" data-quantidade="${produto.quantidade}">Editar Quantidade</button>
-                <button class="deletar-produto" data-id="${produto.id}">Deletar</button>
+                <button class="editar-produto" data-id="${
+                  produto.id
+                }" data-nome="${produto.nome_produto}" data-quantidade="${
+          produto.quantidade
+        }">Editar Quantidade</button>
+                <button class="deletar-produto" data-id="${
+                  produto.id
+                }">Deletar</button>
             `;
 
         listaProdutosMesa.appendChild(produtoDiv);
@@ -1185,14 +1342,16 @@ document
           await deletarProdutoMesa(idProduto);
         });
       });
-
     } catch (error) {
       console.error("Erro ao listar produtos da mesa:", error.message);
-      showPopup("Erro ao listar produtos da mesa. Tente novamente mais tarde.", "error");
+      showPopup(
+        "Erro ao listar produtos da mesa. Tente novamente mais tarde.",
+        "error"
+      );
     }
   }
 
-// Função para deletar produto
+  // Função para deletar produto
   async function deletarProdutoMesa(idProduto) {
     try {
       const token = localStorage.getItem("token");
@@ -1200,14 +1359,22 @@ document
       const response = await fetch(`${baseUrl}/produtos-mesa/${idProduto}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Erro ao deletar produto:", errorData.message || response.statusText);
-        showPopup(`Erro ao deletar produto: ${errorData.message || response.statusText}`, "error");
+        console.error(
+          "Erro ao deletar produto:",
+          errorData.message || response.statusText
+        );
+        showPopup(
+          `Erro ao deletar produto: ${
+            errorData.message || response.statusText
+          }`,
+          "error"
+        );
         return;
       }
 
@@ -1223,8 +1390,7 @@ document
     }
   }
 
-
-// Função para listar produtos disponíveis para compra
+  // Função para listar produtos disponíveis para compra
   async function listarProdutosParaCompra() {
     try {
       const token = localStorage.getItem("token");
@@ -1238,13 +1404,18 @@ document
       const response = await fetch(`${baseUrl}/produtos`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        showPopup(`Erro ao listar produtos: ${errorData.message || response.statusText}`, "error");
+        showPopup(
+          `Erro ao listar produtos: ${
+            errorData.message || response.statusText
+          }`,
+          "error"
+        );
         return;
       }
 
@@ -1259,7 +1430,9 @@ document
         produtoDiv.innerHTML = `
         <p><strong>Nome:</strong> ${produto.nome}</p>
         <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(2)}</p>
-        <label for="quantidade-${produto.id}"><strong>Quantidade:</strong></label>
+        <label for="quantidade-${
+          produto.id
+        }"><strong>Quantidade:</strong></label>
         <select id="quantidade-${produto.id}">
             <option value="1">1</option>
             <option value="2">2</option>
@@ -1267,7 +1440,9 @@ document
             <option value="4">4</option>
             <option value="5">5</option>
         </select>
-        <button class="adicionar-produto" data-id="${produto.id}" data-nome="${produto.nome}" data-preco="${produto.preco}">Adicionar ao Carrinho</button>
+        <button class="adicionar-produto" data-id="${produto.id}" data-nome="${
+          produto.nome
+        }" data-preco="${produto.preco}">Adicionar ao Carrinho</button>
       `;
         listaProdutos.appendChild(produtoDiv);
       });
@@ -1278,7 +1453,9 @@ document
           const idProduto = this.getAttribute("data-id");
           const nomeProduto = this.getAttribute("data-nome");
           const precoProduto = this.getAttribute("data-preco");
-          const quantidade = document.getElementById(`quantidade-${idProduto}`).value;
+          const quantidade = document.getElementById(
+            `quantidade-${idProduto}`
+          ).value;
 
           if (quantidade < 1) {
             showPopup("Por favor, insira uma quantidade válida.", "error");
@@ -1289,14 +1466,16 @@ document
           adicionarAoCarrinho(idProduto, nomeProduto, precoProduto, quantidade);
         });
       });
-
     } catch (error) {
       console.error("Erro ao listar produtos:", error.message);
-      showPopup("Erro ao listar produtos. Tente novamente mais tarde.", "error");
+      showPopup(
+        "Erro ao listar produtos. Tente novamente mais tarde.",
+        "error"
+      );
     }
   }
 
-// Função para renderizar o carrinho
+  // Função para renderizar o carrinho
   function renderizarCarrinho() {
     const carrinhoLista = document.getElementById("carrinho-lista");
     carrinhoLista.innerHTML = ""; // Limpa o carrinho antes de adicionar os novos itens
@@ -1309,93 +1488,106 @@ document
     carrinho.forEach((produto) => {
       const itemCarrinho = document.createElement("li");
       itemCarrinho.innerHTML = `
-      <strong>${produto.nome}</strong> | Quantidade: ${produto.quantidade} | Preço: R$${(produto.preco * produto.quantidade).toFixed(2)}
+      <strong>${produto.nome}</strong> | Quantidade: ${
+        produto.quantidade
+      } | Preço: R$${(produto.preco * produto.quantidade).toFixed(2)}
       <button class="remover-produto" data-id="${produto.id}">Remover</button>
     `;
       carrinhoLista.appendChild(itemCarrinho);
 
       // Adiciona a funcionalidade de remover produto do carrinho
-      itemCarrinho.querySelector(".remover-produto").addEventListener("click", () => {
-        removerDoCarrinho(produto.id);
-      });
+      itemCarrinho
+        .querySelector(".remover-produto")
+        .addEventListener("click", () => {
+          removerDoCarrinho(produto.id);
+        });
     });
   }
 
-// Função para remover item do carrinho
+  // Função para remover item do carrinho
   function removerDoCarrinho(idProduto) {
     carrinho = carrinho.filter((produto) => produto.id !== idProduto);
     renderizarCarrinho();
   }
 
-// Função para finalizar o pedido
-  document.getElementById("finalizar-pedido").addEventListener("click", async function () {
-    const numeroMesa = document.getElementById("numero-mesa-modal").value;
+  // Função para finalizar o pedido
+  document
+    .getElementById("finalizar-pedido")
+    .addEventListener("click", async function () {
+      const numeroMesa = document.getElementById("numero-mesa-modal").value;
 
-    if (!numeroMesa) {
-      showPopup("Por favor, insira o número da mesa.", "error");
-      return;
-    }
-
-    // Preparar os dados do pedido
-    const produtosPedido = carrinho.map(item => ({
-      id_prod: item.id,
-      quantidade: item.quantidade
-    }));
-
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(`${baseUrl}/produtos-mesa`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          numero_mesa: numeroMesa,
-          produtos: produtosPedido
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        showPopup(`Erro ao fazer pedido: ${errorData.message || response.statusText}`, "error");
+      if (!numeroMesa) {
+        showPopup("Por favor, insira o número da mesa.", "error");
         return;
       }
 
-      await response.json();
-      showPopup("Pedido realizado com sucesso!", "success");
+      // Preparar os dados do pedido
+      const produtosPedido = carrinho.map((item) => ({
+        id_prod: item.id,
+        quantidade: item.quantidade,
+      }));
 
-      // Limpar carrinho
-      carrinho = [];
-      renderizarCarrinho();
+      try {
+        const token = localStorage.getItem("token");
 
-      // Fechar o modal após finalizar pedido
-      fecharModalCarrinho();
-    } catch (error) {
-      console.error("Erro ao finalizar pedido:", error.message);
-      showPopup("Erro ao finalizar pedido. Tente novamente.", "error");
-    }
-  });
+        const response = await fetch(`${baseUrl}/produtos-mesa`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            numero_mesa: numeroMesa,
+            produtos: produtosPedido,
+          }),
+        });
 
-// Função para abrir o modal do carrinho
+        if (!response.ok) {
+          const errorData = await response.json();
+          showPopup(
+            `Erro ao fazer pedido: ${errorData.message || response.statusText}`,
+            "error"
+          );
+          return;
+        }
+
+        await response.json();
+        showPopup("Pedido realizado com sucesso!", "success");
+
+        // Limpar carrinho
+        carrinho = [];
+        renderizarCarrinho();
+
+        // Fechar o modal após finalizar pedido
+        fecharModalCarrinho();
+      } catch (error) {
+        console.error("Erro ao finalizar pedido:", error.message);
+        showPopup("Erro ao finalizar pedido. Tente novamente.", "error");
+      }
+    });
+
+  // Função para abrir o modal do carrinho
   function abrirModalCarrinho() {
     const modal = document.getElementById("modal-carrinho");
     modal.style.display = "block"; // Exibe o modal
   }
 
-// Função para fechar o modal do carrinho
+  // Função para fechar o modal do carrinho
   function fecharModalCarrinho() {
     const modal = document.getElementById("modal-carrinho");
     modal.style.display = "none"; // Oculta o modal
   }
 
-  document.getElementById("btn-exibir-carrinho").addEventListener("click", abrirModalCarrinho);
+  document
+    .getElementById("btn-exibir-carrinho")
+    .addEventListener("click", abrirModalCarrinho);
 
-// Evento de clique para fechar o modal (clicando no "X")
-  document.getElementById("fechar-modal-carrinho").addEventListener("click", fecharModalCarrinho);
+  // Evento de clique para fechar o modal (clicando no "X")
+  document
+    .getElementById("fechar-modal-carrinho")
+    .addEventListener("click", fecharModalCarrinho);
 
-// Fechar o modal se o usuário clicar fora do conteúdo
+  // Fechar o modal se o usuário clicar fora do conteúdo
   window.addEventListener("click", function (event) {
     const modal = document.getElementById("modal-carrinho");
     if (event.target === modal) {
@@ -1408,63 +1600,74 @@ document
     // Preenche os campos do modal com os dados do produto
     document.getElementById("editar-id-produto-id").value = idProduto;
     document.getElementById("editar-nome-produto-id").value = nomeProduto; // Exibe o nome do produto
-    document.getElementById("editar-quantidade-produto-id").value = quantidadeProduto; // Exibe a quantidade atual
+    document.getElementById("editar-quantidade-produto-id").value =
+      quantidadeProduto; // Exibe a quantidade atual
 
     // Exibe o modal
     const modal = document.getElementById("modal-editar-produto-id");
     modal.style.display = "block";
   }
-// Atualizar o produto no banco de dados
-  document.getElementById("form-editar-produto-id").addEventListener("submit", async function (e) {
-    e.preventDefault();
+  // Atualizar o produto no banco de dados
+  document
+    .getElementById("form-editar-produto-id")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    const idProduto = document.getElementById("editar-id-produto-id").value;
-    const quantidadeProduto = document.getElementById("editar-quantidade-produto-id").value;
+      const idProduto = document.getElementById("editar-id-produto-id").value;
+      const quantidadeProduto = document.getElementById(
+        "editar-quantidade-produto-id"
+      ).value;
 
-    if (quantidadeProduto <= 0) {
-      showPopup("A quantidade deve ser maior que zero.", "error");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${baseUrl}/produtos-mesa/${idProduto}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ quantidade: quantidadeProduto }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        showPopup(`Erro ao editar quantidade: ${errorData.message || response.statusText}`, "error");
+      if (quantidadeProduto <= 0) {
+        showPopup("A quantidade deve ser maior que zero.", "error");
         return;
       }
 
-      const data = await response.json();
-      showPopup("Quantidade do produto atualizada com sucesso.", "success");
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${baseUrl}/produtos-mesa/${idProduto}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ quantidade: quantidadeProduto }),
+        });
 
-      // Fechar o modal após salvar
-      fecharModalEditarProduto();
+        if (!response.ok) {
+          const errorData = await response.json();
+          showPopup(
+            `Erro ao editar quantidade: ${
+              errorData.message || response.statusText
+            }`,
+            "error"
+          );
+          return;
+        }
 
-      // Recarregar a lista de produtos da mesa
-      await listarProdutosMesa(data.numero_mesa);
+        const data = await response.json();
+        showPopup("Quantidade do produto atualizada com sucesso.", "success");
 
-    } catch (error) {
-      console.error("Erro ao editar quantidade do produto:", error.message);
-      showPopup("Erro ao editar produto. Tente novamente.", "error");
-    }
-  });
+        // Fechar o modal após salvar
+        fecharModalEditarProduto();
 
-  document.getElementById("fechar-modal-editar-produto-id").addEventListener("click", function () {
-    const modal = document.getElementById("modal-editar-produto-id");
-    modal.style.display = "none"; // Ocultar o modal
-  });
+        // Recarregar a lista de produtos da mesa
+        await listarProdutosMesa(data.numero_mesa);
+      } catch (error) {
+        console.error("Erro ao editar quantidade do produto:", error.message);
+        showPopup("Erro ao editar produto. Tente novamente.", "error");
+      }
+    });
 
-// Fechar o modal ao clicar fora dele
-  window.addEventListener("click", function(event) {
+  document
+    .getElementById("fechar-modal-editar-produto-id")
+    .addEventListener("click", function () {
+      const modal = document.getElementById("modal-editar-produto-id");
+      modal.style.display = "none"; // Ocultar o modal
+    });
+
+  // Fechar o modal ao clicar fora dele
+  window.addEventListener("click", function (event) {
     const modal = document.getElementById("modal-editar-produto");
     if (event.target === modal) {
       modal.style.display = "none";
