@@ -69,7 +69,7 @@
     <header>
         <div class="header-container">
             <img src="assets/logo.png" alt="Logo" class="logo">
-            <h1>Restaurante Webservice</h1>
+            <h1>Tempero Delícia</h1>
         </div>
         <div class="header-right">
             <div id="usuario-logado">
@@ -90,6 +90,7 @@
             <li><a href="#mesas" class="nav-link restricted">Mesas</a></li>
             <li><a href="#produtos" class="nav-link restricted">Produtos</a></li>
             <li><a href="#pagamentos" class="nav-link restricted">Pagamentos</a></li>
+            <li><a href="#produtos-mesa" class="nav-link restricted">Produtos da Mesa</a></li>
         </ul>
     </nav>
 
@@ -99,6 +100,23 @@
             <h2>Bem-vindo ao Gerenciamento de Restaurante</h2>
             <p>Abaixo estão todos os produtos disponíveis no restaurante:</p>
             <div id="lista-produtos-home" class="card-container"></div>
+        </section>
+
+        <section id="produtos-mesa" class="section">
+            <h2>Gerenciamento de Produtos da Mesa</h2>
+            <p>Visualize os produtos adicionados a uma mesa específica:</p>
+
+            <!-- Formulário para buscar produtos de uma mesa -->
+            <form id="form-produtos-mesa">
+                <label for="mesa-id-produtos">Número da Mesa:</label>
+                <input type="number" id="mesa-id-produtos" placeholder="Insira o número da mesa" required>
+                <button type="submit">Buscar Produtos</button>
+            </form>
+
+            <!-- Lista de Produtos da Mesa -->
+            <div id="lista-produtos-mesa" class="card-container">
+                <!-- Os produtos da mesa serão exibidos aqui -->
+            </div>
         </section>
 
         <section id="usuarios" class="section">
@@ -223,6 +241,18 @@
     </div>
 </div>
 
+<div id="form-adicionar-produtos">
+    <label for="mesa-id">Número da Mesa:</label>
+    <input type="number" id="mesa-id" required />
+
+    <label for="produto-id">ID do Produto:</label>
+    <input type="number" id="produto-id" required />
+
+    <label for="quantidade-produto">Quantidade:</label>
+    <input type="number" id="quantidade-produto" required min="1" />
+
+    <button id="adicionar-produto-button">Adicionar Produto</button>
+</div>
 
 <!-- Container para pop-ups e confirmações -->
 <div id="popup-container"></div>

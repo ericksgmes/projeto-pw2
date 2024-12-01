@@ -628,7 +628,7 @@ header {
 /* Título */
 header h1 {
   margin: 0;
-  font-size: 2em;
+  font-size: 1.7em;
   font-weight: bold;
 }
 
@@ -644,7 +644,7 @@ header h1 {
   display: flex;
   flex-direction: column; /* Nome e username em coluna */
   align-items: flex-end; /* Alinhar o texto à direita */
-  font-size: 1em; /* Aumentado para maior destaque */
+  font-size: 0.95em; /* Aumentado para maior destaque */
   margin-right: 10px; /* Espaço maior entre o texto e o botão */
 }
 
@@ -653,12 +653,12 @@ header h1 {
 }
 
 #usuario-logado span:first-child {
-  font-size: 1.2em; /* Nome do usuário maior */
+  font-size: 1.1em; /* Nome do usuário maior */
   font-weight: bold; /* Destaque adicional */
 }
 
 #usuario-logado span:last-child {
-  font-size: 1.1em; /* Username maior */
+  font-size: 1em; /* Username maior */
   opacity: 0.9; /* Menor transparência */
 }
 
@@ -667,7 +667,7 @@ header h1 {
   color: var(--form-button-background);
   border: 2px solid var(--header-text);
   padding: 10px 20px; /* Aumentado */
-  font-size: 1.1em; /* Aumentado */
+  font-size: 1em; /* Aumentado */
   cursor: pointer;
   border-radius: 8px; /* Suaviza mais os cantos */
   transition: background-color 0.3s ease;

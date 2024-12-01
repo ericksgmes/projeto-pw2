@@ -1029,12 +1029,169 @@ document
     closeButton.addEventListener("click", () => clearTimeout(timeout));
   }
 
+  document.getElementById("adicionar-produto-button").addEventListener("click", async function (e) {
+    e.preventDefault();
+
+    const mesaId = document.getElementById("mesa-id").value.trim();
+    const produtoId = document.getElementById("produto-id").value.trim();
+    const quantidade = document.getElementById("quantidade-produto").value.trim();
+
+    if (!mesaId || !produtoId || !quantidade) {
+      showPopup("Por favor, preencha todos os campos.", "info");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${baseUrl}/produtos-mesa`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          mesa_id: parseInt(mesaId),
+          produto_id: parseInt(produtoId),
+          quantidade: parseInt(quantidade),
+        }),
+      });
+
+      if (response.ok) {
+        showPopup("Produto adicionado à mesa com sucesso!", "success");
+        // Você pode chamar uma função para listar produtos da mesa, se necessário
+      } else {
+        const errorData = await response.json();
+        showPopup(`Erro ao adicionar produto: ${errorData.message || response.statusText}`, "error");
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar produto:", error.message);
+      showPopup("Erro ao adicionar produto. Tente novamente.", "error");
+    }
+  });
+
+  async function listarProdutosMesa(mesaId) {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        showPopup("Token não encontrado. Faça login novamente.", "error");
+        return;
+      }
+
+      const response = await fetch(`${baseUrl}/produtos-mesa/${mesaId}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        showPopup(
+            `Erro ao listar produtos da mesa: ${errorData.message || response.statusText}`,
+            "error"
+        );
+        return;
+      }
+
+      const produtosMesa = await response.json();
+      const listaProdutosMesa = document.getElementById("lista-produtos-mesa");
+      listaProdutosMesa.innerHTML = "";
+
+      produtosMesa.data.forEach((produto) => {
+        const produtoDiv = document.createElement("div");
+        produtoDiv.classList.add("item");
+
+        produtoDiv.innerHTML = `
+                <p><strong>Produto:</strong> ${produto.nome}</p>
+                <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(2)}</p>
+                <p><strong>Quantidade:</strong> ${produto.quantidade}</p>
+            `;
+
+        listaProdutosMesa.appendChild(produtoDiv);
+      });
+    } catch (error) {
+      console.error("Erro ao listar produtos da mesa:", error.message);
+      showPopup("Erro ao listar produtos da mesa. Tente novamente mais tarde.", "error");
+    }
+  }
+
+// Event listener for the "Buscar Produtos" button
+  document.getElementById("buscar-produtos-button").addEventListener("click", () => {
+    const mesaId = parseInt(document.getElementById("mesa-id-produtos").value, 10);
+
+    if (isNaN(mesaId) || mesaId <= 0) {
+      showPopup("Por favor, insira um número válido para a mesa.", "error");
+      return;
+    }
+
+    listarProdutosMesa(mesaId);
+  });
+
+  document
+      .getElementById("form-produtos-mesa")
+      .addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const mesaId = document.getElementById("mesa-id-produtos").value.trim();
+
+        if (!mesaId) {
+          showPopup("Por favor, insira o número da mesa.", "info");
+          return;
+        }
+
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(`${baseUrl}/produtos-mesa/${mesaId}`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            showPopup(
+                `Erro ao buscar produtos da mesa: ${errorData.message || response.statusText}`,
+                "error"
+            );
+            return;
+          }
+
+          const produtos = await response.json();
+
+          const listaProdutosMesa = document.getElementById("lista-produtos-mesa");
+          listaProdutosMesa.innerHTML = "";
+
+          if (produtos.data.length === 0) {
+            listaProdutosMesa.innerHTML =
+                "<p>Nenhum produto adicionado a esta mesa.</p>";
+            return;
+          }
+
+          produtos.data.forEach((produto) => {
+            const produtoDiv = document.createElement("div");
+            produtoDiv.classList.add("item");
+            produtoDiv.innerHTML = `
+          <p><strong>Produto:</strong> ${produto.nome}</p>
+          <p><strong>Quantidade:</strong> ${produto.quantidade}</p>
+          <p><strong>Preço Unitário:</strong> R$${produto.preco.toFixed(2)}</p>
+          <p><strong>Total:</strong> R$${(produto.quantidade * produto.preco).toFixed(2)}</p>
+        `;
+            listaProdutosMesa.appendChild(produtoDiv);
+          });
+        } catch (error) {
+          console.error("Erro ao buscar produtos da mesa:", error.message);
+          showPopup("Erro ao buscar produtos da mesa. Tente novamente.", "error");
+        }
+      });
 
   function mostrarSecao(sectionId) {
     document.querySelectorAll(".section").forEach((section) => {
       section.classList.remove("active");
     });
     document.getElementById(sectionId).classList.add("active");
+
     // Chamar a função de listagem correspondente
     if (sectionId === "home") {
       listarProdutosHome();
@@ -1046,6 +1203,8 @@ document
       listarProdutos();
     } else if (sectionId === "pagamentos") {
       listarPagamentos();
+    } else if (sectionId === "produtos-mesa") {
+      listarProdutosMesa();
     }
   }
 });
