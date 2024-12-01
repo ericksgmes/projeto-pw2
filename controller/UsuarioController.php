@@ -31,10 +31,8 @@ class UsuarioController {
                     $this->criar($data);
                     break;
                 case 'PUT':
-                    if ($action === 'nome') {
-                        $this->atualizarNome($id, $data['nome'] ?? '');
-                    } elseif ($action === 'senha') {
-                        $this->atualizarSenha($id, $data['novaSenha'] ?? '');
+                    if ($action === 'parcial') {
+                        $this->atualizacaoParcial($id, $data);
                     } else {
                         $this->atualizar($id, $data);
                     }
@@ -49,6 +47,7 @@ class UsuarioController {
             jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
+
 
     public function obterUsuario($id): void {
         $this->autenticarRequisicao();
@@ -205,6 +204,58 @@ class UsuarioController {
             throw new Exception("Token expirado. Faça login novamente.", 401);
         } catch (Exception $e) {
             throw new Exception("Token inválido.", 401);
+        }
+    }
+
+    public function atualizacaoParcial($id, $data): void {
+        $this->autenticarRequisicao();
+
+        try {
+            // Verifica se o usuário existe
+            if (!Usuario::exist($id)) {
+                throw new Exception("Usuário não encontrado.", 404);
+            }
+
+            // Verifica se há dados para atualizar
+            if (empty($data)) {
+                throw new Exception("Nenhum dado fornecido para atualização.", 400);
+            }
+
+            // Monta os campos para atualização
+            $camposAtualizados = [];
+
+            if (!empty($data['nome'])) {
+                $camposAtualizados['nome'] = $data['nome'];
+            }
+
+            if (!empty($data['username'])) {
+                $camposAtualizados['username'] = $data['username'];
+            }
+
+            if (!empty($data['novaSenha'])) {
+                $camposAtualizados['senha'] = password_hash($data['novaSenha'], PASSWORD_BCRYPT);
+            }
+
+            if (isset($data['is_admin'])) {
+                $camposAtualizados['is_admin'] = $data['is_admin'] ? 1 : 0;
+            }
+
+            // Valida se há algo a ser atualizado
+            if (empty($camposAtualizados)) {
+                throw new Exception("Nenhum dado válido para atualização.", 400);
+            }
+
+            // Atualiza no banco
+            Usuario::atualizarParcial($id, $camposAtualizados);
+
+            // Retorna sucesso
+            jsonResponse(200, [
+                "status" => "success",
+                "message" => "Usuário atualizado com sucesso.",
+                "data" => ["id" => $id]
+            ]);
+        } catch (Exception $e) {
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
 }

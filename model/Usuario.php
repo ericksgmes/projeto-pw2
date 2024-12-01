@@ -143,13 +143,6 @@ class Usuario {
         }
     }
 
-    public static function getByUsername($username) {
-        $connection = Connection::getConnection();
-        $sql = $connection->prepare("SELECT * FROM Usuario WHERE username = ? AND deletado = 0");
-        $sql->execute([$username]);
-        return $sql->fetch(PDO::FETCH_ASSOC);
-    }
-
     public static function atualizarSenha($id, $novaSenha): void
     {
         $connection = Connection::getConnection();
@@ -168,18 +161,46 @@ class Usuario {
         }
     }
 
-    public static function atualizarNome($id, $novoNome): void {
+    public static function atualizarParcial($id, $campos): void {
         $connection = Connection::getConnection();
 
+        // Verifica se o usuário existe
         if (!self::exist($id)) {
             throw new Exception("Usuário não encontrado", 404);
         }
 
-        $sql = $connection->prepare("UPDATE Usuario SET nome = ? WHERE id = ? AND deletado = 0");
-        $sql->execute([$novoNome, $id]);
+        // Verifica se os campos não estão vazios
+        if (empty($campos) || !is_array($campos)) {
+            throw new Exception("Nenhum campo para atualizar foi fornecido", 400);
+        }
 
-        if ($sql->rowCount() === 0) {
-            throw new Exception("Falha ao atualizar o nome do usuário", 500);
+        // Monta dinamicamente a query SQL e os parâmetros
+        $sets = [];
+        $params = [];
+        foreach ($campos as $campo => $valor) {
+            if (in_array($campo, ['nome', 'username', 'senha', 'is_admin'], true)) {
+                $sets[] = "$campo = ?";
+                $params[] = $campo === 'senha' ? password_hash($valor, PASSWORD_BCRYPT) : $valor;
+            } else {
+                throw new Exception("Campo inválido: $campo", 400);
+            }
+        }
+
+        // Adiciona o ID como parâmetro
+        $params[] = $id;
+
+        // Monta a query
+        $sql = "UPDATE Usuario SET " . implode(", ", $sets) . " WHERE id = ? AND deletado = 0";
+        $stmt = $connection->prepare($sql);
+
+        // Executa a query
+        if (!$stmt->execute($params)) {
+            throw new Exception("Erro ao atualizar o usuário", 500);
+        }
+
+        // Verifica se alguma linha foi afetada
+        if ($stmt->rowCount() === 0) {
+            throw new Exception("Nenhuma alteração foi realizada", 400);
         }
     }
 }
