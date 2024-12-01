@@ -278,6 +278,29 @@
     </div>
 </div>
 
+<!-- Modal de Edição de Produto -->
+<div id="modal-editar-produto-id" class="modal">
+    <div class="modal-content">
+        <span class="close" id="fechar-modal-editar-produto-id">&times;</span>
+        <h2>Editar Produto</h2>
+        <form id="form-editar-produto-id">
+            <input type="hidden" id="editar-id-produto-id">
+            <input
+                    type="text"
+                    id="editar-nome-produto-id"
+                    placeholder="Nome do Produto"
+                    readonly>
+            <input
+                    type="number"
+                    id="editar-quantidade-produto-id"
+                    placeholder="Quantidade"
+                    required>
+            <button type="submit">Salvar Alterações</button>
+        </form>
+    </div>
+</div>
+
+
 <div id="form-adicionar-produtos">
     <label for="mesa-id">Número da Mesa:</label>
     <input type="number" id="mesa-id" required />

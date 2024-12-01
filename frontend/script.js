@@ -1104,43 +1104,6 @@ document
     renderizarCarrinho();
   }
 
-  function renderizarCarrinho() {
-    const carrinhoLista = document.getElementById("carrinho-lista");
-    carrinhoLista.innerHTML = ""; // Limpa o carrinho antes de adicionar os novos itens
-
-    // Verifica se o carrinho está vazio
-    if (carrinho.length === 0) {
-      carrinhoLista.innerHTML = "<p>Seu carrinho está vazio.</p>";
-      return;
-    }
-
-    // Renderiza os itens do carrinho
-    carrinho.forEach((produto) => {
-      const itemCarrinho = document.createElement("li");
-      itemCarrinho.innerHTML = `
-            <strong>${produto.nome}</strong> | Quantidade: ${produto.quantidade} | Preço: R$${(produto.preco * produto.quantidade).toFixed(2)}
-            <button class="remover-produto" data-id="${produto.id}">Remover</button>
-        `;
-      carrinhoLista.appendChild(itemCarrinho);
-
-      // Adiciona a funcionalidade de remover produto do carrinho
-      itemCarrinho.querySelector(".remover-produto").addEventListener("click", () => {
-        removerDoCarrinho(produto.id);
-      });
-    });
-  }
-
-  function removerDoCarrinho(idProduto) {
-    // Remove o produto do carrinho
-    carrinho = carrinho.filter((produto) => produto.id !== idProduto);
-
-    // Re-renderiza o carrinho
-    renderizarCarrinho();
-  }
-
-
-
-// Função que realiza a requisição para listar os produtos de uma mesa específica
   async function listarProdutosMesa(numeroMesa) {
     console.log(`Buscando produtos da mesa: ${numeroMesa}`);
 
@@ -1187,19 +1150,80 @@ document
         produtoDiv.classList.add("item");
 
         produtoDiv.innerHTML = `
-        <p><strong>Produto:</strong> ${produto.nome_produto}</p>
-        <p><strong>Preço:</strong> R$${parseFloat(produto.preco_produto).toFixed(2)}</p>
-        <p><strong>Quantidade:</strong> ${produto.quantidade}</p>
-        <p><strong>Total:</strong> R$${(produto.quantidade * produto.preco_produto).toFixed(2)}</p>
-      `;
+                <p><strong>Produto:</strong> ${produto.nome_produto}</p>
+                <p><strong>Preço:</strong> R$${parseFloat(produto.preco_produto).toFixed(2)}</p>
+                <p><strong>Quantidade:</strong> ${produto.quantidade}</p>
+                <p><strong>Total:</strong> R$${(produto.quantidade * produto.preco_produto).toFixed(2)}</p>
+                <!-- Botões para editar e deletar -->
+                <button class="editar-produto" data-id="${produto.id}" data-nome="${produto.nome_produto}" data-quantidade="${produto.quantidade}">Editar Quantidade</button>
+                <button class="deletar-produto" data-id="${produto.id}">Deletar</button>
+            `;
 
         listaProdutosMesa.appendChild(produtoDiv);
       });
+
+      // Adicionar evento para editar um produto
+      document.querySelectorAll(".editar-produto").forEach((button) => {
+        button.addEventListener("click", function () {
+          const idProduto = this.getAttribute("data-id");
+          const nomeProduto = this.getAttribute("data-nome");
+          const quantidadeProduto = this.getAttribute("data-quantidade");
+
+          console.log("Editar produto com ID:", idProduto);
+
+          // Abrir modal e preencher os campos com o nome do produto e a quantidade atual
+          editarProduto(idProduto, nomeProduto, quantidadeProduto);
+        });
+      });
+
+      // Adicionar evento para deletar um produto
+      document.querySelectorAll(".deletar-produto").forEach((button) => {
+        button.addEventListener("click", async function () {
+          const idProduto = this.getAttribute("data-id");
+          console.log("Deletar produto com ID:", idProduto);
+          // Implementar lógica para deletar o produto
+          await deletarProdutoMesa(idProduto);
+        });
+      });
+
     } catch (error) {
       console.error("Erro ao listar produtos da mesa:", error.message);
       showPopup("Erro ao listar produtos da mesa. Tente novamente mais tarde.", "error");
     }
   }
+
+// Função para deletar produto
+  async function deletarProdutoMesa(idProduto) {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${baseUrl}/produtos-mesa/${idProduto}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Erro ao deletar produto:", errorData.message || response.statusText);
+        showPopup(`Erro ao deletar produto: ${errorData.message || response.statusText}`, "error");
+        return;
+      }
+
+      const data = await response.json();
+      console.log("Produto deletado com sucesso:", data);
+      showPopup("Produto removido da mesa com sucesso.", "success");
+
+      // Recarregar os produtos da mesa
+      await listarProdutosMesa(data.numero_mesa);
+    } catch (error) {
+      console.error("Erro ao deletar produto:", error.message);
+      showPopup("Erro ao deletar produto. Tente novamente.", "error");
+    }
+  }
+
+
 // Função para listar produtos disponíveis para compra
   async function listarProdutosParaCompra() {
     try {
@@ -1272,21 +1296,6 @@ document
     }
   }
 
-// Função de adicionar ao carrinho
-  function adicionarAoCarrinho(idProduto, nomeProduto, precoProduto, quantidade) {
-    // Garantir que a quantidade seja um número inteiro
-    const quantidadeInt = Math.max(1, parseInt(quantidade, 10));
-
-    const produtoExistente = carrinho.find((item) => item.id === idProduto);
-    if (produtoExistente) {
-      produtoExistente.quantidade += quantidadeInt;
-    } else {
-      carrinho.push({ id: idProduto, nome: nomeProduto, preco: precoProduto, quantidade: quantidadeInt });
-    }
-
-    renderizarCarrinho();
-  }
-
 // Função para renderizar o carrinho
   function renderizarCarrinho() {
     const carrinhoLista = document.getElementById("carrinho-lista");
@@ -1354,7 +1363,7 @@ document
         return;
       }
 
-      const data = await response.json();
+      await response.json();
       showPopup("Pedido realizado com sucesso!", "success");
 
       // Limpar carrinho
@@ -1394,6 +1403,73 @@ document
     }
   });
 
+  // Função para abrir o modal de edição de produto
+  function editarProduto(idProduto, nomeProduto, quantidadeProduto) {
+    // Preenche os campos do modal com os dados do produto
+    document.getElementById("editar-id-produto-id").value = idProduto;
+    document.getElementById("editar-nome-produto-id").value = nomeProduto; // Exibe o nome do produto
+    document.getElementById("editar-quantidade-produto-id").value = quantidadeProduto; // Exibe a quantidade atual
+
+    // Exibe o modal
+    const modal = document.getElementById("modal-editar-produto-id");
+    modal.style.display = "block";
+  }
+// Atualizar o produto no banco de dados
+  document.getElementById("form-editar-produto-id").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const idProduto = document.getElementById("editar-id-produto-id").value;
+    const quantidadeProduto = document.getElementById("editar-quantidade-produto-id").value;
+
+    if (quantidadeProduto <= 0) {
+      showPopup("A quantidade deve ser maior que zero.", "error");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${baseUrl}/produtos-mesa/${idProduto}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ quantidade: quantidadeProduto }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        showPopup(`Erro ao editar quantidade: ${errorData.message || response.statusText}`, "error");
+        return;
+      }
+
+      const data = await response.json();
+      showPopup("Quantidade do produto atualizada com sucesso.", "success");
+
+      // Fechar o modal após salvar
+      fecharModalEditarProduto();
+
+      // Recarregar a lista de produtos da mesa
+      await listarProdutosMesa(data.numero_mesa);
+
+    } catch (error) {
+      console.error("Erro ao editar quantidade do produto:", error.message);
+      showPopup("Erro ao editar produto. Tente novamente.", "error");
+    }
+  });
+
+  document.getElementById("fechar-modal-editar-produto-id").addEventListener("click", function () {
+    const modal = document.getElementById("modal-editar-produto-id");
+    modal.style.display = "none"; // Ocultar o modal
+  });
+
+// Fechar o modal ao clicar fora dele
+  window.addEventListener("click", function(event) {
+    const modal = document.getElementById("modal-editar-produto");
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  });
 
   function mostrarSecao(sectionId) {
     document.querySelectorAll(".section").forEach((section) => {
