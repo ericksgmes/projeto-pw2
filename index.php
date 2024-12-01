@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/controller/FuncionarioController.php';
-require_once __DIR__ . '/controller/FuncionarioMesaController.php';
+require_once __DIR__ . '/controller/UsuarioController.php';
+require_once __DIR__ . '/controller/UsuarioMesaController.php';
 require_once __DIR__ . '/controller/MesaController.php';
 require_once __DIR__ . '/controller/PagamentoController.php';
 require_once __DIR__ . '/controller/ProdutoController.php';
@@ -13,7 +13,6 @@ use Dotenv\Dotenv;
 
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
-
 
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
@@ -43,20 +42,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
 switch ($resource) {
     case 'auth':
-        $controller = new FuncionarioController();
+        $controller = new UsuarioController();
         $controller->autenticar($data);
         break;
-
-    case 'funcionarios':
-    case 'funcionario-mesa':
+    case 'signup':
+        $controller = new UsuarioController();
+        $controller->criar($data);
+        break;
+    case 'usuarios':
+    case 'usuario-mesa':
     case 'mesas':
     case 'pagamentos':
     case 'produtos':
     case 'produtos-mesa':
-        verificarToken($jwtSecret, $jwtAlgorithm); // Exige autenticação para esses recursos
+        verificarToken($jwtSecret, $jwtAlgorithm);
         $controller = match ($resource) {
-            'funcionarios' => new FuncionarioController(),
-            'funcionario-mesa' => new FuncionarioMesaController(),
+            'usuarios' => new UsuarioController(),
+            'usuario-mesa' => new UsuarioMesaController(),
             'mesas' => new MesaController(),
             'pagamentos' => new PagamentoController(),
             'produtos' => new ProdutoController(),

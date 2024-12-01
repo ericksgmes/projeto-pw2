@@ -1,47 +1,47 @@
 <?php
 
-require_once(__DIR__ . "/../model/FuncionarioMesa.php");
+require_once(__DIR__ . "/../model/UsuarioMesa.php");
 require_once(__DIR__ . "/../config/utils.php");
 
-class FuncionarioMesaController {
+class UsuarioMesaController {
     /**
      * @OA\Get(
-     *     path="/funcionario-mesa/{funcionarioId}",
-     *     summary="Listar todas as mesas associadas a um funcionário",
+     *     path="/usuario-mesa/{usuarioId}",
+     *     summary="Listar todas as mesas associadas a um usuário",
      *     @OA\Parameter(
-     *         name="funcionarioId",
+     *         name="usuarioId",
      *         in="path",
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
-     *     @OA\Response(response="200", description="Lista de mesas associadas ao funcionário"),
-     *     @OA\Response(response="404", description="Funcionário não encontrado")
+     *     @OA\Response(response="200", description="Lista de mesas associadas ao usuário"),
+     *     @OA\Response(response="404", description="Usuário não encontrado")
      * )
      * @OA\Get(
-     *     path="/funcionario-mesa",
-     *     summary="Listar todas as associações entre funcionários e mesas",
-     *     @OA\Response(response="200", description="Lista de associações entre funcionários e mesas")
+     *     path="/usuario-mesa",
+     *     summary="Listar todas as associações entre usuários e mesas",
+     *     @OA\Response(response="200", description="Lista de associações entre usuários e mesas")
      * )
      */
-    private function listar($funcionarioId = null): void {
-        if ($funcionarioId) {
-            $associacoes = FuncionarioMesa::getByFuncionarioId($funcionarioId);
+    private function listar($usuarioId = null): void {
+        if ($usuarioId) {
+            $associacoes = UsuarioMesa::getByUsuarioId($usuarioId);
             jsonResponse(200, ["status" => "success", "data" => $associacoes]);
         } else {
-            $associacoes = FuncionarioMesa::listar();
+            $associacoes = UsuarioMesa::listar();
             jsonResponse(200, ["status" => "success", "data" => $associacoes]);
         }
     }
 
     /**
      * @OA\Post(
-     *     path="/funcionario-mesa",
-     *     summary="Criar uma nova associação entre funcionário e mesa",
+     *     path="/usuario-mesa",
+     *     summary="Criar uma nova associação entre usuário e mesa",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"id_funcionario", "id_mesa"},
-     *             @OA\Property(property="id_funcionario", type="integer", description="ID do funcionário"),
+     *             required={"id_usuario", "id_mesa"},
+     *             @OA\Property(property="id_usuario", type="integer", description="ID do usuário"),
      *             @OA\Property(property="id_mesa", type="integer", description="ID da mesa")
      *         )
      *     ),
@@ -51,35 +51,35 @@ class FuncionarioMesaController {
      * )
      */
     private function criar($data): void {
-        if (!valid($data, ["id_funcionario", "id_mesa"])) {
-            throw new Exception("ID do funcionário ou da mesa não encontrado", 400);
+        if (!valid($data, ["id_usuario", "id_mesa"])) {
+            throw new Exception("ID do usuário ou da mesa não encontrado", 400);
         }
 
-        $id_funcionario = $data["id_funcionario"];
+        $id_usuario = $data["id_usuario"];
         $id_mesa = $data["id_mesa"];
 
-        if (FuncionarioMesa::exist($id_funcionario, $id_mesa)) {
+        if (UsuarioMesa::exist($id_usuario, $id_mesa)) {
             throw new Exception("A associação já existe", 409);
         }
 
-        FuncionarioMesa::associar($id_funcionario, $id_mesa);
+        UsuarioMesa::associar($id_usuario, $id_mesa);
         jsonResponse(201, [
             "status" => "success",
-            "data" => ["id_funcionario" => $id_funcionario, "id_mesa" => $id_mesa]
+            "data" => ["id_usuario" => $id_usuario, "id_mesa" => $id_mesa]
         ]);
     }
 
     /**
      * @OA\Delete(
-     *     path="/funcionario-mesa/{funcionarioId}/{mesaId}",
-     *     summary="Desassociar um funcionário de uma mesa",
+     *     path="/usuario-mesa/{usuarioId}/{mesaId}",
+     *     summary="Desassociar um usuário de uma mesa",
      *     operationId="a8e9877158f7ddb4ea46d6732f5f5ac2",
      *     @OA\Parameter(
-     *         name="funcionarioId",
+     *         name="usuarioId",
      *         in="path",
      *         required=true,
      *         @OA\Schema(type="integer"),
-     *         description="ID do funcionário a ser desassociado"
+     *         description="ID do usuário a ser desassociado"
      *     ),
      *     @OA\Parameter(
      *         name="mesaId",
@@ -98,34 +98,33 @@ class FuncionarioMesaController {
      *     )
      * )
      */
-
-    private function deletar($funcionarioId, $mesaId): void {
-        if (!$funcionarioId || !$mesaId) {
-            throw new Exception("ID do funcionário ou da mesa não enviado", 400);
+    private function deletar($usuarioId, $mesaId): void {
+        if (!$usuarioId || !$mesaId) {
+            throw new Exception("ID do usuário ou da mesa não enviado", 400);
         }
 
-        if (!FuncionarioMesa::exist($funcionarioId, $mesaId)) {
+        if (!UsuarioMesa::exist($usuarioId, $mesaId)) {
             throw new Exception("Associação não encontrada", 404);
         }
 
-        FuncionarioMesa::desassociar($funcionarioId, $mesaId);
+        UsuarioMesa::desassociar($usuarioId, $mesaId);
         jsonResponse(200, [
             "status" => "success",
-            "data" => ["id_funcionario" => $funcionarioId, "id_mesa" => $mesaId]
+            "data" => ["id_usuario" => $usuarioId, "id_mesa" => $mesaId]
         ]);
     }
 
-    public function handleRequest($method, $funcionarioId = null, $mesaId = null, $data = null): void {
+    public function handleRequest($method, $usuarioId = null, $mesaId = null, $data = null): void {
         try {
             switch ($method) {
                 case 'GET':
-                    $this->listar($funcionarioId);
+                    $this->listar($usuarioId);
                     break;
                 case 'POST':
                     $this->criar($data);
                     break;
                 case 'DELETE':
-                    $this->deletar($funcionarioId, $mesaId);
+                    $this->deletar($usuarioId, $mesaId);
                     break;
                 default:
                     jsonResponse(405, ["status" => "error", "message" => "Método não permitido"]);

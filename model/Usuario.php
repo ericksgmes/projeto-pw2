@@ -4,54 +4,59 @@ require_once __DIR__ . '/../config/database.php';
 
 /**
  * @OA\Schema(
- *     schema="Funcionario",
+ *     schema="Usuario",
  *     type="object",
- *     title="Funcionario",
- *     description="Funcionario model",
+ *     title="Usuario",
+ *     description="Usuario model",
  *     @OA\Property(
  *         property="id",
  *         type="integer",
- *         description="ID do funcionário"
+ *         description="ID do usuário"
  *     ),
  *     @OA\Property(
  *         property="nome",
  *         type="string",
- *         description="Nome do funcionário"
+ *         description="Nome do usuário"
  *     ),
  *     @OA\Property(
  *         property="username",
  *         type="string",
- *         description="Username do funcionário"
+ *         description="Username do usuário"
  *     ),
  *     @OA\Property(
  *         property="senha",
  *         type="string",
- *         description="Senha do funcionário"
+ *         description="Senha do usuário"
  *     ),
  *     @OA\Property(
  *         property="deletado",
  *         type="boolean",
- *         description="Indica se o funcionário está deletado"
+ *         description="Indica se o usuário está deletado"
  *     ),
  *     @OA\Property(
  *         property="data_deletado",
  *         type="string",
  *         format="date-time",
- *         description="Data em que o funcionário foi deletado"
+ *         description="Data em que o usuário foi deletado"
+ *     ),
+ *     @OA\Property(
+ *         property="is_admin",
+ *         type="boolean",
+ *         description="Indica se o usuário é administrador"
  *     )
  * )
  */
 
-class Funcionario {
+class Usuario {
 
     public static function listar(): array {
         $connection = Connection::getConnection();
-        $sql = $connection->prepare("SELECT * FROM Funcionario WHERE deletado = 0");
+        $sql = $connection->prepare("SELECT * FROM Usuario WHERE deletado = 0");
         $sql->execute();
         return $sql->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function cadastrar($nome, $username, $senha) {
+    public static function cadastrar($nome, $username, $senha, $isAdmin = 0) {
         $connection = Connection::getConnection();
 
         if (self::existsByUsername($username)) {
@@ -59,38 +64,38 @@ class Funcionario {
         }
 
         $senhaHashed = password_hash($senha, PASSWORD_BCRYPT);
-        $sql = $connection->prepare("INSERT INTO Funcionario (nome, username, senha) VALUES (?, ?, ?)");
-        $sql->execute([$nome, $username, $senhaHashed]);
+        $sql = $connection->prepare("INSERT INTO Usuario (nome, username, senha, is_admin) VALUES (?, ?, ?, ?)");
+        $sql->execute([$nome, $username, $senhaHashed, $isAdmin]);
 
         return $connection->lastInsertId();
     }
 
     public static function getById($id) {
         $connection = Connection::getConnection();
-        $sql = $connection->prepare("SELECT * FROM Funcionario WHERE id = ? AND deletado = 0");
+        $sql = $connection->prepare("SELECT * FROM Usuario WHERE id = ? AND deletado = 0");
         $sql->execute([$id]);
-        $funcionario = $sql->fetch(PDO::FETCH_ASSOC);
+        $usuario = $sql->fetch(PDO::FETCH_ASSOC);
 
-        if (!$funcionario) {
-            throw new Exception("Funcionário não encontrado", 404);
+        if (!$usuario) {
+            throw new Exception("Usuário não encontrado", 404);
         }
 
-        return $funcionario;
+        return $usuario;
     }
 
-    public static function atualizar($id, $nome, $username) {
+    public static function atualizar($id, $nome, $username, $isAdmin) {
         $connection = Connection::getConnection();
 
         if (!self::exist($id)) {
-            throw new Exception("Funcionário não encontrado", 404);
+            throw new Exception("Usuário não encontrado", 404);
         }
 
         if (self::existsByUsername($username)) {
-            throw new Exception("O username já está em uso por outro funcionário.", 409);
+            throw new Exception("O username já está em uso por outro usuário.", 409);
         }
 
-        $sql = $connection->prepare("UPDATE Funcionario SET nome = ?, username = ? WHERE id = ?");
-        $sql->execute([$nome, $username, $id]);
+        $sql = $connection->prepare("UPDATE Usuario SET nome = ?, username = ?, is_admin = ? WHERE id = ?");
+        $sql->execute([$nome, $username, $isAdmin, $id]);
 
         return $sql->rowCount();
     }
@@ -99,10 +104,10 @@ class Funcionario {
         $connection = Connection::getConnection();
 
         if (!self::exist($id)) {
-            throw new Exception("Funcionário não encontrado", 404);
+            throw new Exception("Usuário não encontrado", 404);
         }
 
-        $sql = $connection->prepare("UPDATE Funcionario
+        $sql = $connection->prepare("UPDATE Usuario
                     SET deletado = 1, data_deletado = NOW(), username = CONCAT(username, '_deleted_', id)
                     WHERE id = ?;");
         $sql->execute([$id]);
@@ -112,14 +117,14 @@ class Funcionario {
 
     public static function exist($id): bool {
         $connection = Connection::getConnection();
-        $sql = $connection->prepare("SELECT COUNT(*) FROM Funcionario WHERE id = ? AND deletado = 0");
+        $sql = $connection->prepare("SELECT COUNT(*) FROM Usuario WHERE id = ? AND deletado = 0");
         $sql->execute([$id]);
         return $sql->fetchColumn() > 0;
     }
 
     public static function existsByUsername($username): bool {
         $connection = Connection::getConnection();
-        $sql = $connection->prepare("SELECT id FROM Funcionario WHERE username = ? AND deletado = 0");
+        $sql = $connection->prepare("SELECT id FROM Usuario WHERE username = ? AND deletado = 0");
         $sql->execute([$username]);
         return (bool) $sql->fetch();
     }
@@ -128,20 +133,19 @@ class Funcionario {
         try {
             $connection = Connection::getConnection();
             $sql = $connection->prepare(
-                "SELECT id, nome, username, senha FROM Funcionario WHERE username = ? AND deletado = 0"
+                "SELECT id, nome, username, senha, is_admin FROM Usuario WHERE username = ? AND deletado = 0"
             );
             $sql->execute([$username]);
             return $sql->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Erro ao buscar funcionário por username: " . $e->getMessage());
-            throw new Exception("Erro ao buscar funcionário.", 500);
+            error_log("Erro ao buscar usuário por username: " . $e->getMessage());
+            throw new Exception("Erro ao buscar usuário.", 500);
         }
     }
 
-
     public static function getByUsername($username) {
         $connection = Connection::getConnection();
-        $sql = $connection->prepare("SELECT * FROM Funcionario WHERE username = ? AND deletado = 0");
+        $sql = $connection->prepare("SELECT * FROM Usuario WHERE username = ? AND deletado = 0");
         $sql->execute([$username]);
         return $sql->fetch(PDO::FETCH_ASSOC);
     }
@@ -151,12 +155,12 @@ class Funcionario {
         $connection = Connection::getConnection();
 
         if (!self::exist($id)) {
-            throw new Exception("Funcionário não encontrado", 404);
+            throw new Exception("Usuário não encontrado", 404);
         }
 
         $senhaHashed = password_hash($novaSenha, PASSWORD_BCRYPT);
 
-        $sql = $connection->prepare("UPDATE Funcionario SET senha = ? WHERE id = ? AND deletado = 0");
+        $sql = $connection->prepare("UPDATE Usuario SET senha = ? WHERE id = ? AND deletado = 0");
         $sql->execute([$senhaHashed, $id]);
 
         if ($sql->rowCount() === 0) {
@@ -167,18 +171,15 @@ class Funcionario {
     public static function atualizarNome($id, $novoNome): void {
         $connection = Connection::getConnection();
 
-        // Verifica se o funcionário existe
         if (!self::exist($id)) {
-            throw new Exception("Funcionário não encontrado", 404);
+            throw new Exception("Usuário não encontrado", 404);
         }
 
-        // Atualiza apenas o nome
-        $sql = $connection->prepare("UPDATE Funcionario SET nome = ? WHERE id = ? AND deletado = 0");
+        $sql = $connection->prepare("UPDATE Usuario SET nome = ? WHERE id = ? AND deletado = 0");
         $sql->execute([$novoNome, $id]);
 
-        // Verifica se a atualização foi bem-sucedida
         if ($sql->rowCount() === 0) {
-            throw new Exception("Falha ao atualizar o nome do funcionário", 500);
+            throw new Exception("Falha ao atualizar o nome do usuário", 500);
         }
     }
 }

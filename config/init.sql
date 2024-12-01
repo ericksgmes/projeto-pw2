@@ -1,13 +1,14 @@
 CREATE DATABASE IF NOT EXISTS restaurante;
 USE restaurante;
 
-CREATE TABLE IF NOT EXISTS Funcionario (
+CREATE TABLE IF NOT EXISTS Usuario (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     username VARCHAR(255) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL,
     deletado TINYINT(1) DEFAULT 0,
-    data_deletado DATETIME NULL
+    data_deletado DATETIME NULL,
+    is_admin TINYINT(1) DEFAULT 0
     );
 
 CREATE TABLE IF NOT EXISTS Mesa (
@@ -30,17 +31,18 @@ CREATE TABLE IF NOT EXISTS Pagamento (
     metodo ENUM('DEBITO', 'CREDITO', 'PIX') NOT NULL,
     valor DECIMAL(10, 2) NOT NULL,
     data DATETIME,
-    id_mesa INT NOT NULL,
+    numero_mesa INT NOT NULL,
     deletado TINYINT(1) DEFAULT 0,
     data_deletado DATETIME NULL,
-    FOREIGN KEY (id_mesa) REFERENCES Mesa(id)
+    FOREIGN KEY (numero_mesa) REFERENCES Mesa(numero)
     );
 
-CREATE TABLE IF NOT EXISTS FuncionarioMesa (
-    id_funcionario INT,
+
+CREATE TABLE IF NOT EXISTS UsuarioMesa (
+    id_usuario INT,
     id_mesa INT,
-    PRIMARY KEY (id_funcionario, id_mesa),
-    FOREIGN KEY (id_funcionario) REFERENCES Funcionario(id),
+    PRIMARY KEY (id_usuario, id_mesa),
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id),
     FOREIGN KEY (id_mesa) REFERENCES Mesa(id)
     );
 

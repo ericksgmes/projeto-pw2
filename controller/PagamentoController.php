@@ -5,145 +5,101 @@ require_once __DIR__ . '/../config/utils.php';
 require_once __DIR__ . '/../config/paymentMethodEnum.php';
 
 class PagamentoController {
-    /**
-     * @OA\Get(
-     *     path="/pagamentos/{id}",
-     *     summary="Obter detalhes de um pagamento",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response="200", description="Detalhes do pagamento"),
-     *     @OA\Response(response="404", description="Pagamento não encontrado")
-     * )
-     * @OA\Get(
-     *     path="/pagamentos",
-     *     summary="Listar todos os pagamentos",
-     *     @OA\Response(response="200", description="Lista de pagamentos")
-     * )
-     */
     public function listar($id = null): void {
-        if ($id) {
-            $pagamento = Pagamento::getById($id);
-            jsonResponse(200, ["status" => "success", "data" => $pagamento]);
-        } else {
-            $pagamentos = Pagamento::listar();
-            jsonResponse(200, ["status" => "success", "data" => $pagamentos]);
+        try {
+            if ($id) {
+                error_log("Listando pagamento com ID: $id");
+                $pagamento = Pagamento::getById($id);
+                jsonResponse(200, ["status" => "success", "data" => $pagamento]);
+            } else {
+                error_log("Listando todos os pagamentos");
+                $pagamentos = Pagamento::listar();
+                jsonResponse(200, ["status" => "success", "data" => $pagamentos]);
+            }
+        } catch (Exception $e) {
+            error_log("Erro ao listar pagamentos: " . $e->getMessage());
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
 
-    /**
-     * @OA\Get(
-     *     path="/pagamentos/deletados",
-     *     summary="Listar todos os pagamentos deletados",
-     *     @OA\Response(response="200", description="Lista de pagamentos deletados")
-     * )
-     */
     public function listarDeletados(): void {
-        $pagamentos = Pagamento::listarDeletados();
-        jsonResponse(200, ["status" => "success", "data" => $pagamentos]);
+        try {
+            error_log("Listando pagamentos deletados");
+            $pagamentos = Pagamento::listarDeletados();
+            jsonResponse(200, ["status" => "success", "data" => $pagamentos]);
+        } catch (Exception $e) {
+            error_log("Erro ao listar pagamentos deletados: " . $e->getMessage());
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
+        }
     }
 
-    /**
-     * @OA\Post(
-     *     path="/pagamentos",
-     *     summary="Criar um novo pagamento",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"metodo", "valor", "id_mesa"},
-     *             @OA\Property(property="metodo", type="string", description="Método de pagamento"),
-     *             @OA\Property(property="valor", type="number", format="float", description="Valor do pagamento"),
-     *             @OA\Property(property="id_mesa", type="integer", description="ID da mesa associada ao pagamento")
-     *         )
-     *     ),
-     *     @OA\Response(response="201", description="Pagamento criado com sucesso"),
-     *     @OA\Response(response="400", description="Dados inválidos")
-     * )
-     */
     public function criar($data): void {
         error_log("Iniciando criação de pagamento com dados: " . json_encode($data));
 
-        if (!valid($data, ["metodo", "valor", "id_mesa"])) {
-            jsonResponse(400, ["status" => "error", "message" => "Método de pagamento, valor ou ID da mesa não fornecido"]);
+        if (!valid($data, ["metodo", "valor", "numero"])) {
+            error_log("Dados inválidos fornecidos para criação de pagamento.");
+            jsonResponse(400, ["status" => "error", "message" => "Método de pagamento, valor ou número da mesa não fornecido"]);
             return;
         }
 
         try {
+            $numero_mesa = $data["numero"];
             $metodo = paymentMethodEnum::from($data["metodo"]);
             $valor = $data["valor"];
-            $id_mesa = $data["id_mesa"];
-            error_log("Dados validados. Método: {$metodo->value}, Valor: $valor, ID Mesa: $id_mesa");
 
-            $insertedId = Pagamento::cadastrar($metodo, $valor, $id_mesa);
+            error_log("Dados validados. Método: {$metodo->value}, Valor: $valor, Número Mesa: $numero_mesa");
+
+            // Criar pagamento diretamente
+            $insertedId = Pagamento::cadastrar($metodo, $valor, $numero_mesa);
+            error_log("Pagamento criado com sucesso. ID: $insertedId");
             jsonResponse(201, ["status" => "success", "data" => ["id" => $insertedId]]);
         } catch (Exception $e) {
             error_log("Erro ao criar pagamento: " . $e->getMessage());
-            throw new Exception("Erro ao criar pagamento: " . $e->getMessage(), 500);
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
 
-
-    /**
-     * @OA\Put(
-     *     path="/pagamentos/{id}",
-     *     summary="Atualizar um pagamento",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"metodo", "valor", "id_mesa"},
-     *             @OA\Property(property="metodo", type="string", description="Método de pagamento"),
-     *             @OA\Property(property="valor", type="number", format="float", description="Valor do pagamento"),
-     *             @OA\Property(property="id_mesa", type="integer", description="ID da mesa associada ao pagamento")
-     *         )
-     *     ),
-     *     @OA\Response(response="200", description="Pagamento atualizado com sucesso"),
-     *     @OA\Response(response="400", description="Dados inválidos"),
-     *     @OA\Response(response="404", description="Pagamento não encontrado")
-     * )
-     */
     public function atualizar($id, $data): void {
-        if (!valid($data, ["metodo", "valor", "id_mesa"])) {
-            jsonResponse(400, ["status" => "error", "message" => "Método de pagamento, valor ou ID da mesa não fornecido"]);
+        error_log("Iniciando atualização de pagamento com ID: $id e dados: " . json_encode($data));
+
+        if (!valid($data, ["metodo", "valor", "numero"])) {
+            error_log("Dados inválidos fornecidos para atualização de pagamento.");
+            jsonResponse(400, ["status" => "error", "message" => "Método de pagamento, valor ou número da mesa não fornecido"]);
             return;
         }
 
-        $metodo = paymentMethodEnum::from($data["metodo"]);
-        $valor = $data["valor"];
-        $id_mesa = $data["id_mesa"];
+        try {
+            $numero_mesa = $data["numero"];
+            $metodo = paymentMethodEnum::from($data["metodo"]);
+            $valor = $data["valor"];
 
-        Pagamento::atualizar($id, $metodo, $valor, $id_mesa);
-        jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
+            // Atualizar o pagamento diretamente
+            Pagamento::atualizar($id, $metodo, $valor, $numero_mesa);
+            error_log("Pagamento atualizado com sucesso. ID: $id");
+
+            jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
+        } catch (Exception $e) {
+            error_log("Erro ao atualizar pagamento: " . $e->getMessage());
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
+        }
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/pagamentos/{id}",
-     *     summary="Deletar um pagamento",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response="200", description="Pagamento deletado com sucesso"),
-     *     @OA\Response(response="404", description="Pagamento não encontrado")
-     * )
-     */
     public function deletar($id): void {
-        Pagamento::deleteById($id);
-        jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
+        error_log("Iniciando exclusão de pagamento com ID: $id");
+
+        try {
+            Pagamento::deleteById($id);
+            error_log("Pagamento deletado com sucesso. ID: $id");
+            jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
+        } catch (Exception $e) {
+            error_log("Erro ao deletar pagamento: " . $e->getMessage());
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
+        }
     }
 
     public function handleRequest($method, $id = null, $action = null, $data = null): void {
+        error_log("Iniciando manipulação de requisição para Pagamento. Método: $method, ID: $id, Ação: $action");
+
         try {
             if ($method === 'GET') {
                 if ($action === 'deletados') {
@@ -166,11 +122,12 @@ class PagamentoController {
                     jsonResponse(400, ["status" => "error", "message" => "ID necessário para exclusão"]);
                 }
             } else {
+                error_log("Método não permitido: $method");
                 jsonResponse(405, ["status" => "error", "message" => "Método não permitido"]);
             }
         } catch (Exception $e) {
-            $code = $e->getCode() ?: 500;
-            jsonResponse($code, ["status" => "error", "message" => $e->getMessage()]);
+            error_log("Erro ao manipular requisição: " . $e->getMessage());
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
 }

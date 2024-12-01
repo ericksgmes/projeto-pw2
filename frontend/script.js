@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "Água com Gás": "./assets/imgProducts/agua_com_gas.jpeg",
   };
 
-  const imagemFuncionarios = {
+  const imagemUsuarios = {
     "Carlos Souza": ".assets/imgUsers/carlos_souza.webp",
     "João Silva": "./assets/imgUsers/joao_silva.webp",
     "Maria Oliveira": ".assets/imgUsers/maria_oliveira.webp",
@@ -67,6 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
             showPopup("Login bem-sucedido!", "success");
             loginSection.style.display = "none";
             mainContent.style.display = "block";
+            await exibirUsuarioLogado();
             mostrarSecao("home");
 
             // Exibir links restritos se necessário
@@ -106,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
       // Enviar os dados para o servidor
-      const response = await fetch(`${baseUrl}/funcionarios`, {
+      const response = await fetch(`${baseUrl}/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -133,6 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "Tem certeza que deseja sair?",
         () => {
           // Callback de confirmação
+          localStorage.removeItem("token"); // Remove o token do localStorage
           document.getElementById("main-content").style.display = "none";
           document.getElementById("login-section").style.display = "block";
           document.getElementById("login-form").reset();
@@ -148,6 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     );
   });
+
   // Alternar para a tela de cadastro
   goToRegister.addEventListener("click", function (e) {
     e.preventDefault();
@@ -207,45 +210,50 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Funcionários - CRUD
+// Usuários - CRUD
   document
-    .getElementById("form-funcionario")
-    .addEventListener("submit", async function (e) {
-      e.preventDefault();
+      .getElementById("form-usuario")
+      .addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-      const nome = document.getElementById("nome-funcionario").value.trim();
-      const username = document
-        .getElementById("username-funcionario")
-        .value.trim();
-      const senha = document.getElementById("senha-funcionario").value.trim();
+        const nome = document.getElementById("nome-usuario").value.trim();
+        const username = document.getElementById("username-usuario").value.trim();
+        const senha = document.getElementById("senha-usuario").value.trim();
 
-      try {
-        const response = await fetch(`${baseUrl}/funcionarios`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            nome,
-            username,
-            senha,
-          }),
-        });
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(`${baseUrl}/usuarios`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              nome,
+              username,
+              senha,
+            }),
+          });
 
-        if (response.status === 201) {
-          showPopup("Funcionário criado com sucesso!", "success");
-          listarFuncionarios();
-          e.target.reset();
-        } else {
-          const errorData = await response.json();
-          showPopup(`Erro ao criar funcionário: ${errorData.message || response.statusText}`, "error");
+          if (response.status === 201) {
+            showPopup("Usuário criado com sucesso!", "success");
+            await listarUsuarios();
+            e.target.reset();
+          } else {
+            const errorData = await response.json();
+            showPopup(
+                `Erro ao criar usuário: ${
+                    errorData.message || response.statusText
+                }`,
+                "error"
+            );
+          }
+        } catch (error) {
+          console.error("Erro ao criar usuário:", error.message);
         }
-      } catch (error) {
-        console.error("Erro ao criar funcionário:", error.message);
-      }
-    });
+      });
 
-  async function listarFuncionarios() {
+  async function exibirUsuarioLogado() {
     try {
       const token = localStorage.getItem("token");
 
@@ -254,238 +262,222 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      const response = await fetch(`${baseUrl}/funcionarios`, {
+      // Decodificar o token JWT para obter as informações do usuário logado
+      const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decodifica o payload do JWT
+      const nome = decodedToken.nome; // Obtém o nome do usuário logado
+      const username = decodedToken.username; // Obtém o username do usuário logado
+
+      // Preencher as informações na barra superior
+      document.getElementById("usuario-logado-nome").textContent = nome;
+      document.getElementById("usuario-logado-username").textContent = `@${username}`;
+    } catch (error) {
+      console.error("Erro ao exibir usuário logado:", error.message);
+      showPopup("Erro ao carregar informações do usuário logado.", "error");
+    }
+  }
+
+  function abrirModalEditarUsuario(id, nome, username) {
+    // Selecionar os elementos do modal
+    const modal = document.getElementById("modal-editar-usuario");
+    const inputId = document.getElementById("editar-id-usuario");
+    const inputNome = document.getElementById("editar-nome-usuario");
+    const inputUsername = document.getElementById("editar-username-usuario");
+    const inputSenha = document.getElementById("editar-senha-usuario");
+
+    // Preencher os campos com os dados do usuário
+    inputId.value = id;
+    inputNome.value = nome;
+    inputUsername.value = username;
+    inputSenha.value = ""; // Deixar o campo de senha em branco para não alterar
+
+    // Exibir o modal
+    modal.style.display = "block";
+
+    // Fechar o modal ao clicar no botão de fechar
+    const fecharModal = document.getElementById("fechar-modal-usuario");
+    fecharModal.addEventListener("click", function () {
+      modal.style.display = "none";
+    });
+
+    // Fechar o modal ao clicar fora da área do modal
+    window.addEventListener("click", function (event) {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  }
+
+  async function listarUsuarios() {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        showPopup("Token não encontrado. Faça login novamente.", "error");
+        return;
+      }
+
+      // Decodificar o token para obter o ID do usuário autenticado
+      const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decodifica o payload do JWT
+      const userId = decodedToken.id; // Obtém o ID do usuário autenticado
+
+      const response = await fetch(`${baseUrl}/usuarios`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
         const errorData = await response.json();
         showPopup(
-            `Erro ao listar funcionários: ${errorData.message || response.statusText}`,
+            `Erro ao listar usuários: ${errorData.message || response.statusText}`,
             "error"
         );
         return;
       }
 
-      const funcionarios = await response.json();
-      const listaFuncionarios = document.getElementById("lista-funcionarios");
-      listaFuncionarios.innerHTML = "";
+      const usuarios = await response.json();
+      const listaUsuarios = document.getElementById("lista-usuarios");
+      listaUsuarios.innerHTML = "";
 
-      funcionarios.data.forEach((funcionario) => {
-        console.log(funcionario.nome);
+      // Filtrar para não incluir o usuário autenticado
+      const usuariosFiltrados = usuarios.data.filter(usuario => usuario.id !== userId);
 
-        const imagem =
-            imagemFuncionarios[funcionario.nome] ||
-            "./assets/imgUsers/default.jpeg";
+      usuariosFiltrados.forEach((usuario) => {
+        const usuarioDiv = document.createElement("div");
+        usuarioDiv.classList.add("item");
 
-        const funcionarioDiv = document.createElement("div");
-        funcionarioDiv.classList.add("item");
+        usuarioDiv.innerHTML = `
+                <p><strong>Nome:</strong> ${usuario.nome}</p>
+                <p><strong>Username:</strong> ${usuario.username}</p>
+                <div class="action-buttons">
+                    <button class="editar-usuario" data-id="${usuario.id}" data-nome="${usuario.nome}" data-username="${usuario.username}">Editar</button>
+                    <button class="deletar-usuario" data-id="${usuario.id}">Deletar</button>
+                </div>
+            `;
 
-        funcionarioDiv.innerHTML = `
-        <img src="${imagem}" alt="${funcionario.nome}">
-        <p><strong>Nome:</strong> ${funcionario.nome}</p>
-        <p><strong>Username:</strong> ${funcionario.username}</p>
-        <div class="action-buttons">
-          <button class="editar-funcionario" data-id="${funcionario.id}" data-nome="${funcionario.nome}" data-username="${funcionario.username}">Editar</button>
-          <button class="deletar-funcionario" data-id="${funcionario.id}">Deletar</button>
-        </div>
-      `;
-
-        listaFuncionarios.appendChild(funcionarioDiv);
+        listaUsuarios.appendChild(usuarioDiv);
       });
 
-      // Eventos para editar e deletar funcionários
-      document.querySelectorAll(".editar-funcionario").forEach((button) => {
+      // Eventos para editar e deletar usuários
+      document.querySelectorAll(".editar-usuario").forEach((button) => {
         button.addEventListener("click", function () {
           const id = this.getAttribute("data-id");
           const nome = this.getAttribute("data-nome");
           const username = this.getAttribute("data-username");
-          abrirModalEditarFuncionario(id, nome, username);
+          abrirModalEditarUsuario(id, nome, username);
         });
       });
 
-      document.querySelectorAll(".deletar-funcionario").forEach((button) => {
+      document.querySelectorAll(".deletar-usuario").forEach((button) => {
         button.addEventListener("click", async function () {
           const id = this.getAttribute("data-id");
-          await deletarFuncionario(id);
+          await deletarUsuario(id);
         });
       });
     } catch (error) {
-      console.error("Erro ao listar funcionários:", error.message);
-      showPopup("Erro ao listar funcionários. Tente novamente mais tarde.", "error");
+      console.error("Erro ao listar usuários:", error.message);
+      showPopup("Erro ao listar usuários. Tente novamente mais tarde.", "error");
     }
   }
 
-
-  async function deletarFuncionario(id) {
+  async function deletarUsuario(id) {
     showConfirm(
-        "Tem certeza que deseja deletar este funcionário?",
+        "Tem certeza que deseja deletar este usuário?",
         async () => {
-          // Callback para o botão "Sim"
           try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`${baseUrl}/funcionarios/${id}`, {
+            const response = await fetch(`${baseUrl}/usuarios/${id}`, {
               method: "DELETE",
               headers: {
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
               },
             });
 
             if (response.ok) {
-              showPopup("Funcionário deletado com sucesso!", "success");
-              await listarFuncionarios();
+              showPopup("Usuário deletado com sucesso!", "success");
+              await listarUsuarios();
             } else {
               const errorData = await response.json();
               showPopup(
-                  `Erro ao deletar funcionário: ${
+                  `Erro ao deletar usuário: ${
                       errorData.message || response.statusText
                   }`,
                   "error"
               );
             }
           } catch (error) {
-            console.error("Erro ao deletar funcionário:", error.message);
-            showPopup("Erro ao deletar funcionário.", "error");
+            console.error("Erro ao deletar usuário:", error.message);
+            showPopup("Erro ao deletar usuário.", "error");
           }
         },
         () => {
-          // Callback para o botão "Não"
           showPopup("Ação cancelada!", "info");
         }
     );
   }
 
-// Funções para editar funcionário
-  const modalEditarFuncionario = document.getElementById(
-      "modal-editar-funcionario"
-  );
-  const fecharModalFuncionario = document.getElementById(
-      "fechar-modal-funcionario"
-  );
+// Funções para editar usuário
+  const modalEditarUsuario = document.getElementById("modal-editar-usuario");
+  const fecharModalUsuario = document.getElementById("fechar-modal-usuario");
 
-  fecharModalFuncionario.addEventListener("click", function () {
-    modalEditarFuncionario.style.display = "none";
+  fecharModalUsuario.addEventListener("click", function () {
+    modalEditarUsuario.style.display = "none";
   });
 
-
   window.addEventListener("click", function (event) {
-    if (event.target === modalEditarFuncionario) {
-      modalEditarFuncionario.style.display = "none";
+    if (event.target === modalEditarUsuario) {
+      modalEditarUsuario.style.display = "none";
     }
   });
 
   document
-      .getElementById("form-editar-funcionario")
+      .getElementById("form-editar-usuario")
       .addEventListener("submit", async function (e) {
         e.preventDefault();
 
-        // Capturar os valores do formulário
         const id = document.getElementById("editar-id-funcionario").value;
-        const nome = document.getElementById("editar-nome-funcionario").value.trim();
-        const username = document
-            .getElementById("editar-username-funcionario")
-            .value.trim();
-        const senha = document.getElementById("editar-senha-funcionario").value.trim();
+        const nome = document.getElementById("editar-nome-usuario").value.trim();
+        const username = document.getElementById("editar-username-usuario").value.trim();
+        const senha = document.getElementById("editar-senha-usuario").value.trim();
+        const isAdmin = parseInt(document.getElementById("editar-is-admin-usuario").value);
         const token = localStorage.getItem("token");
-        // Capturar os valores originais armazenados no modal
-        const nomeOriginal = document
-            .getElementById("editar-nome-funcionario")
-            .getAttribute("data-original-nome");
-        const usernameOriginal = document
-            .getElementById("editar-username-funcionario")
-            .getAttribute("data-original-username");
 
-        // Caso 1: Atualizar apenas o nome
-        if (nome !== nomeOriginal && username === usernameOriginal && !senha) {
-          try {
-            const response = await fetch(`${baseUrl}/funcionarios/${id}/nome`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-              },
-              body: JSON.stringify({ nome }),
-            });
+        const nomeOriginal = document.getElementById("editar-nome-usuario").getAttribute("data-original-nome");
+        const usernameOriginal = document.getElementById("editar-username-usuario").getAttribute("data-original-username");
+        const isAdminOriginial = document.getElementById("editar-is-admin-usuario").getAttribute("data-original-is_admin")
 
-            if (!response.ok) {
-              const errorData = await response.json();
-              showPopup(`Erro ao atualizar nome: ${errorData.message || response.statusText}`, "error");
-              return;
-            }
-
-            showPopup("Nome atualizado com sucesso!", "success");
-            listarFuncionarios();
-            modalEditarFuncionario.style.display = "none";
-          } catch (error) {
-            console.error("Erro ao atualizar nome:", error.message);
-          }
-          return;
-        }
-
-        // Caso 2: Atualizar apenas a senha
-        if (senha && nome === nomeOriginal && username === usernameOriginal) {
-          try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${baseUrl}/funcionarios/${id}/senha`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-              },
-              body: JSON.stringify({ novaSenha: senha }),
-            });
-
-            if (!response.ok) {
-              const errorData = await response.json();
-              showPopup(`Erro ao atualizar senha!: ${errorData.message || response.statusText}`, "error");
-              return;
-            }
-
-            showPopup("Senha atualizada com sucesso!", "success");
-            listarFuncionarios();
-            modalEditarFuncionario.style.display = "none";
-          } catch (error) {
-            console.error("Erro ao atualizar senha:", error.message);
-          }
-          return;
-        }
-
-        // Caso 3: Atualizar nome e/ou username (e senha, se fornecida)
         const dadosAtualizados = {
           nome: nome || nomeOriginal,
           username: username || usernameOriginal,
+          isAdmin: isAdmin || isAdminOriginial
         };
 
-        // Adicionar a senha se foi preenchida
         if (senha) {
           dadosAtualizados.senha = senha;
         }
 
         try {
-          const token = localStorage.getItem("token");
-          const response = await fetch(`${baseUrl}/funcionarios/${id}`, {
+          const response = await fetch(`${baseUrl}/usuarios/${id}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(dadosAtualizados),
           });
 
           if (!response.ok) {
             const errorData = await response.json();
-            showPopup(`Erro ao atualizar funcionário: ${errorData.message || response.statusText}`, "error");
+            showPopup(`Erro ao atualizar usuário: ${errorData.message || response.statusText}`, "error");
             return;
           }
 
-          showPopup("Funcionário atualizado com sucesso!", "success");
-          listarFuncionarios();
-          modalEditarFuncionario.style.display = "none";
+          showPopup("Usuário atualizado com sucesso!", "success");
+          await listarUsuarios();
+          modalEditarUsuario.style.display = "none";
         } catch (error) {
-          console.error("Erro ao atualizar funcionário:", error.message);
+          console.error("Erro ao atualizar usuário:", error.message);
         }
       });
 
@@ -731,7 +723,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   window.addEventListener("click", function (event) {
-    if (event.target == modalEditarProduto) {
+    if (event.target === modalEditarProduto) {
       modalEditarProduto.style.display = "none";
     }
   });
@@ -829,22 +821,22 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-  // Pagamentos - CRUD
-  document
+// Pagamentos - CRUD
+document
     .getElementById("form-pagamento")
     .addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      const idMesa = parseInt(
-        document.getElementById("id-mesa-pagamento").value
+      const numero = parseInt(
+          document.getElementById("numero-mesa-pagamento").value
       );
       const metodo = document.getElementById("metodo-pagamento").value.trim();
       const valor = parseFloat(
-        document.getElementById("valor-pagamento").value
+          document.getElementById("valor-pagamento").value
       );
 
       // Verificar se os campos estão preenchidos corretamente
-      if (isNaN(idMesa) || !metodo || isNaN(valor)) {
+      if (isNaN(numero) || !metodo || isNaN(valor)) {
         showPopup("Por favor preencha todos os campos corretamente", "info");
         return;
       }
@@ -855,9 +847,9 @@ document.addEventListener("DOMContentLoaded", function () {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ metodo, valor, id_mesa: idMesa }),
+          body: JSON.stringify({ metodo, valor, numero }),
         });
 
         if (response.status === 201) {
@@ -879,7 +871,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const response = await fetch(`${baseUrl}/pagamentos`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -901,7 +893,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <p><strong>Valor:</strong> R$${parseFloat(pagamento.valor).toFixed(
             2
           )}</p>
-          <p><strong>ID da Mesa:</strong> ${pagamento.id_mesa}</p>
+          <p><strong>Número da Mesa:</strong> ${pagamento.numero_mesa}</p>
           <div class="action-buttons">
             <button class="deletar-pagamento" data-id="${
               pagamento.id
@@ -932,13 +924,13 @@ document.addEventListener("DOMContentLoaded", function () {
             const response = await fetch(`${baseUrl}/pagamentos/${id}`, {
               method: "DELETE",
               headers: {
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
               },
             });
 
             if (response.ok) {
               showPopup("Pagamento deletado com sucesso!", "success");
-              listarPagamentos();
+              await listarPagamentos();
             } else {
               const errorData = await response.json();
               showPopup(`Erro ao deletar pagamento: ${errorData.message || response.statusText}`, "error");
@@ -990,20 +982,6 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-// Exemplo de uso
-  document.getElementById("delete-button").addEventListener("click", () => {
-    showConfirm(
-        "Tem certeza que deseja deletar este item?",
-        () => {
-          alert("Item deletado com sucesso!");
-        },
-        () => {
-          alert("Ação cancelada!");
-        }
-    );
-  });
-
-
   function showPopup(message, type = "info", duration = 3000) {
     const popupContainer = document.getElementById("popup-container");
     if (!popupContainer) {
@@ -1054,8 +1032,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Chamar a função de listagem correspondente
     if (sectionId === "home") {
       listarProdutosHome();
-    } else if (sectionId === "funcionarios") {
-      listarFuncionarios();
+    } else if (sectionId === "usuarios") {
+      listarUsuarios();
     } else if (sectionId === "mesas") {
       listarMesas();
     } else if (sectionId === "produtos") {

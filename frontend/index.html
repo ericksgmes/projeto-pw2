@@ -68,17 +68,25 @@
 <div id="main-content" style="display: none;">
     <header>
         <div class="header-container">
-            <!-- Espaço para imagem ao lado do título -->
             <img src="caminho/para/sua/imagem.png" alt="Logo" class="logo">
             <h1>Restaurante Webservice</h1>
         </div>
-        <button id="logout-button">Logout</button>
+        <div class="header-right">
+            <div id="usuario-logado">
+                <span id="usuario-logado-nome"></span>
+                <span id="usuario-logado-username"></span>
+            </div>
+            <button id="logout-button">Logout</button>
+        </div>
     </header>
+
+
+
 
     <nav>
         <ul>
             <li><a href="#home" class="nav-link">Home</a></li>
-            <li><a href="#funcionarios" class="nav-link restricted">Funcionários</a></li>
+            <li><a href="#usuarios" class="nav-link restricted">Usuários</a></li>
             <li><a href="#mesas" class="nav-link restricted">Mesas</a></li>
             <li><a href="#produtos" class="nav-link restricted">Produtos</a></li>
             <li><a href="#pagamentos" class="nav-link restricted">Pagamentos</a></li>
@@ -93,19 +101,19 @@
             <div id="lista-produtos-home" class="card-container"></div>
         </section>
 
-        <section id="funcionarios" class="section">
-            <h2>Gerenciamento de Funcionários</h2>
+        <section id="usuarios" class="section">
+            <h2>Gerenciamento de Usuários</h2>
 
-            <!-- Formulário para adicionar Funcionário -->
-            <form id="form-funcionario">
-                <input type="text" id="nome-funcionario" placeholder="Nome do Funcionário" required>
-                <input type="text" id="username-funcionario" placeholder="Username" required>
-                <input type="password" id="senha-funcionario" placeholder="Senha" required>
-                <button type="submit">Adicionar Funcionário</button>
+            <!-- Formulário para adicionar Usuário -->
+            <form id="form-usuario">
+                <input type="text" id="nome-usuario" placeholder="Nome do Usuário" required>
+                <input type="text" id="username-usuario" placeholder="Username" required>
+                <input type="password" id="senha-usuario" placeholder="Senha" required>
+                <button type="submit">Adicionar Usuário</button>
             </form>
 
-            <!-- Lista de Funcionários -->
-            <div id="lista-funcionarios" class="card-container"></div>
+            <!-- Lista de Usuários -->
+            <div id="lista-usuarios" class="card-container"></div>
         </section>
 
         <section id="mesas" class="section">
@@ -140,7 +148,7 @@
 
             <!-- Formulário para adicionar Pagamento -->
             <form id="form-pagamento">
-                <input type="number" id="id-mesa-pagamento" placeholder="ID da Mesa" required>
+                <input type="number" id="numero-mesa-pagamento" placeholder="Número da Mesa" required>
                 <select id="metodo-pagamento" required>
                     <option value="" disabled selected>Selecione um método de pagamento</option>
                     <option value="CREDITO">Crédito</option>
@@ -175,19 +183,24 @@
     </div>
 </div>
 
-<!-- Modal de Edição de Funcionário -->
-<div id="modal-editar-funcionario" class="modal">
+<!-- Modal de Edição de Usuário -->
+<div id="modal-editar-usuario" class="modal">
     <div class="modal-content">
-        <span class="close" id="fechar-modal-funcionario">&times;</span>
-        <h2>Editar Funcionário</h2>
-        <form id="form-editar-funcionario">
-            <input type="hidden" id="editar-id-funcionario">
-            <input type="text" id="editar-nome-funcionario" placeholder="Nome do Funcionário" required>
-            <input type="text" id="editar-username-funcionario" placeholder="Username" required>
-            <input type="password" id="editar-senha-funcionario"
-                   placeholder="Senha (deixe em branco para não alterar)">
+        <span class="close" id="fechar-modal-usuario">&times;</span>
+        <h2>Editar Usuário</h2>
+        <form id="form-editar-usuario">
+            <input type="hidden" id="editar-id-usuario">
+            <input type="text" id="editar-nome-usuario" placeholder="Nome do Usuário" required>
+            <input type="text" id="editar-username-usuario" placeholder="Username" required>
+            <input type="password" id="editar-senha-usuario" placeholder="Senha (deixe em branco para não alterar)">
+            <select id="editar-is-admin-usuario" required>
+                <option value="" disabled>Selecione o tipo de usuário</option>
+                <option value="1">Administrador</option>
+                <option value="0">Usuário Comum</option>
+            </select>
             <button type="submit">Salvar Alterações</button>
         </form>
+
     </div>
 </div>
 
