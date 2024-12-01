@@ -1069,24 +1069,27 @@ document
     }
   });
 
-  async function listarProdutosMesa(mesaId) {
+  async function listarProdutosMesa(numeroMesa) {
+    console.log(`Buscando produtos da mesa: ${numeroMesa}`);
     try {
       const token = localStorage.getItem("token");
 
       if (!token) {
+        console.error("Token não encontrado.");
         showPopup("Token não encontrado. Faça login novamente.", "error");
         return;
       }
 
-      const response = await fetch(`${baseUrl}/produtos-mesa/${mesaId}`, {
+      const response = await fetch(`${baseUrl}/produtos-mesa/${numeroMesa}`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Erro ao buscar produtos da mesa:", errorData.message || response.statusText);
         showPopup(
             `Erro ao listar produtos da mesa: ${errorData.message || response.statusText}`,
             "error"
@@ -1095,18 +1098,26 @@ document
       }
 
       const produtosMesa = await response.json();
+      console.log("Produtos encontrados:", produtosMesa);
+
       const listaProdutosMesa = document.getElementById("lista-produtos-mesa");
       listaProdutosMesa.innerHTML = "";
+
+      if (produtosMesa.data.length === 0) {
+        listaProdutosMesa.innerHTML = "<p>Nenhum produto adicionado a esta mesa.</p>";
+        return;
+      }
 
       produtosMesa.data.forEach((produto) => {
         const produtoDiv = document.createElement("div");
         produtoDiv.classList.add("item");
 
         produtoDiv.innerHTML = `
-                <p><strong>Produto:</strong> ${produto.nome}</p>
-                <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(2)}</p>
-                <p><strong>Quantidade:</strong> ${produto.quantidade}</p>
-            `;
+        <p><strong>Produto:</strong> ${produto.nome_produto}</p>
+        <p><strong>Preço:</strong> R$${parseFloat(produto.preco_produto).toFixed(2)}</p>
+        <p><strong>Quantidade:</strong> ${produto.quantidade}</p>
+        <p><strong>Total:</strong> R$${(produto.quantidade * produto.preco_produto).toFixed(2)}</p>
+      `;
 
         listaProdutosMesa.appendChild(produtoDiv);
       });
@@ -1118,31 +1129,25 @@ document
 
 // Event listener for the "Buscar Produtos" button
   document.getElementById("buscar-produtos-button").addEventListener("click", () => {
-    const mesaId = parseInt(document.getElementById("mesa-id-produtos").value, 10);
+    const numeroMesa = document.getElementById("mesa-id-produtos").value.trim();
 
-    if (isNaN(mesaId) || mesaId <= 0) {
-      showPopup("Por favor, insira um número válido para a mesa.", "error");
+    if (!numeroMesa) {
+      showPopup("Por favor, insira o número da mesa.", "error");
       return;
     }
 
-    listarProdutosMesa(mesaId);
+    listarProdutosMesa(numeroMesa);
   });
+
 
   document
       .getElementById("form-produtos-mesa")
       .addEventListener("submit", async function (e) {
         e.preventDefault();
 
-        const mesaId = document.getElementById("mesa-id-produtos").value.trim();
-
-        if (!mesaId) {
-          showPopup("Por favor, insira o número da mesa.", "info");
-          return;
-        }
-
         try {
           const token = localStorage.getItem("token");
-          const response = await fetch(`${baseUrl}/produtos-mesa/${mesaId}`, {
+          const response = await fetch(`${baseUrl}/produtos-mesa`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -1152,37 +1157,52 @@ document
           if (!response.ok) {
             const errorData = await response.json();
             showPopup(
-                `Erro ao buscar produtos da mesa: ${errorData.message || response.statusText}`,
+                `Erro ao buscar produtos das mesas: ${errorData.message || response.statusText}`,
                 "error"
             );
             return;
           }
 
           const produtos = await response.json();
-
           const listaProdutosMesa = document.getElementById("lista-produtos-mesa");
           listaProdutosMesa.innerHTML = "";
 
           if (produtos.data.length === 0) {
-            listaProdutosMesa.innerHTML =
-                "<p>Nenhum produto adicionado a esta mesa.</p>";
+            listaProdutosMesa.innerHTML = "<p>Nenhum produto adicionado às mesas.</p>";
             return;
           }
 
-          produtos.data.forEach((produto) => {
-            const produtoDiv = document.createElement("div");
-            produtoDiv.classList.add("item");
-            produtoDiv.innerHTML = `
-          <p><strong>Produto:</strong> ${produto.nome}</p>
-          <p><strong>Quantidade:</strong> ${produto.quantidade}</p>
-          <p><strong>Preço Unitário:</strong> R$${produto.preco.toFixed(2)}</p>
-          <p><strong>Total:</strong> R$${(produto.quantidade * produto.preco).toFixed(2)}</p>
-        `;
-            listaProdutosMesa.appendChild(produtoDiv);
+          // Agrupar produtos por número da mesa
+          const produtosPorMesa = produtos.data.reduce((acc, produto) => {
+            if (!acc[produto.numero_mesa]) acc[produto.numero_mesa] = [];
+            acc[produto.numero_mesa].push(produto);
+            return acc;
+          }, {});
+
+          // Renderizar produtos por mesa
+          Object.entries(produtosPorMesa).forEach(([numeroMesa, produtos]) => {
+            const mesaDiv = document.createElement("div");
+            mesaDiv.classList.add("mesa-container");
+
+            mesaDiv.innerHTML = `<h3>Mesa ${numeroMesa}</h3>`;
+
+            produtos.forEach((produto) => {
+              const produtoDiv = document.createElement("div");
+              produtoDiv.classList.add("item");
+              produtoDiv.innerHTML = `
+            <p><strong>Produto:</strong> ${produto.nome_produto}</p>
+            <p><strong>Quantidade:</strong> ${produto.quantidade}</p>
+            <p><strong>Preço Unitário:</strong> R$${produto.preco_produto.toFixed(2)}</p>
+            <p><strong>Total:</strong> R$${(produto.quantidade * produto.preco_produto).toFixed(2)}</p>
+          `;
+              mesaDiv.appendChild(produtoDiv);
+            });
+
+            listaProdutosMesa.appendChild(mesaDiv);
           });
         } catch (error) {
-          console.error("Erro ao buscar produtos da mesa:", error.message);
-          showPopup("Erro ao buscar produtos da mesa. Tente novamente.", "error");
+          console.error("Erro ao buscar produtos das mesas:", error.message);
+          showPopup("Erro ao buscar produtos das mesas. Tente novamente.", "error");
         }
       });
 
