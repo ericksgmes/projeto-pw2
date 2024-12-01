@@ -233,7 +233,7 @@ class UsuarioController {
             }
 
             if (!empty($data['novaSenha'])) {
-                $camposAtualizados['senha'] = password_hash($data['novaSenha'], PASSWORD_BCRYPT);
+                $this->atualizarSenha($id, $data['novaSenha']);
             }
 
             if (isset($data['is_admin'])) {
