@@ -91,18 +91,29 @@ class UsuarioController {
     public function atualizar($id, $data): void {
         $this->autenticarRequisicao();
 
-        if (!valid($data, ["nome", "username"])) {
-            jsonResponse(400, ["status" => "error", "message" => "Nome e/ou username não encontrados"]);
-            return;
-        }
+        try {
+            // Verifica se os dados necessários foram enviados
+            if (!valid($data, ["nome", "username"])) {
+                throw new Exception("Nome e/ou username não encontrados", 400);
+            }
 
-        if (!Usuario::exist($id)) {
-            jsonResponse(404, ["status" => "error", "message" => "Usuário não encontrado"]);
-            return;
-        }
+            // Verifica se o usuário existe
+            if (!Usuario::exist($id)) {
+                throw new Exception("Usuário não encontrado", 404);
+            }
 
-        Usuario::atualizar($id, $data["nome"], $data["username"]);
-        jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
+            // Define o valor padrão para is_admin caso não esteja presente
+            $isAdmin = isset($data["is_admin"]) ? ($data["is_admin"] ? 1 : 0) : null;
+
+            // Chama o método de atualização no modelo
+            Usuario::atualizar($id, $data["nome"], $data["username"], $isAdmin);
+
+            // Retorna a resposta de sucesso
+            jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
+        } catch (Exception $e) {
+            // Retorna a resposta de erro
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
+        }
     }
 
     public function deletar($id): void {

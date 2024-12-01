@@ -381,80 +381,40 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  async function deletarUsuario(id) {
-    showConfirm(
-        "Tem certeza que deseja deletar este usuário?",
-        async () => {
-          try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${baseUrl}/usuarios/${id}`, {
-              method: "DELETE",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-
-            if (response.ok) {
-              showPopup("Usuário deletado com sucesso!", "success");
-              await listarUsuarios();
-            } else {
-              const errorData = await response.json();
-              showPopup(
-                  `Erro ao deletar usuário: ${
-                      errorData.message || response.statusText
-                  }`,
-                  "error"
-              );
-            }
-          } catch (error) {
-            console.error("Erro ao deletar usuário:", error.message);
-            showPopup("Erro ao deletar usuário.", "error");
-          }
-        },
-        () => {
-          showPopup("Ação cancelada!", "info");
-        }
-    );
-  }
-
-// Funções para editar usuário
-  const modalEditarUsuario = document.getElementById("modal-editar-usuario");
-  const fecharModalUsuario = document.getElementById("fechar-modal-usuario");
-
-  fecharModalUsuario.addEventListener("click", function () {
-    modalEditarUsuario.style.display = "none";
-  });
-
-  window.addEventListener("click", function (event) {
-    if (event.target === modalEditarUsuario) {
-      modalEditarUsuario.style.display = "none";
-    }
-  });
-
   document
       .getElementById("form-editar-usuario")
       .addEventListener("submit", async function (e) {
         e.preventDefault();
 
-        const id = document.getElementById("editar-id-funcionario").value;
+        const id = document.getElementById("editar-id-usuario").value; // Corrigido o ID correto
         const nome = document.getElementById("editar-nome-usuario").value.trim();
         const username = document.getElementById("editar-username-usuario").value.trim();
         const senha = document.getElementById("editar-senha-usuario").value.trim();
-        const isAdmin = parseInt(document.getElementById("editar-is-admin-usuario").value);
+        const isAdmin = document.getElementById("editar-is-admin-usuario").checked ? 1 : 0; // Usar checkbox para indicar se é admin
         const token = localStorage.getItem("token");
 
-        const nomeOriginal = document.getElementById("editar-nome-usuario").getAttribute("data-original-nome");
-        const usernameOriginal = document.getElementById("editar-username-usuario").getAttribute("data-original-username");
-        const isAdminOriginial = document.getElementById("editar-is-admin-usuario").getAttribute("data-original-is_admin")
+        // Valores originais para fallback
+        const nomeOriginal = document
+            .getElementById("editar-nome-usuario")
+            .getAttribute("data-original-nome");
+        const usernameOriginal = document
+            .getElementById("editar-username-usuario")
+            .getAttribute("data-original-username");
+        const isAdminOriginal = parseInt(
+            document
+                .getElementById("editar-is-admin-usuario")
+                .getAttribute("data-original-is_admin")
+        );
 
+        // Prepara os dados atualizados, usando os originais como fallback
         const dadosAtualizados = {
           nome: nome || nomeOriginal,
           username: username || usernameOriginal,
-          isAdmin: isAdmin || isAdminOriginial
+          is_admin: isAdmin !== undefined ? isAdmin : isAdminOriginal, // Corrigido para is_admin
         };
 
         if (senha) {
-          dadosAtualizados.senha = senha;
+          dadosAtualizados.senha = senha; // Adiciona a senha apenas se preenchida
         }
 
         try {
@@ -469,17 +429,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
           if (!response.ok) {
             const errorData = await response.json();
-            showPopup(`Erro ao atualizar usuário: ${errorData.message || response.statusText}`, "error");
+            showPopup(
+                `Erro ao atualizar usuário: ${errorData.message || response.statusText}`,
+                "error"
+            );
             return;
           }
 
           showPopup("Usuário atualizado com sucesso!", "success");
           await listarUsuarios();
-          modalEditarUsuario.style.display = "none";
+          document.getElementById("modal-editar-usuario").style.display = "none";
         } catch (error) {
           console.error("Erro ao atualizar usuário:", error.message);
         }
       });
+
 
   // Mesas - CRUD
   document
