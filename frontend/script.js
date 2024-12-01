@@ -138,28 +138,32 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-  // Logout
   logoutButton.addEventListener("click", function () {
     showConfirm(
-      "Tem certeza que deseja sair?",
-      () => {
-        // Callback de confirmação
-        localStorage.removeItem("token"); // Remove o token do localStorage
-        document.getElementById("main-content").style.display = "none";
-        document.getElementById("login-section").style.display = "block";
-        document.getElementById("login-form").reset();
-        document.getElementById("login-error").style.display = "none";
-        document.querySelectorAll(".restricted").forEach((link) => {
-          link.style.display = "none";
-        });
-        showPopup("Logout realizado com sucesso!", "success");
-      },
-      () => {
-        // Callback de cancelamento
-        showPopup("Logout cancelado!", "info");
-      }
+        "Tem certeza que deseja sair?",
+        () => {
+          // Callback de confirmação
+          localStorage.removeItem("token"); // Remove o token do localStorage
+          document.getElementById("main-content").style.display = "none";
+          document.getElementById("login-section").style.display = "block";
+          document.getElementById("login-form").reset();
+          document.getElementById("login-error").style.display = "none";
+          document.querySelectorAll(".restricted").forEach((link) => {
+            link.style.display = "none";
+          });
+
+          // Simula um refresh da página
+          location.reload(true);  // Força o recarregamento da página, sem cache
+
+          showPopup("Logout realizado com sucesso!", "success");
+        },
+        () => {
+          // Callback de cancelamento
+          showPopup("Logout cancelado!", "info");
+        }
     );
   });
+
 
   // Alternar para a tela de cadastro
   goToRegister.addEventListener("click", function (e) {
@@ -1677,12 +1681,36 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function mostrarSecao(sectionId) {
+    // Função para obter o token
+    const token = localStorage.getItem("token");
+
+    // Se o token não existir ou o usuário não for admin, impede o acesso a seções restritas
+    if (token) {
+      try {
+        // Decodificando o token para acessar as informações do usuário
+        const decodedToken = jwt_decode(token);  // Supondo que você use a biblioteca 'jwt-decode'
+
+        // Verificando se o usuário é admin
+        const isAdmin = decodedToken.is_admin;
+
+        // Verificando se o usuário não é admin e tentando acessar uma seção restrita
+        if (!isAdmin && (sectionId === "usuarios" || sectionId === "produtos" || sectionId === "pagamentos")) {
+          // Redirecionando para a página de 403
+          window.location.href = "403.html";  // Supondo que você tenha uma página de erro 403
+          return;  // Impede a exibição da seção
+        }
+      } catch (e) {
+        console.error("Erro ao decodificar o token:", e);
+      }
+    }
+
+    // Exibe a seção desejada
     document.querySelectorAll(".section").forEach((section) => {
       section.classList.remove("active");
     });
     document.getElementById(sectionId).classList.add("active");
 
-    // Chamar a função de listagem correspondente
+    // Chama a função de listagem correspondente
     if (sectionId === "home") {
       listarProdutosHome();
     } else if (sectionId === "usuarios") {
@@ -1699,4 +1727,5 @@ document.addEventListener("DOMContentLoaded", function () {
       listarProdutosParaCompra();
     }
   }
+
 });
