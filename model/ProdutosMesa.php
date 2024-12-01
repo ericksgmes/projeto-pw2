@@ -59,6 +59,11 @@ class ProdutosMesa {
             throw new Exception("Produto não encontrado ou está deletado.", 404);
         }
 
+        // Verifica se a quantidade é válida
+        if ($quantidade <= 0) {
+            throw new Exception("A quantidade deve ser maior que zero.", 400);
+        }
+
         $sql = $connection->prepare("INSERT INTO ProdutosMesa (numero_mesa, id_prod, quantidade) VALUES (?, ?, ?)");
         $sql->execute([$numero_mesa, $id_prod, $quantidade]);
 
@@ -68,6 +73,14 @@ class ProdutosMesa {
     public static function removerProduto($id) {
         $connection = Connection::getConnection();
 
+        // Verifica se o produto existe
+        $sql = $connection->prepare("SELECT id FROM ProdutosMesa WHERE id = ?");
+        $sql->execute([$id]);
+        if (!$sql->fetch()) {
+            throw new Exception("Produto não encontrado na mesa.", 404);
+        }
+
+        // Realiza a remoção
         $sql = $connection->prepare("DELETE FROM ProdutosMesa WHERE id = ?");
         $sql->execute([$id]);
 
@@ -79,6 +92,19 @@ class ProdutosMesa {
     public static function atualizarQuantidade($id, $quantidade) {
         $connection = Connection::getConnection();
 
+        // Verifica se o produto existe
+        $sql = $connection->prepare("SELECT id FROM ProdutosMesa WHERE id = ?");
+        $sql->execute([$id]);
+        if (!$sql->fetch()) {
+            throw new Exception("Produto não encontrado na mesa.", 404);
+        }
+
+        // Verifica se a quantidade é válida
+        if ($quantidade <= 0) {
+            throw new Exception("A quantidade deve ser maior que zero.", 400);
+        }
+
+        // Atualiza a quantidade do produto
         $sql = $connection->prepare("UPDATE ProdutosMesa SET quantidade = ? WHERE id = ?");
         $sql->execute([$quantidade, $id]);
 
@@ -89,6 +115,14 @@ class ProdutosMesa {
 
     public static function getByMesaNumero($numero_mesa): array {
         $connection = Connection::getConnection();
+
+        // Verifica se a mesa existe e não está deletada
+        $sql = $connection->prepare("SELECT numero FROM Mesa WHERE numero = ? AND deletado = 0");
+        $sql->execute([$numero_mesa]);
+        if (!$sql->fetch()) {
+            throw new Exception("Mesa não encontrada ou está deletada.", 404);
+        }
+
         $sql = $connection->prepare("
             SELECT pm.*, p.nome AS nome_produto, p.preco AS preco_produto 
             FROM ProdutosMesa pm
