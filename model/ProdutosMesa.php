@@ -42,32 +42,58 @@ class ProdutosMesa {
         return $sql->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function adicionarProduto($numero_mesa, $id_prod, $quantidade) {
+    public static function adicionar($numero_mesa, $produtos) {
         $connection = Connection::getConnection();
 
-        // Verifica se a Mesa existe e não está deletada
-        $sql = $connection->prepare("SELECT numero FROM Mesa WHERE numero = ? AND deletado = 0");
-        $sql->execute([$numero_mesa]);
-        if (!$sql->fetch()) {
-            throw new Exception("Mesa não encontrada ou está deletada.", 404);
+        try {
+            // Verifica se a mesa existe
+            $sql = $connection->prepare("SELECT numero FROM Mesa WHERE numero = ? AND deletado = 0");
+            $sql->execute([$numero_mesa]);
+            if (!$sql->fetch()) {
+                error_log("Erro: Mesa com número {$numero_mesa} não encontrada ou está deletada.");
+                throw new Exception("Mesa não encontrada ou está deletada.", 404);
+            }
+
+            // Processa cada produto na lista de produtos
+            foreach ($produtos as $produto) {
+                $id_prod = $produto['id_prod'];
+                $quantidade = $produto['quantidade'];
+
+                // Verifica se o produto existe
+                $sql = $connection->prepare("SELECT id FROM Produto WHERE id = ? AND deletado = 0");
+                $sql->execute([$id_prod]);
+                if (!$sql->fetch()) {
+                    error_log("Erro: Produto com ID {$id_prod} não encontrado ou está deletado.");
+                    throw new Exception("Produto com ID {$id_prod} não encontrado ou está deletado.", 404);
+                }
+
+                // Verifica se a quantidade é válida
+                if ($quantidade <= 0) {
+                    error_log("Erro: A quantidade do produto {$id_prod} deve ser maior que zero.");
+                    throw new Exception("A quantidade do produto {$id_prod} deve ser maior que zero.", 400);
+                }
+
+                // Adiciona o produto à mesa
+                $sql = $connection->prepare("INSERT INTO ProdutosMesa (numero_mesa, id_prod, quantidade) VALUES (?, ?, ?)");
+                $sql->execute([$numero_mesa, $id_prod, $quantidade]);
+
+                // Se ocorrer falha ao adicionar o produto, logar o erro
+                if ($sql->rowCount() === 0) {
+                    error_log("Erro: Falha ao adicionar produto ID {$id_prod} à mesa {$numero_mesa}.");
+                    throw new Exception("Não foi possível adicionar o produto à mesa.", 500);
+                }
+            }
+
+            // Se tudo correr bem, logar o sucesso
+            error_log("Sucesso: Produtos adicionados à mesa {$numero_mesa}. Produtos: " . json_encode($produtos));
+
+            return ["status" => "success", "message" => "Produtos adicionados à mesa com sucesso"];
+
+        } catch (Exception $e) {
+            // Registra o erro completo
+            error_log("Erro na função adicionar: " . $e->getMessage());
+            throw $e; // Rethrow the exception to handle it further upstream if needed
         }
-
-        // Verifica se o Produto existe e não está deletado
-        $sql = $connection->prepare("SELECT id FROM Produto WHERE id = ? AND deletado = 0");
-        $sql->execute([$id_prod]);
-        if (!$sql->fetch()) {
-            throw new Exception("Produto não encontrado ou está deletado.", 404);
-        }
-
-        // Verifica se a quantidade é válida
-        if ($quantidade <= 0) {
-            throw new Exception("A quantidade deve ser maior que zero.", 400);
-        }
-
-        $sql = $connection->prepare("INSERT INTO ProdutosMesa (numero_mesa, id_prod, quantidade) VALUES (?, ?, ?)");
-        $sql->execute([$numero_mesa, $id_prod, $quantidade]);
-
-        return $connection->lastInsertId();
     }
 
     public static function removerProduto($id) {
@@ -88,6 +114,7 @@ class ProdutosMesa {
             throw new Exception("Não foi possível remover o produto da mesa", 500);
         }
     }
+
 
     public static function atualizarQuantidade($id, $quantidade) {
         $connection = Connection::getConnection();

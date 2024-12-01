@@ -1082,6 +1082,41 @@ document
     await listarProdutosMesa(numeroMesa); // Chama a função para listar os produtos da mesa específica
   });
 
+
+  function adicionarAoCarrinho(idProduto, nomeProduto, precoProduto, quantidade) {
+    // Verifica se o produto já existe no carrinho
+    const produtoExistente = carrinho.find((item) => item.id === idProduto);
+    if (produtoExistente) {
+      // Se o produto já existir, apenas atualizamos a quantidade
+      produtoExistente.quantidade = parseInt(produtoExistente.quantidade) + parseInt(quantidade);
+    } else {
+      // Se não existir, adiciona um novo produto
+      carrinho.push({ id: idProduto, nome: nomeProduto, preco: precoProduto, quantidade: quantidade });
+    }
+
+    // Atualiza a renderização do carrinho
+    renderizarCarrinho();
+  }
+
+  function renderizarCarrinho() {
+    const carrinhoLista = document.getElementById("carrinho-lista");
+    carrinhoLista.innerHTML = ""; // Limpa o carrinho antes de adicionar os novos itens
+
+    if (carrinho.length === 0) {
+      carrinhoLista.innerHTML = "<p>Seu carrinho está vazio.</p>";
+      return;
+    }
+
+    carrinho.forEach((produto) => {
+      const itemCarrinho = document.createElement("li");
+      itemCarrinho.innerHTML = `
+            <strong>${produto.nome}</strong> | Quantidade: ${produto.quantidade} | Preço: R$${(produto.preco * produto.quantidade).toFixed(2)}
+        `;
+      carrinhoLista.appendChild(itemCarrinho);
+    });
+  }
+
+
 // Função que realiza a requisição para listar os produtos de uma mesa específica
   async function listarProdutosMesa(numeroMesa) {
     console.log(`Buscando produtos da mesa: ${numeroMesa}`);
@@ -1142,6 +1177,7 @@ document
       showPopup("Erro ao listar produtos da mesa. Tente novamente mais tarde.", "error");
     }
   }
+  let carrinho = []; // Declara a variável carrinho como um array vazio
   async function listarProdutosParaCompra() {
     try {
       const token = localStorage.getItem("token");
@@ -1166,42 +1202,30 @@ document
       }
 
       const produtos = await response.json();
-      const listaProdutos = document.getElementById("lista-produtos-compra"); // Mudou para 'lista-produtos-compra'
+      const listaProdutos = document.getElementById("lista-produtos-compra");
 
       listaProdutos.innerHTML = ""; // Limpa a lista de produtos antes de repovoá-la
 
       produtos.data.forEach((produto) => {
-        const imagem =
-            imagemProdutos[produto.nome] || "./assets/imgProducts/default.jpeg"; // Definir uma imagem padrão se não tiver imagem específica
         const produtoDiv = document.createElement("div");
         produtoDiv.classList.add("item");
         produtoDiv.innerHTML = `
-              <img src="${imagem}" alt="${produto.nome}">
-              <p><strong>Nome:</strong> ${produto.nome}</p>
-              <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(2)}</p>
-              
-              <!-- Dropdown para selecionar a quantidade -->
-              <label for="quantidade-${produto.id}"><strong>Quantidade:</strong></label>
-              <select id="quantidade-${produto.id}" class="quantidade-produto">
-                <!-- Vamos criar opções de 1 até 10, mas isso pode ser ajustado -->
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-              </select>
-              
-              <button class="adicionar-produto" data-id="${produto.id}" data-nome="${produto.nome}" data-preco="${produto.preco}">Adicionar à Mesa</button>
+                <p><strong>Nome:</strong> ${produto.nome}</p>
+                <p><strong>Preço:</strong> R$${parseFloat(produto.preco).toFixed(2)}</p>
+                <label for="quantidade-${produto.id}"><strong>Quantidade:</strong></label>
+                <select id="quantidade-${produto.id}">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+                <button class="adicionar-produto" data-id="${produto.id}" data-nome="${produto.nome}" data-preco="${produto.preco}">Adicionar ao Carrinho</button>
             `;
         listaProdutos.appendChild(produtoDiv);
       });
 
-      // Eventos para adicionar o produto à mesa
+      // Adicionar evento de clique para adicionar ao carrinho
       document.querySelectorAll(".adicionar-produto").forEach((button) => {
         button.addEventListener("click", function () {
           const idProduto = this.getAttribute("data-id");
@@ -1214,8 +1238,8 @@ document
             return;
           }
 
-          // Chama a função para adicionar o produto à mesa
-          adicionarProdutoMesa(idProduto, quantidade);
+          // Adicionar ao carrinho
+          adicionarAoCarrinho(idProduto, nomeProduto, precoProduto, quantidade);
         });
       });
 
@@ -1224,6 +1248,53 @@ document
       showPopup("Erro ao listar produtos. Tente novamente mais tarde.", "error");
     }
   }
+
+  document.getElementById("finalizar-pedido").addEventListener("click", async function () {
+    const numeroMesa = document.getElementById("num-mesa").value;
+
+    if (!numeroMesa) {
+      showPopup("Por favor, insira o número da mesa.", "error");
+      return;
+    }
+
+    // Preparar os dados do pedido
+    const produtosPedido = carrinho.map(item => ({
+      id_prod: item.id,
+      quantidade: item.quantidade
+    }));
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${baseUrl}/produtos-mesa`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          numero_mesa: numeroMesa,
+          produtos: produtosPedido
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        showPopup(`Erro ao fazer pedido: ${errorData.message || response.statusText}`, "error");
+        return;
+      }
+
+      const data = await response.json();
+      showPopup("Pedido realizado com sucesso!", "success");
+
+      // Limpar carrinho
+      carrinho = [];
+      renderizarCarrinho();
+    } catch (error) {
+      console.error("Erro ao finalizar pedido:", error.message);
+      showPopup("Erro ao finalizar pedido. Tente novamente.", "error");
+    }
+  });
 
   function mostrarSecao(sectionId) {
     document.querySelectorAll(".section").forEach((section) => {

@@ -17,7 +17,7 @@ class ProdutosMesaController {
                     }
                     break;
                 case 'POST':
-                    $this->adicionar($data);
+                    $this->adicionarProduto($data);
                     break;
                 case 'PUT':
                     $this->atualizar($id, $data);
@@ -60,44 +60,31 @@ class ProdutosMesaController {
     }
 
     // Adicionar produto a uma mesa
-    public function adicionar($data): void {
+    public function adicionarProduto($data): void {
         try {
-            // Verifica se os dados obrigatórios foram enviados
-            if (!valid($data, ["numero_mesa", "id_prod", "quantidade"])) {
-                jsonResponse(400, ["status" => "error", "message" => "Número da mesa, ID do produto ou quantidade não fornecido"]);
-                return;
-            }
-
             $numero_mesa = $data["numero_mesa"];
-            $id_prod = $data["id_prod"];
-            $quantidade = $data["quantidade"];
+            $produtos = $data["produtos"];
 
-            // Verifica se a mesa existe e não está deletada
-            $sql = Connection::getConnection()->prepare("SELECT numero FROM Mesa WHERE numero = ? AND deletado = 0");
-            $sql->execute([$numero_mesa]);
-            if (!$sql->fetch()) {
-                jsonResponse(404, ["status" => "error", "message" => "Mesa não encontrada ou está deletada"]);
+            // Verifica se a lista de produtos está vazia
+            if (empty($produtos)) {
+                error_log("Erro: A lista de produtos está vazia para a mesa $numero_mesa.");
+                jsonResponse(400, ["status" => "error", "message" => "A lista de produtos não pode estar vazia."]);
                 return;
             }
 
-            // Verifica se o produto existe e não está deletado
-            $sql = Connection::getConnection()->prepare("SELECT id FROM Produto WHERE id = ? AND deletado = 0");
-            $sql->execute([$id_prod]);
-            if (!$sql->fetch()) {
-                jsonResponse(404, ["status" => "error", "message" => "Produto não encontrado ou está deletado"]);
-                return;
-            }
+            // Realiza a inserção dos produtos na mesa
+            ProdutosMesa::adicionar($numero_mesa, $produtos);
 
-            // Verifica se a quantidade é válida
-            if ($quantidade <= 0) {
-                jsonResponse(400, ["status" => "error", "message" => "A quantidade deve ser maior que zero"]);
-                return;
-            }
+            // Log de sucesso
+            error_log("Sucesso: Produtos adicionados à mesa $numero_mesa. Produtos: " . json_encode($produtos));
 
-            // Adiciona o produto à mesa
-            $insertedId = ProdutosMesa::adicionarProduto($numero_mesa, $id_prod, $quantidade);
-            jsonResponse(201, ["status" => "success", "data" => ["id" => $insertedId]]);
+            // Resposta de sucesso
+            jsonResponse(201, ["status" => "success", "message" => "Produtos adicionados à mesa com sucesso"]);
         } catch (Exception $e) {
+            // Log de erro
+            error_log("Erro na função 'adicionarProduto': " . $e->getMessage());
+
+            // Retorna o erro para o cliente
             jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
