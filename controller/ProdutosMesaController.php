@@ -4,14 +4,17 @@ require_once(__DIR__ . '/../model/ProdutosMesa.php');
 require_once(__DIR__ . '/../config/utils.php');
 require_once(__DIR__ . '/../config/AuthService.php');
 
-class ProdutosMesaController {
+class ProdutosMesaController
+{
     private $authService;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->authService = new AuthService($_ENV['JWT_SECRET'], $_ENV['JWT_ALGORITHM']);
     }
 
-    private function autenticarRequisicao() {
+    private function autenticarRequisicao()
+    {
         try {
             $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
             return $this->authService->verificarToken($authHeader);
@@ -21,7 +24,8 @@ class ProdutosMesaController {
         }
     }
 
-    public function handleRequest(string $method, $id = null, string $action = null, array $data = null): void {
+    public function handleRequest(string $method, $id = null, string $action = null, array $data = null): void
+    {
         try {
             $decodedToken = $this->autenticarRequisicao();
 
@@ -61,7 +65,8 @@ class ProdutosMesaController {
     }
 
     // Listar produtos da mesa ou de todas as mesas
-    public function listar($numero_mesa = null): void {
+    public function listar($numero_mesa = null): void
+    {
         try {
             $produtos = $numero_mesa ? ProdutosMesa::getByMesaNumero($numero_mesa) : ProdutosMesa::listar();
             jsonResponse(200, ["status" => "success", "data" => $produtos]);
@@ -71,7 +76,8 @@ class ProdutosMesaController {
     }
 
     // Listar produtos deletados
-    public function listarDeletadas(): void {
+    public function listarDeletadas(): void
+    {
         try {
             $produtos = ProdutosMesa::listarDeletadas();
             jsonResponse(200, ["status" => "success", "data" => $produtos]);
@@ -81,7 +87,8 @@ class ProdutosMesaController {
     }
 
     // Adicionar produto a uma mesa
-    public function adicionarProduto($data): void {
+    public function adicionarProduto($data): void
+    {
         try {
             $numero_mesa = $data["numero_mesa"];
             $produtos = $data["produtos"];
@@ -99,7 +106,8 @@ class ProdutosMesaController {
     }
 
     // Atualizar quantidade de um produto na mesa
-    public function atualizar($id, $data): void {
+    public function atualizar($id, $data): void
+    {
         try {
             if (!valid($data, ["quantidade"])) {
                 jsonResponse(400, ["status" => "error", "message" => "Quantidade não fornecida"]);
@@ -127,7 +135,8 @@ class ProdutosMesaController {
     }
 
     // Remover produto de uma mesa
-    public function remover($id): void {
+    public function remover($id): void
+    {
         try {
             $produtoMesa = ProdutosMesa::getById($id);
             if (!$produtoMesa) {

@@ -3,14 +3,17 @@
 require_once __DIR__ . '/../model/Mesa.php';
 require_once __DIR__ . '/../config/AuthService.php';
 
-class MesaController {
+class MesaController
+{
     private $authService;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->authService = new AuthService($_ENV['JWT_SECRET'], $_ENV['JWT_ALGORITHM']);
     }
 
-    private function autenticarRequisicao(): array {
+    private function autenticarRequisicao(): array
+    {
         try {
             $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
             return $this->authService->verificarToken($authHeader);
@@ -20,7 +23,8 @@ class MesaController {
         }
     }
 
-    public function listar($id = null): void {
+    public function listar($id = null): void
+    {
         $decodedToken = $this->autenticarRequisicao();
 
         try {
@@ -40,7 +44,8 @@ class MesaController {
         }
     }
 
-    public function listarDeletadas(): void {
+    public function listarDeletadas(): void
+    {
         $decodedToken = $this->autenticarRequisicao();
 
         if (!$decodedToken['is_admin']) {
@@ -56,7 +61,8 @@ class MesaController {
         }
     }
 
-    public function criar($data): void {
+    public function criar($data): void
+    {
         $decodedToken = $this->autenticarRequisicao();
 
         if (!$decodedToken['is_admin']) {
@@ -83,7 +89,8 @@ class MesaController {
         }
     }
 
-    public function atualizar($id, $data): void {
+    public function atualizar($id, $data): void
+    {
         $decodedToken = $this->autenticarRequisicao();
 
         if (!$decodedToken['is_admin']) {
@@ -110,7 +117,8 @@ class MesaController {
         }
     }
 
-    public function deletar($id): void {
+    public function deletar($id): void
+    {
         $decodedToken = $this->autenticarRequisicao();
 
         if (!$decodedToken['is_admin']) {
@@ -126,7 +134,8 @@ class MesaController {
         }
     }
 
-    public function handleRequest($method, $id = null, $action = null, $data = null): void {
+    public function handleRequest($method, $id = null, $action = null, $data = null): void
+    {
         try {
             if ($method === 'GET') {
                 if ($action === 'deletadas') {

@@ -2,14 +2,17 @@
 require_once __DIR__ . '/../model/Produto.php';
 require_once __DIR__ . '/../config/AuthService.php';
 
-class ProdutoController {
+class ProdutoController
+{
     private $authService;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->authService = new AuthService($_ENV['JWT_SECRET'], $_ENV['JWT_ALGORITHM']);
     }
 
-    private function autenticarRequisicao(): array {
+    private function autenticarRequisicao(): array
+    {
         try {
             $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
             return $this->authService->verificarToken($authHeader);
@@ -19,7 +22,8 @@ class ProdutoController {
         }
     }
 
-    public function listar($id = null): void {
+    public function listar($id = null): void
+    {
         $this->autenticarRequisicao(); // Garantir que apenas usuários autenticados possam acessar
 
         if ($id) {
@@ -35,7 +39,8 @@ class ProdutoController {
         }
     }
 
-    public function listarDeletados(): void {
+    public function listarDeletados(): void
+    {
         $decodedToken = $this->autenticarRequisicao();
         if (!$decodedToken['is_admin']) {
             jsonResponse(403, ["status" => "error", "message" => "Acesso negado"]);
@@ -46,7 +51,8 @@ class ProdutoController {
         jsonResponse(200, ["status" => "success", "data" => $produtos]);
     }
 
-    public function criar($data): void {
+    public function criar($data): void
+    {
         $decodedToken = $this->autenticarRequisicao();
         if (!$decodedToken['is_admin']) {
             jsonResponse(403, ["status" => "error", "message" => "Acesso negado"]);
@@ -68,7 +74,8 @@ class ProdutoController {
         jsonResponse(201, ["status" => "success", "data" => ["id" => $insertedId]]);
     }
 
-    public function atualizar($id, $data): void {
+    public function atualizar($id, $data): void
+    {
         $decodedToken = $this->autenticarRequisicao();
         if (!$decodedToken['is_admin']) {
             jsonResponse(403, ["status" => "error", "message" => "Acesso negado"]);
@@ -90,7 +97,8 @@ class ProdutoController {
         jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
     }
 
-    public function deletar($id): void {
+    public function deletar($id): void
+    {
         $decodedToken = $this->autenticarRequisicao();
         if (!$decodedToken['is_admin']) {
             jsonResponse(403, ["status" => "error", "message" => "Acesso negado"]);
@@ -101,7 +109,8 @@ class ProdutoController {
         jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
     }
 
-    public function atualizarPreco($id, $data): void {
+    public function atualizarPreco($id, $data): void
+    {
         $decodedToken = $this->autenticarRequisicao();
         if (!$decodedToken['is_admin']) {
             jsonResponse(403, ["status" => "error", "message" => "Acesso negado"]);
@@ -121,7 +130,8 @@ class ProdutoController {
         }
     }
 
-    public function handleRequest($method, $id = null, $action = null, $data = null): void {
+    public function handleRequest($method, $id = null, $action = null, $data = null): void
+    {
         try {
             if ($method === 'PUT' && $action === 'preco') {
                 if ($id) {

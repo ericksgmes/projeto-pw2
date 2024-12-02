@@ -4,14 +4,17 @@ require_once __DIR__ . '/../model/Pagamento.php';
 require_once __DIR__ . '/../config/AuthService.php';
 require_once __DIR__ . '/../config/paymentMethodEnum.php';
 
-class PagamentoController {
+class PagamentoController
+{
     private $authService;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->authService = new AuthService($_ENV['JWT_SECRET'], $_ENV['JWT_ALGORITHM']);
     }
 
-    private function autenticarRequisicao(): array {
+    private function autenticarRequisicao(): array
+    {
         try {
             $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
             return $this->authService->verificarToken($authHeader);
@@ -21,7 +24,8 @@ class PagamentoController {
         }
     }
 
-    public function listar($id = null): void {
+    public function listar($id = null): void
+    {
         $decodedToken = $this->autenticarRequisicao();
 
         // Somente usuários autenticados podem listar pagamentos
@@ -42,7 +46,8 @@ class PagamentoController {
         }
     }
 
-    public function listarDeletados(): void {
+    public function listarDeletados(): void
+    {
         $decodedToken = $this->autenticarRequisicao();
 
         if (!$decodedToken['is_admin']) {
@@ -58,7 +63,8 @@ class PagamentoController {
         }
     }
 
-    public function criar($data): void {
+    public function criar($data): void
+    {
         $decodedToken = $this->autenticarRequisicao();
 
         if (!$decodedToken['is_admin']) {
@@ -83,7 +89,8 @@ class PagamentoController {
         }
     }
 
-    public function atualizar($id, $data): void {
+    public function atualizar($id, $data): void
+    {
         $decodedToken = $this->autenticarRequisicao();
 
         if (!$decodedToken['is_admin']) {
@@ -108,7 +115,8 @@ class PagamentoController {
         }
     }
 
-    public function deletar($id): void {
+    public function deletar($id): void
+    {
         $decodedToken = $this->autenticarRequisicao();
 
         if (!$decodedToken['is_admin']) {
@@ -124,7 +132,8 @@ class PagamentoController {
         }
     }
 
-    public function handleRequest($method, $id = null, $action = null, $data = null): void {
+    public function handleRequest($method, $id = null, $action = null, $data = null): void
+    {
         try {
             if ($method === 'GET') {
                 if ($action === 'deletados') {

@@ -5,14 +5,17 @@ require_once __DIR__ . '/../config/utils.php';
 require_once __DIR__ . '/../config/AuthService.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
-class UsuarioController {
+class UsuarioController
+{
     private $authService;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->authService = new AuthService($_ENV['JWT_SECRET'], $_ENV['JWT_ALGORITHM']);
     }
 
-    private function autenticarRequisicao() {
+    private function autenticarRequisicao()
+    {
         try {
             $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
             return $this->authService->verificarToken($authHeader);
@@ -22,7 +25,8 @@ class UsuarioController {
         }
     }
 
-    public function handleRequest(string $method, int $id = null, string $action = null, array $data = null): void {
+    public function handleRequest(string $method, int $id = null, string $action = null, array $data = null): void
+    {
         try {
             $decodedToken = $this->autenticarRequisicao();
 
@@ -60,7 +64,8 @@ class UsuarioController {
     }
 
 
-    public function obterUsuario($id): void {
+    public function obterUsuario($id): void
+    {
         $this->autenticarRequisicao();
         try {
             if (!Usuario::exist($id)) {
@@ -73,7 +78,8 @@ class UsuarioController {
         }
     }
 
-    public function listarTodos(): void {
+    public function listarTodos(): void
+    {
         $this->autenticarRequisicao();
         try {
             $usuarios = Usuario::listar();
@@ -83,7 +89,8 @@ class UsuarioController {
         }
     }
 
-    public function criar($data): void {
+    public function criar($data): void
+    {
         try {
             if (!valid($data, ["nome", "username", "senha"])) {
                 throw new Exception("Nome, username e/ou senha não encontrados", 400);
@@ -98,7 +105,8 @@ class UsuarioController {
         }
     }
 
-    public function atualizar($id, $data): void {
+    public function atualizar($id, $data): void
+    {
         $this->autenticarRequisicao();
 
         try {
@@ -126,7 +134,8 @@ class UsuarioController {
         }
     }
 
-    public function deletar($id): void {
+    public function deletar($id): void
+    {
         $this->autenticarRequisicao();
         try {
             if (!Usuario::exist($id)) {
@@ -140,7 +149,8 @@ class UsuarioController {
         }
     }
 
-    public function atualizarSenha($id, $novaSenha): void {
+    public function atualizarSenha($id, $novaSenha): void
+    {
         $this->autenticarRequisicao();
 
         if (empty($novaSenha)) {
@@ -157,7 +167,8 @@ class UsuarioController {
         jsonResponse(200, ["status" => "success", "message" => "Senha atualizada com sucesso"]);
     }
 
-    public function autenticar($data): void {
+    public function autenticar($data): void
+    {
         try {
             if (!valid($data, ["username", "senha"])) {
                 throw new Exception("Username e/ou senha não fornecidos.", 400);
@@ -190,7 +201,8 @@ class UsuarioController {
     }
 
 
-    public function atualizacaoParcial($id, $data): void {
+    public function atualizacaoParcial($id, $data): void
+    {
         $this->autenticarRequisicao();
 
         try {

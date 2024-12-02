@@ -14,9 +14,11 @@ require_once __DIR__ . '/../config/database.php';
  *     @OA\Property(property="quantidade", type="integer", description="Quantidade do produto")
  * )
  */
-class ProdutosMesa {
+class ProdutosMesa
+{
 
-    public static function listar(): array {
+    public static function listar(): array
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("
             SELECT pm.*, m.numero AS numero_mesa, p.nome AS nome_produto, p.preco AS preco_produto 
@@ -29,7 +31,8 @@ class ProdutosMesa {
         return $sql->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function listarDeletadas(): array {
+    public static function listarDeletadas(): array
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("
             SELECT pm.*, m.numero AS numero_mesa, p.nome AS nome_produto
@@ -42,7 +45,8 @@ class ProdutosMesa {
         return $sql->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function adicionar($numero_mesa, $produtos) {
+    public static function adicionar($numero_mesa, $produtos)
+    {
         $connection = Connection::getConnection();
 
         try {
@@ -96,7 +100,8 @@ class ProdutosMesa {
         }
     }
 
-    public static function removerProduto($id) {
+    public static function removerProduto($id)
+    {
         $connection = Connection::getConnection();
 
         // Verifica se o produto existe
@@ -116,7 +121,8 @@ class ProdutosMesa {
     }
 
 
-    public static function atualizarQuantidade($id, $quantidade) {
+    public static function atualizarQuantidade($id, $quantidade)
+    {
         $connection = Connection::getConnection();
 
         // Verifica se o produto existe
@@ -140,7 +146,8 @@ class ProdutosMesa {
         }
     }
 
-    public static function getByMesaNumero($numero_mesa): array {
+    public static function getByMesaNumero($numero_mesa): array
+    {
         $connection = Connection::getConnection();
 
         // Verifica se a mesa existe e não está deletada
@@ -161,7 +168,8 @@ class ProdutosMesa {
         return $sql->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function getById($id) {
+    public static function getById($id)
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("
             SELECT pm.*, m.numero AS numero_mesa, p.nome AS nome_produto, p.preco AS preco_produto

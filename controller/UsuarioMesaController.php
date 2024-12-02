@@ -4,14 +4,17 @@ require_once(__DIR__ . "/../model/UsuarioMesa.php");
 require_once(__DIR__ . "/../config/utils.php");
 require_once(__DIR__ . "/../config/AuthService.php");
 
-class UsuarioMesaController {
+class UsuarioMesaController
+{
     private $authService;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->authService = new AuthService($_ENV['JWT_SECRET'], $_ENV['JWT_ALGORITHM']);
     }
 
-    private function autenticarRequisicao() {
+    private function autenticarRequisicao()
+    {
         try {
             $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
             return $this->authService->verificarToken($authHeader);
@@ -24,7 +27,8 @@ class UsuarioMesaController {
     /**
      * @OA\Get(...)
      */
-    private function listar($usuarioId = null): void {
+    private function listar($usuarioId = null): void
+    {
         $decodedToken = $this->autenticarRequisicao();
 
         // Apenas administradores podem listar todas as associações
@@ -44,7 +48,8 @@ class UsuarioMesaController {
     /**
      * @OA\Post(...)
      */
-    private function criar($data): void {
+    private function criar($data): void
+    {
         $decodedToken = $this->autenticarRequisicao();
 
         // Apenas administradores podem criar associações
@@ -74,7 +79,8 @@ class UsuarioMesaController {
     /**
      * @OA\Delete(...)
      */
-    private function deletar($usuarioId, $mesaId): void {
+    private function deletar($usuarioId, $mesaId): void
+    {
         $decodedToken = $this->autenticarRequisicao();
 
         // Apenas administradores podem deletar associações
@@ -98,7 +104,8 @@ class UsuarioMesaController {
         ]);
     }
 
-    public function handleRequest($method, $usuarioId = null, $mesaId = null, $data = null): void {
+    public function handleRequest($method, $usuarioId = null, $mesaId = null, $data = null): void
+    {
         try {
             switch ($method) {
                 case 'GET':

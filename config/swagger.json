@@ -1,1462 +1,1557 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-        "title": "API Restaurante Webservice",
-        "description": "Documentação da API para o sistema de gerenciamento de restaurante.",
-        "version": "2.1.2"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Restaurante Webservice",
+    "description": "Documentação da API para o sistema de gerenciamento de restaurante.",
+    "version": "2.1.2"
+  },
+  "servers": [
+    {
+      "url": "http://localhost/restaurante-webservice",
+      "description": "Servidor local de desenvolvimento"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Usuários",
+      "description": "Endpoints relacionados à gestão de usuários"
     },
-    "servers": [
-        {
-            "url": "http://localhost/restaurante-webservice",
-            "description": "Servidor local de desenvolvimento"
-        }
-    ],
-    "tags": [
-        {
-            "name": "Usuários",
-            "description": "Endpoints relacionados à gestão de usuários"
-        },
-        {
-            "name": "Mesas",
-            "description": "Endpoints relacionados à gestão de mesas"
-        },
-        {
-            "name": "Produtos",
-            "description": "Endpoints relacionados à gestão de produtos"
-        },
-        {
-            "name": "Pagamentos",
-            "description": "Endpoints relacionados à gestão de pagamentos"
-        },
-        {
-            "name": "Associações",
-            "description": "Endpoints de associação"
-        }
-    ],
-    "paths": {
-            "/auth": {
-              "post": {
-                "tags": ["Autenticação"],
-                "summary": "Autenticar um usuário",
-                "operationId": "autenticarUsuario",
-                "requestBody": {
-                  "required": true,
-                  "content": {
-                    "application/json": {
-                      "schema": {
-                        "type": "object",
-                        "required": ["username", "senha"],
-                        "properties": {
-                          "username": {
-                            "type": "string",
-                            "description": "Username do usuário para autenticação",
-                            "example": "usuario.exemplo"
-                          },
-                          "senha": {
-                            "type": "string",
-                            "description": "Senha do usuário para autenticação",
-                            "example": "senha123"
-                          }
-                        }
-                      }
-                    }
+    {
+      "name": "Mesas",
+      "description": "Endpoints relacionados à gestão de mesas"
+    },
+    {
+      "name": "Produtos",
+      "description": "Endpoints relacionados à gestão de produtos"
+    },
+    {
+      "name": "Pagamentos",
+      "description": "Endpoints relacionados à gestão de pagamentos"
+    },
+    {
+      "name": "Associações",
+      "description": "Endpoints de associação"
+    }
+  ],
+  "paths": {
+    "/auth": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Autenticar um usuário",
+        "operationId": "autenticarUsuario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "senha"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Username do usuário para autenticação",
+                    "example": "usuario.exemplo"
+                  },
+                  "senha": {
+                    "type": "string",
+                    "description": "Senha do usuário para autenticação",
+                    "example": "senha123"
                   }
-                },
-                "responses": {
-                  "200": {
-                    "description": "Autenticação bem-sucedida, retorna um token de acesso",
-                    "content": {
-                      "application/json": {
-                        "schema": {
-                          "type": "object",
-                          "properties": {
-                            "token": {
-                              "type": "string",
-                              "description": "Token de acesso JWT gerado para o usuário",
-                              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                            }
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "400": {
-                    "description": "Dados inválidos ou ausentes",
-                    "content": {
-                      "application/json": {
-                        "schema": {
-                          "type": "object",
-                          "properties": {
-                            "message": {
-                              "type": "string",
-                              "description": "Mensagem de erro detalhando o problema",
-                              "example": "Username e senha são obrigatórios"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "401": {
-                    "description": "Falha na autenticação devido a credenciais inválidas",
-                    "content": {
-                      "application/json": {
-                        "schema": {
-                          "type": "object",
-                          "properties": {
-                            "message": {
-                              "type": "string",
-                              "description": "Mensagem de erro indicando credenciais inválidas",
-                              "example": "Username ou senha incorretos"
-                            }
-                          }
-                        }
-                      }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Autenticação bem-sucedida, retorna um token de acesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "description": "Token de acesso JWT gerado para o usuário",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                     }
                   }
                 }
               }
             }
-          ,
-          
-        "/usuarios/{id}": {
-            "get": {
-                "tags": ["Usuários"],
-                "summary": "Obter detalhes de um usuário",
-                "operationId": "obterusuarioPorId",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
+          },
+          "400": {
+            "description": "Dados inválidos ou ausentes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Mensagem de erro detalhando o problema",
+                      "example": "Username e senha são obrigatórios"
                     }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Detalhes do usuário"
-                    },
-                    "404": {
-                        "description": "usuário não encontrado"
-                    }
+                  }
                 }
-            },
-            "put": {
-                "tags": ["Usuários"],
-                "summary": "Atualizar um usuário",
-                "operationId": "atualizarusuario",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "nome",
-                                    "username"
-                                ],
-                                "properties": {
-                                    "nome": {
-                                        "type": "string"
-                                    },
-                                    "username": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "usuário atualizado com sucesso"
-                    },
-                    "400": {
-                        "description": "Dados inválidos"
-                    },
-                    "404": {
-                        "description": "usuáriosário não encontrado"
-                    },
-                    "409": {
-                        "description": "Username já existente"
-                    }
-                }
-            },
-            "delete": {
-                "tags": ["Usuários"],
-                "summary": "Deletar um usuário",
-                "operationId": "deletarUsuário",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "usuário deletado com sucesso"
-                    },
-                    "404": {
-                        "description": "usuário não encontrado"
-                    }
-                }
+              }
             }
-        },
-        "/usuarios": {
-            "get": {
-                "tags": ["Usuários"],
-                "summary": "Listar todos os usuários",
-                "operationId": "listarusuarios",
-                "responses": {
-                    "200": {
-                        "description": "Lista de usuários"
+          },
+          "401": {
+            "description": "Falha na autenticação devido a credenciais inválidas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Mensagem de erro indicando credenciais inválidas",
+                      "example": "Username ou senha incorretos"
                     }
+                  }
                 }
-            },
-            "post": {
-                "tags": ["Usuários"],
-                "summary": "Criar um novo usuário",
-                "operationId": "criarusuario",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "nome",
-                                    "username",
-                                    "senha"
-                                ],
-                                "properties": {
-                                    "nome": {
-                                        "type": "string"
-                                    },
-                                    "username": {
-                                        "type": "string"
-                                    },
-                                    "senha": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "usuário criado com sucesso"
-                    },
-                    "400": {
-                        "description": "Dados inválidos"
-                    },
-                    "409": {
-                        "description": "Username já existente"
-                    }
-                }
+              }
             }
-        },
-        "/usuarios/{id}/senha": {
-            "put": {
-                "tags": ["Usuários"],
-                "summary": "Atualizar a senha de um usuário",
-                "operationId": "atualizarSenhausuario",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "novaSenha"
-                                ],
-                                "properties": {
-                                    "novaSenha": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Senha atualizada com sucesso"
-                    },
-                    "400": {
-                        "description": "Dados inválidos"
-                    },
-                    "404": {
-                        "description": "usuário não encontrado"
-                    }
-                }
-            }
-        },
-        "/usuarios/{id}/nome": {
-            "put": {
-                "tags": ["Usuários"],
-                "summary": "Atualizar o nome de um usuário",
-                "operationId": "atualizarNomeusuario",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": ["nome"],
-                                "properties": {
-                                    "nome": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Nome atualizado com sucesso"
-                    },
-                    "400": {
-                        "description": "Nome inválido"
-                    },
-                    "404": {
-                        "description": "usuário não encontrado"
-                    }
-                }
-            }
-        },
-        "/usuario-mesa/{usuarioId}": {
-            "get": {
-                "tags": ["Associações"],
-                "summary": "Listar todas as mesas associadas a um usuário",
-                "operationId": "994760dae725a720efb55faa4e758364",
-                "parameters": [
-                    {
-                        "name": "usuarioId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Lista de mesas associadas ao usuário"
-                    },
-                    "404": {
-                        "description": "usuário não encontrado"
-                    }
-                }
-            }
-        },
-        "/usuario-mesa": {
-            "get": {
-                "tags": ["Associações"],
-                "summary": "Listar todas as associações entre usuários e mesas",
-                "operationId": "3920513539b2b72b88f41072320128c6",
-                "responses": {
-                    "200": {
-                        "description": "Lista de associações entre usuários e mesas"
-                    }
-                }
-            },
-            "post": {
-                "tags": ["Associações"],
-                "summary": "Criar uma nova associação entre usuário e mesa",
-                "operationId": "4e56d5f032bf6bb9f3e5cfeabf9b0024",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "id_usuario",
-                                    "id_mesa"
-                                ],
-                                "properties": {
-                                    "id_usuario": {
-                                        "description": "ID do usuário",
-                                        "type": "integer"
-                                    },
-                                    "id_mesa": {
-                                        "description": "ID da mesa",
-                                        "type": "integer"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Associação criada com sucesso"
-                    },
-                    "400": {
-                        "description": "Dados inválidos"
-                    },
-                    "409": {
-                        "description": "Associação já existente"
-                    }
-                }
-            },
-            "delete": {
-                "tags": ["Associações"],
-                "summary": "Desassociar um usuário de uma mesa",
-                "operationId": "a8e9877158f7ddb4ea46d6732f5f5ac2",
-                "responses": {
-                    "200": {
-                        "description": "Associação removida com sucesso"
-                    },
-                    "404": {
-                        "description": "Associação não encontrada"
-                    }
-                }
-            }
-        },
-        "/usuario-mesa/{usuarioId}/{mesaId}": {
-            "delete": {
-                "tags": ["Associações"],
-                "summary": "Desassociar um usuário de uma mesa",
-                "operationId": "a8e9877158f7ddb4ea46d6732f5f5ac22",
-                "parameters": [
-                    {
-                        "name": "usuarioId",
-                        "in": "path",
-                        "description": "ID do usuário a ser desassociado",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "mesaId",
-                        "in": "path",
-                        "description": "ID da mesa a ser desassociada",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Associação removida com sucesso"
-                    },
-                    "404": {
-                        "description": "Associação não encontrada"
-                    }
-                }
-            }
-        },
-        "/mesas/{id}": {
-            "get": {
-                "tags": ["Mesas"],
-                "summary": "Obter detalhes de uma mesa",
-                "operationId": "070d2f92bb967164276792c86aaa49f2",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Detalhes da mesa"
-                    },
-                    "404": {
-                        "description": "Mesa não encontrada"
-                    }
-                }
-            },
-            "put": {
-                "tags": ["Mesas"],
-                "summary": "Atualizar uma mesa",
-                "operationId": "9d6ab40df32736ac2c12974207f5fe9d",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "numero"
-                                ],
-                                "properties": {
-                                    "numero": {
-                                        "description": "Número da mesa",
-                                        "type": "integer"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Mesa atualizada com sucesso"
-                    },
-                    "400": {
-                        "description": "Número da mesa não fornecido"
-                    },
-                    "404": {
-                        "description": "Mesa não encontrada"
-                    }
-                }
-            },
-            "delete": {
-                "tags": ["Mesas"],
-                "summary": "Deletar uma mesa",
-                "operationId": "ea1633e5130e523e0cca4828bd4cf592",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Mesa deletada com sucesso"
-                    },
-                    "404": {
-                        "description": "Mesa não encontrada"
-                    }
-                }
-            }
-        },
-        "/mesas": {
-            "get": {
-                "tags": ["Mesas"],
-                "summary": "Listar todas as mesas",
-                "operationId": "3cdcf8612d3258f1c99df68a4bbbea97",
-                "responses": {
-                    "200": {
-                        "description": "Lista de mesas"
-                    }
-                }
-            },
-            "post": {
-                "tags": ["Mesas"],
-                "summary": "Criar uma nova mesa",
-                "operationId": "7540c23183b82086b7ce00be44876342",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "numero"
-                                ],
-                                "properties": {
-                                    "numero": {
-                                        "description": "Número da mesa",
-                                        "type": "integer"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Mesa criada com sucesso"
-                    },
-                    "400": {
-                        "description": "Número da mesa não fornecido"
-                    }
-                }
-            }
-        },
-        "/mesas/deletadas": {
-            "get": {
-                "tags": ["Mesas"],
-                "summary": "Listar todas as mesas deletadas",
-                "operationId": "ae4dc54fa7d08a7ffc6289c14fe37e71",
-                "responses": {
-                    "200": {
-                        "description": "Lista de mesas deletadas"
-                    }
-                }
-            }
-        },
-        "/pagamentos/{id}": {
-            "get": {
-                "tags": ["Pagamentos"],
-                "summary": "Obter detalhes de um pagamento",
-                "operationId": "b17d49b7e655b0f64e75c7951c733619",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Detalhes do pagamento"
-                    },
-                    "404": {
-                        "description": "Pagamento não encontrado"
-                    }
-                }
-            },
-            "put": {
-                "tags": ["Pagamentos"],
-                "summary": "Atualizar um pagamento",
-                "operationId": "d596dd759642d0a60791efff45e04b76",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "metodo",
-                                    "valor",
-                                    "id_mesa"
-                                ],
-                                "properties": {
-                                    "metodo": {
-                                        "description": "Método de pagamento",
-                                        "type": "string"
-                                    },
-                                    "valor": {
-                                        "description": "Valor do pagamento",
-                                        "type": "number",
-                                        "format": "float"
-                                    },
-                                    "id_mesa": {
-                                        "description": "ID da mesa associada ao pagamento",
-                                        "type": "integer"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Pagamento atualizado com sucesso"
-                    },
-                    "400": {
-                        "description": "Dados inválidos"
-                    },
-                    "404": {
-                        "description": "Pagamento não encontrado"
-                    }
-                }
-            },
-            "delete": {
-                "tags": ["Pagamentos"],
-                "summary": "Deletar um pagamento",
-                "operationId": "3f456b685bab585a020a97cd9e2b044e",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Pagamento deletado com sucesso"
-                    },
-                    "404": {
-                        "description": "Pagamento não encontrado"
-                    }
-                }
-            }
-        },
-        "/pagamentos": {
-            "get": {
-                "tags": ["Pagamentos"],
-                "summary": "Listar todos os pagamentos",
-                "operationId": "526c1c10382b6dee7b9563fbb8e11b21",
-                "responses": {
-                    "200": {
-                        "description": "Lista de pagamentos"
-                    }
-                }
-            },
-            "post": {
-                "tags": ["Pagamentos"],
-                "summary": "Criar um novo pagamento",
-                "operationId": "5d2931ffad936a4bdc156d0939774e90",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "metodo",
-                                    "valor",
-                                    "id_mesa"
-                                ],
-                                "properties": {
-                                    "metodo": {
-                                        "description": "Método de pagamento",
-                                        "type": "string"
-                                    },
-                                    "valor": {
-                                        "description": "Valor do pagamento",
-                                        "type": "number",
-                                        "format": "float"
-                                    },
-                                    "id_mesa": {
-                                        "description": "ID da mesa associada ao pagamento",
-                                        "type": "integer"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Pagamento criado com sucesso"
-                    },
-                    "400": {
-                        "description": "Dados inválidos"
-                    }
-                }
-            }
-        },
-        "/pagamentos/deletados": {
-            "get": {
-                "tags": ["Pagamentos"],
-                "summary": "Listar todos os pagamentos deletados",
-                "operationId": "6d5797f36b0df87464aa1deceff8c61b",
-                "responses": {
-                    "200": {
-                        "description": "Lista de pagamentos deletados"
-                    }
-                }
-            }
-        },
-        "/produtos/{id}": {
-            "get": {
-                "tags": ["Produtos"],
-                "summary": "Obter detalhes de um produto",
-                "operationId": "3a2898268f14a7d91784a8b7983507dc",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Detalhes do produto"
-                    },
-                    "404": {
-                        "description": "Produto não encontrado"
-                    }
-                }
-            },
-            "put": {
-                "tags": ["Produtos"],
-                "summary": "Atualizar um produto",
-                "operationId": "af1d0d44e8e96eaa67713acd00a2da26",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "nome",
-                                    "preco"
-                                ],
-                                "properties": {
-                                    "nome": {
-                                        "description": "Nome do produto",
-                                        "type": "string"
-                                    },
-                                    "preco": {
-                                        "description": "Preço do produto",
-                                        "type": "number",
-                                        "format": "float"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Produto atualizado com sucesso"
-                    },
-                    "400": {
-                        "description": "Dados inválidos"
-                    },
-                    "404": {
-                        "description": "Produto não encontrado"
-                    }
-                }
-            },
-            "delete": {
-                "tags": ["Produtos"],
-                "summary": "Deletar um produto",
-                "operationId": "e48b6f042bb0e2fe88cf04f5517a89fc",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Produto deletado com sucesso"
-                    },
-                    "404": {
-                        "description": "Produto não encontrado"
-                    }
-                }
-            }
-        },
-        "/produtos/{id}/preco": {
-            "put": {
-                "tags": ["Produtos"],
-                "summary": "Atualizar o preço de um produto",
-                "operationId": "atualizarPrecoProduto",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": ["preco"],
-                                "properties": {
-                                    "preco": {
-                                        "type": "number",
-                                        "format": "float"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Preço atualizado com sucesso"
-                    },
-                    "400": {
-                        "description": "Preço inválido"
-                    },
-                    "404": {
-                        "description": "Produto não encontrado"
-                    }
-                }
-            }
-        },
-        "/produtos": {
-            "get": {
-                "tags": ["Produtos"],
-                "summary": "Listar todos os produtos",
-                "operationId": "668ccadd797e2249b3f7e9cf8c0a7de4",
-                "responses": {
-                    "200": {
-                        "description": "Lista de produtos"
-                    }
-                }
-            },
-            "post": {
-                "tags": ["Produtos"],
-                "summary": "Criar um novo produto",
-                "operationId": "f0ff952016aecc79e803a31bfc3a1c77",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "nome",
-                                    "preco"
-                                ],
-                                "properties": {
-                                    "nome": {
-                                        "description": "Nome do produto",
-                                        "type": "string"
-                                    },
-                                    "preco": {
-                                        "description": "Preço do produto",
-                                        "type": "number",
-                                        "format": "float"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Produto criado com sucesso"
-                    },
-                    "400": {
-                        "description": "Dados inválidos"
-                    }
-                }
-            }
-        },
-        "/produtos/deletados": {
-            "get": {
-                "tags": ["Produtos"],
-                "summary": "Listar todos os produtos deletados",
-                "operationId": "3e7dfb3c6e6bda2cc43f785411a67147",
-                "responses": {
-                    "200": {
-                        "description": "Lista de produtos deletados"
-                    }
-                }
-            }
-        },
-        "/produtos-mesa/{id}": {
-            "get": {
-                "tags": ["Associações"],
-                "summary": "Obter detalhes dos produtos de uma mesa",
-                "operationId": "82c688c1b209aa105262f0f2bd7e9248",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Detalhes dos produtos da mesa"
-                    },
-                    "404": {
-                        "description": "Mesa não encontrada"
-                    }
-                }
-            },
-            "put": {
-                "tags": ["Associações"],
-                "summary": "Atualizar a quantidade de um produto em uma mesa",
-                "operationId": "55c930aa849ec43a9516a3cf8bb5cf16",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "quantidade"
-                                ],
-                                "properties": {
-                                    "quantidade": {
-                                        "description": "Quantidade do produto",
-                                        "type": "integer"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Quantidade do produto atualizada com sucesso"
-                    },
-                    "400": {
-                        "description": "Dados inválidos"
-                    },
-                    "404": {
-                        "description": "Produto não encontrado na mesa"
-                    }
-                }
-            },
-            "delete": {
-                "tags": ["Associações"],
-                "summary": "Remover um produto de uma mesa",
-                "operationId": "75f261155eb3c6311288dc7601d11c6f",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Produto removido da mesa com sucesso"
-                    },
-                    "404": {
-                        "description": "Produto não encontrado na mesa"
-                    }
-                }
-            }
-        },
-        "/produtos-mesa": {
-            "get": {
-                "tags": ["Associações"],
-                "summary": "Listar todos os produtos de todas as mesas",
-                "operationId": "6d360e7c9beb721d002df04200876822",
-                "responses": {
-                    "200": {
-                        "description": "Lista de produtos de todas as mesas"
-                    }
-                }
-            },
-            "post": {
-                "tags": ["Associações"],
-                "summary": "Adicionar um produto a uma mesa",
-                "operationId": "87574546005aadd6eba16fae200289c9",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "id_mesa",
-                                    "id_prod",
-                                    "quantidade"
-                                ],
-                                "properties": {
-                                    "id_mesa": {
-                                        "description": "ID da mesa",
-                                        "type": "integer"
-                                    },
-                                    "id_prod": {
-                                        "description": "ID do produto",
-                                        "type": "integer"
-                                    },
-                                    "quantidade": {
-                                        "description": "Quantidade do produto",
-                                        "type": "integer"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Produto adicionado à mesa com sucesso"
-                    },
-                    "400": {
-                        "description": "Dados inválidos"
-                    }
-                }
-            }
-        },
-        "/produtos-mesa/deletados": {
-            "get": {
-                "tags": ["Associações"],
-                "summary": "Listar todos os produtos removidos das mesas",
-                "operationId": "a75ca2df642b61d2c3da74658e299c60",
-                "responses": {
-                    "200": {
-                        "description": "Lista de produtos removidos das mesas"
-                    }
-                }
-            }
-        },
-        "/usuario-mesa/{id_usuario}": {
-            "get": {
-                "tags": ["Associações"],
-                "summary": "Obter todas as mesas associadas a um usuário",
-                "operationId": "d6ae88a404f79e17febf0f04e0ea4e96",
-                "parameters": [
-                    {
-                        "name": "id_usuario",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Lista de mesas associadas ao usuário"
-                    },
-                    "404": {
-                        "description": "Nenhuma associação encontrada para o usuário"
-                    }
-                }
-            }
-        },
-        "/usuario-mesa/exist": {
-            "get": {
-                "tags": ["Associações"],
-                "summary": "Verificar se uma associação entre usuário e mesa existe",
-                "operationId": "e7ba5129238a063390424755b559bbac",
-                "responses": {
-                    "200": {
-                        "description": "Associação encontrada"
-                    },
-                    "404": {
-                        "description": "Associação não encontrada"
-                    }
-                }
-            }
-        },
-        "/mesas/exist": {
-            "get": {
-                "tags": ["Mesas"],
-                "summary": "Verificar se uma mesa existe",
-                "operationId": "7ec7adec24fe2f4ae805762c8eb071ee",
-                "responses": {
-                    "200": {
-                        "description": "Mesa encontrada"
-                    },
-                    "404": {
-                        "description": "Mesa não encontrada"
-                    }
-                }
-            }
-        },
-        "/produtos/exist": {
-            "get": {
-                "tags": ["Produtos"],
-                "summary": "Verificar se um produto existe",
-                "operationId": "d2b38874eb704c0dcb43a156d916e8c7",
-                "responses": {
-                    "200": {
-                        "description": "Produto encontrado"
-                    },
-                    "404": {
-                        "description": "Produto não encontrado"
-                    }
-                }
-            }
-        },
-        "/produtos-mesa/mesa/{id_mesa}": {
-            "get": {
-                "tags": ["Associações"],
-                "summary": "Obter todos os produtos associados a uma mesa",
-                "operationId": "3ab12716710dc184deda153fd8284399",
-                "parameters": [
-                    {
-                        "name": "id_mesa",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Lista de produtos associados a uma mesa"
-                    }
-                }
-            }
+          }
         }
+      }
     },
-    "components": {
-        "schemas": {
-            "usuario": {
-                "title": "usuario",
-                "description": "Modelo de usuário",
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "description": "ID do usuário",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "nome": {
-                        "description": "Nome do usuário",
-                        "type": "string",
-                        "example": "Carlos Silva"
-                    },
-                    "username": {
-                        "description": "Username do usuário",
-                        "type": "string",
-                        "example": "carlos.silva"
-                    },
-                    "senha": {
-                        "description": "Senha do usuário",
-                        "type": "string",
-                        "example": "senha123"
-                    },
-                    "deletado": {
-                        "description": "Indica se o usuário está deletado",
-                        "type": "boolean",
-                        "example": false
-                    },
-                    "data_deletado": {
-                        "description": "Data em que o usuário foi deletado",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-01-01T10:00:00Z"
-                    }
-                }
-            },
-            "usuarioMesa": {
-                "title": "usuarioMesa",
-                "description": "Modelo de associação entre usuário e Mesa",
-                "type": "object",
-                "properties": {
-                    "id_usuario": {
-                        "description": "ID do usuário associado",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "id_mesa": {
-                        "description": "ID da mesa associada",
-                        "type": "integer",
-                        "example": 5
-                    }
-                }
-            },
-            "Mesa": {
-                "title": "Mesa",
-                "description": "Modelo de mesa",
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "description": "ID da mesa",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "numero": {
-                        "description": "Número da mesa",
-                        "type": "string",
-                        "example": "A12"
-                    },
-                    "deletado": {
-                        "description": "Indica se a mesa está deletada",
-                        "type": "boolean",
-                        "example": false
-                    },
-                    "data_deletado": {
-                        "description": "Data em que a mesa foi deletada",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-01-01T10:00:00Z"
-                    }
-                }
-            },
-            "Pagamento": {
-                "title": "Pagamento",
-                "description": "Modelo de pagamento",
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "description": "ID do pagamento",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "metodo": {
-                        "description": "Método de pagamento",
-                        "type": "string",
-                        "enum": ["DEBITO", "CREDITO", "PIX"],
-                        "example": "PIX"
-                    },
-                    "valor": {
-                        "description": "Valor do pagamento",
-                        "type": "number",
-                        "format": "float",
-                        "example": 123.45
-                    },
-                    "data": {
-                        "description": "Data do pagamento",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-01-01T10:00:00Z"
-                    },
-                    "id_mesa": {
-                        "description": "ID da mesa associada ao pagamento",
-                        "type": "integer",
-                        "example": 2
-                    },
-                    "deletado": {
-                        "description": "Indica se o pagamento está deletado",
-                        "type": "boolean",
-                        "example": false
-                    },
-                    "data_deletado": {
-                        "description": "Data em que o pagamento foi deletado",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-01-01T10:00:00Z"
-                    }
-                }
-            },
-            "Produto": {
-                "title": "Produto",
-                "description": "Modelo de produto",
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "description": "ID do produto",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "nome": {
-                        "description": "Nome do produto",
-                        "type": "string",
-                        "example": "Carbonara"
-                    },
-                    "preco": {
-                        "description": "Preço do produto",
-                        "type": "number",
-                        "format": "float",
-                        "example": 45.90
-                    },
-                    "deletado": {
-                        "description": "Indica se o produto está deletado",
-                        "type": "boolean",
-                        "example": false
-                    },
-                    "data_deletado": {
-                        "description": "Data em que o produto foi deletado",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2024-01-01T10:00:00Z"
-                    }
-                }
-            },
-            "ProdutosMesa": {
-                "title": "ProdutosMesa",
-                "description": "Modelo de produtos associados a uma mesa",
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "description": "ID da associação produto-mesa",
-                        "type": "integer",
-                        "example": 10
-                    },
-                    "id_mesa": {
-                        "description": "ID da mesa",
-                        "type": "integer",
-                        "example": 3
-                    },
-                    "id_prod": {
-                        "description": "ID do produto",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "quantidade": {
-                        "description": "Quantidade do produto",
-                        "type": "integer",
-                        "example": 2
-                    }
-                }
+    "/usuarios/{id}": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Obter detalhes de um usuário",
+        "operationId": "obterusuarioPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes do usuário"
+          },
+          "404": {
+            "description": "usuário não encontrado"
+          }
         }
+      },
+      "put": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar um usuário",
+        "operationId": "atualizarusuario",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "nome",
+                  "username"
+                ],
+                "properties": {
+                  "nome": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "usuário atualizado com sucesso"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "404": {
+            "description": "usuáriosário não encontrado"
+          },
+          "409": {
+            "description": "Username já existente"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Deletar um usuário",
+        "operationId": "deletarUsuário",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "usuário deletado com sucesso"
+          },
+          "404": {
+            "description": "usuário não encontrado"
+          }
+        }
+      }
+    },
+    "/usuarios": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Listar todos os usuários",
+        "operationId": "listarusuarios",
+        "responses": {
+          "200": {
+            "description": "Lista de usuários"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Criar um novo usuário",
+        "operationId": "criarusuario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "nome",
+                  "username",
+                  "senha"
+                ],
+                "properties": {
+                  "nome": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "senha": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "usuário criado com sucesso"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "409": {
+            "description": "Username já existente"
+          }
+        }
+      }
+    },
+    "/usuarios/{id}/senha": {
+      "put": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar a senha de um usuário",
+        "operationId": "atualizarSenhausuario",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "novaSenha"
+                ],
+                "properties": {
+                  "novaSenha": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Senha atualizada com sucesso"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "404": {
+            "description": "usuário não encontrado"
+          }
+        }
+      }
+    },
+    "/usuarios/{id}/nome": {
+      "put": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar o nome de um usuário",
+        "operationId": "atualizarNomeusuario",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "nome"
+                ],
+                "properties": {
+                  "nome": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Nome atualizado com sucesso"
+          },
+          "400": {
+            "description": "Nome inválido"
+          },
+          "404": {
+            "description": "usuário não encontrado"
+          }
+        }
+      }
+    },
+    "/usuario-mesa/{usuarioId}": {
+      "get": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Listar todas as mesas associadas a um usuário",
+        "operationId": "994760dae725a720efb55faa4e758364",
+        "parameters": [
+          {
+            "name": "usuarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de mesas associadas ao usuário"
+          },
+          "404": {
+            "description": "usuário não encontrado"
+          }
+        }
+      }
+    },
+    "/usuario-mesa": {
+      "get": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Listar todas as associações entre usuários e mesas",
+        "operationId": "3920513539b2b72b88f41072320128c6",
+        "responses": {
+          "200": {
+            "description": "Lista de associações entre usuários e mesas"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Criar uma nova associação entre usuário e mesa",
+        "operationId": "4e56d5f032bf6bb9f3e5cfeabf9b0024",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "id_usuario",
+                  "id_mesa"
+                ],
+                "properties": {
+                  "id_usuario": {
+                    "description": "ID do usuário",
+                    "type": "integer"
+                  },
+                  "id_mesa": {
+                    "description": "ID da mesa",
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Associação criada com sucesso"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "409": {
+            "description": "Associação já existente"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Desassociar um usuário de uma mesa",
+        "operationId": "a8e9877158f7ddb4ea46d6732f5f5ac2",
+        "responses": {
+          "200": {
+            "description": "Associação removida com sucesso"
+          },
+          "404": {
+            "description": "Associação não encontrada"
+          }
+        }
+      }
+    },
+    "/usuario-mesa/{usuarioId}/{mesaId}": {
+      "delete": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Desassociar um usuário de uma mesa",
+        "operationId": "a8e9877158f7ddb4ea46d6732f5f5ac22",
+        "parameters": [
+          {
+            "name": "usuarioId",
+            "in": "path",
+            "description": "ID do usuário a ser desassociado",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "mesaId",
+            "in": "path",
+            "description": "ID da mesa a ser desassociada",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Associação removida com sucesso"
+          },
+          "404": {
+            "description": "Associação não encontrada"
+          }
+        }
+      }
+    },
+    "/mesas/{id}": {
+      "get": {
+        "tags": [
+          "Mesas"
+        ],
+        "summary": "Obter detalhes de uma mesa",
+        "operationId": "070d2f92bb967164276792c86aaa49f2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes da mesa"
+          },
+          "404": {
+            "description": "Mesa não encontrada"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Mesas"
+        ],
+        "summary": "Atualizar uma mesa",
+        "operationId": "9d6ab40df32736ac2c12974207f5fe9d",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "numero"
+                ],
+                "properties": {
+                  "numero": {
+                    "description": "Número da mesa",
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mesa atualizada com sucesso"
+          },
+          "400": {
+            "description": "Número da mesa não fornecido"
+          },
+          "404": {
+            "description": "Mesa não encontrada"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Mesas"
+        ],
+        "summary": "Deletar uma mesa",
+        "operationId": "ea1633e5130e523e0cca4828bd4cf592",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mesa deletada com sucesso"
+          },
+          "404": {
+            "description": "Mesa não encontrada"
+          }
+        }
+      }
+    },
+    "/mesas": {
+      "get": {
+        "tags": [
+          "Mesas"
+        ],
+        "summary": "Listar todas as mesas",
+        "operationId": "3cdcf8612d3258f1c99df68a4bbbea97",
+        "responses": {
+          "200": {
+            "description": "Lista de mesas"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Mesas"
+        ],
+        "summary": "Criar uma nova mesa",
+        "operationId": "7540c23183b82086b7ce00be44876342",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "numero"
+                ],
+                "properties": {
+                  "numero": {
+                    "description": "Número da mesa",
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Mesa criada com sucesso"
+          },
+          "400": {
+            "description": "Número da mesa não fornecido"
+          }
+        }
+      }
+    },
+    "/mesas/deletadas": {
+      "get": {
+        "tags": [
+          "Mesas"
+        ],
+        "summary": "Listar todas as mesas deletadas",
+        "operationId": "ae4dc54fa7d08a7ffc6289c14fe37e71",
+        "responses": {
+          "200": {
+            "description": "Lista de mesas deletadas"
+          }
+        }
+      }
+    },
+    "/pagamentos/{id}": {
+      "get": {
+        "tags": [
+          "Pagamentos"
+        ],
+        "summary": "Obter detalhes de um pagamento",
+        "operationId": "b17d49b7e655b0f64e75c7951c733619",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes do pagamento"
+          },
+          "404": {
+            "description": "Pagamento não encontrado"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Pagamentos"
+        ],
+        "summary": "Atualizar um pagamento",
+        "operationId": "d596dd759642d0a60791efff45e04b76",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "metodo",
+                  "valor",
+                  "id_mesa"
+                ],
+                "properties": {
+                  "metodo": {
+                    "description": "Método de pagamento",
+                    "type": "string"
+                  },
+                  "valor": {
+                    "description": "Valor do pagamento",
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "id_mesa": {
+                    "description": "ID da mesa associada ao pagamento",
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pagamento atualizado com sucesso"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "404": {
+            "description": "Pagamento não encontrado"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Pagamentos"
+        ],
+        "summary": "Deletar um pagamento",
+        "operationId": "3f456b685bab585a020a97cd9e2b044e",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pagamento deletado com sucesso"
+          },
+          "404": {
+            "description": "Pagamento não encontrado"
+          }
+        }
+      }
+    },
+    "/pagamentos": {
+      "get": {
+        "tags": [
+          "Pagamentos"
+        ],
+        "summary": "Listar todos os pagamentos",
+        "operationId": "526c1c10382b6dee7b9563fbb8e11b21",
+        "responses": {
+          "200": {
+            "description": "Lista de pagamentos"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Pagamentos"
+        ],
+        "summary": "Criar um novo pagamento",
+        "operationId": "5d2931ffad936a4bdc156d0939774e90",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "metodo",
+                  "valor",
+                  "id_mesa"
+                ],
+                "properties": {
+                  "metodo": {
+                    "description": "Método de pagamento",
+                    "type": "string"
+                  },
+                  "valor": {
+                    "description": "Valor do pagamento",
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "id_mesa": {
+                    "description": "ID da mesa associada ao pagamento",
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pagamento criado com sucesso"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/pagamentos/deletados": {
+      "get": {
+        "tags": [
+          "Pagamentos"
+        ],
+        "summary": "Listar todos os pagamentos deletados",
+        "operationId": "6d5797f36b0df87464aa1deceff8c61b",
+        "responses": {
+          "200": {
+            "description": "Lista de pagamentos deletados"
+          }
+        }
+      }
+    },
+    "/produtos/{id}": {
+      "get": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Obter detalhes de um produto",
+        "operationId": "3a2898268f14a7d91784a8b7983507dc",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes do produto"
+          },
+          "404": {
+            "description": "Produto não encontrado"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Atualizar um produto",
+        "operationId": "af1d0d44e8e96eaa67713acd00a2da26",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "nome",
+                  "preco"
+                ],
+                "properties": {
+                  "nome": {
+                    "description": "Nome do produto",
+                    "type": "string"
+                  },
+                  "preco": {
+                    "description": "Preço do produto",
+                    "type": "number",
+                    "format": "float"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Produto atualizado com sucesso"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "404": {
+            "description": "Produto não encontrado"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Deletar um produto",
+        "operationId": "e48b6f042bb0e2fe88cf04f5517a89fc",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Produto deletado com sucesso"
+          },
+          "404": {
+            "description": "Produto não encontrado"
+          }
+        }
+      }
+    },
+    "/produtos/{id}/preco": {
+      "put": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Atualizar o preço de um produto",
+        "operationId": "atualizarPrecoProduto",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "preco"
+                ],
+                "properties": {
+                  "preco": {
+                    "type": "number",
+                    "format": "float"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Preço atualizado com sucesso"
+          },
+          "400": {
+            "description": "Preço inválido"
+          },
+          "404": {
+            "description": "Produto não encontrado"
+          }
+        }
+      }
+    },
+    "/produtos": {
+      "get": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Listar todos os produtos",
+        "operationId": "668ccadd797e2249b3f7e9cf8c0a7de4",
+        "responses": {
+          "200": {
+            "description": "Lista de produtos"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Criar um novo produto",
+        "operationId": "f0ff952016aecc79e803a31bfc3a1c77",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "nome",
+                  "preco"
+                ],
+                "properties": {
+                  "nome": {
+                    "description": "Nome do produto",
+                    "type": "string"
+                  },
+                  "preco": {
+                    "description": "Preço do produto",
+                    "type": "number",
+                    "format": "float"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Produto criado com sucesso"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/produtos/deletados": {
+      "get": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Listar todos os produtos deletados",
+        "operationId": "3e7dfb3c6e6bda2cc43f785411a67147",
+        "responses": {
+          "200": {
+            "description": "Lista de produtos deletados"
+          }
+        }
+      }
+    },
+    "/produtos-mesa/{id}": {
+      "get": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Obter detalhes dos produtos de uma mesa",
+        "operationId": "82c688c1b209aa105262f0f2bd7e9248",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes dos produtos da mesa"
+          },
+          "404": {
+            "description": "Mesa não encontrada"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Atualizar a quantidade de um produto em uma mesa",
+        "operationId": "55c930aa849ec43a9516a3cf8bb5cf16",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "quantidade"
+                ],
+                "properties": {
+                  "quantidade": {
+                    "description": "Quantidade do produto",
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Quantidade do produto atualizada com sucesso"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "404": {
+            "description": "Produto não encontrado na mesa"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Remover um produto de uma mesa",
+        "operationId": "75f261155eb3c6311288dc7601d11c6f",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Produto removido da mesa com sucesso"
+          },
+          "404": {
+            "description": "Produto não encontrado na mesa"
+          }
+        }
+      }
+    },
+    "/produtos-mesa": {
+      "get": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Listar todos os produtos de todas as mesas",
+        "operationId": "6d360e7c9beb721d002df04200876822",
+        "responses": {
+          "200": {
+            "description": "Lista de produtos de todas as mesas"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Adicionar um produto a uma mesa",
+        "operationId": "87574546005aadd6eba16fae200289c9",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "id_mesa",
+                  "id_prod",
+                  "quantidade"
+                ],
+                "properties": {
+                  "id_mesa": {
+                    "description": "ID da mesa",
+                    "type": "integer"
+                  },
+                  "id_prod": {
+                    "description": "ID do produto",
+                    "type": "integer"
+                  },
+                  "quantidade": {
+                    "description": "Quantidade do produto",
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Produto adicionado à mesa com sucesso"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/produtos-mesa/deletados": {
+      "get": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Listar todos os produtos removidos das mesas",
+        "operationId": "a75ca2df642b61d2c3da74658e299c60",
+        "responses": {
+          "200": {
+            "description": "Lista de produtos removidos das mesas"
+          }
+        }
+      }
+    },
+    "/usuario-mesa/{id_usuario}": {
+      "get": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Obter todas as mesas associadas a um usuário",
+        "operationId": "d6ae88a404f79e17febf0f04e0ea4e96",
+        "parameters": [
+          {
+            "name": "id_usuario",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de mesas associadas ao usuário"
+          },
+          "404": {
+            "description": "Nenhuma associação encontrada para o usuário"
+          }
+        }
+      }
+    },
+    "/usuario-mesa/exist": {
+      "get": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Verificar se uma associação entre usuário e mesa existe",
+        "operationId": "e7ba5129238a063390424755b559bbac",
+        "responses": {
+          "200": {
+            "description": "Associação encontrada"
+          },
+          "404": {
+            "description": "Associação não encontrada"
+          }
+        }
+      }
+    },
+    "/mesas/exist": {
+      "get": {
+        "tags": [
+          "Mesas"
+        ],
+        "summary": "Verificar se uma mesa existe",
+        "operationId": "7ec7adec24fe2f4ae805762c8eb071ee",
+        "responses": {
+          "200": {
+            "description": "Mesa encontrada"
+          },
+          "404": {
+            "description": "Mesa não encontrada"
+          }
+        }
+      }
+    },
+    "/produtos/exist": {
+      "get": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Verificar se um produto existe",
+        "operationId": "d2b38874eb704c0dcb43a156d916e8c7",
+        "responses": {
+          "200": {
+            "description": "Produto encontrado"
+          },
+          "404": {
+            "description": "Produto não encontrado"
+          }
+        }
+      }
+    },
+    "/produtos-mesa/mesa/{id_mesa}": {
+      "get": {
+        "tags": [
+          "Associações"
+        ],
+        "summary": "Obter todos os produtos associados a uma mesa",
+        "operationId": "3ab12716710dc184deda153fd8284399",
+        "parameters": [
+          {
+            "name": "id_mesa",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de produtos associados a uma mesa"
+          }
+        }
+      }
     }
+  },
+  "components": {
+    "schemas": {
+      "usuario": {
+        "title": "usuario",
+        "description": "Modelo de usuário",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "ID do usuário",
+            "type": "integer",
+            "example": 1
+          },
+          "nome": {
+            "description": "Nome do usuário",
+            "type": "string",
+            "example": "Carlos Silva"
+          },
+          "username": {
+            "description": "Username do usuário",
+            "type": "string",
+            "example": "carlos.silva"
+          },
+          "senha": {
+            "description": "Senha do usuário",
+            "type": "string",
+            "example": "senha123"
+          },
+          "deletado": {
+            "description": "Indica se o usuário está deletado",
+            "type": "boolean",
+            "example": false
+          },
+          "data_deletado": {
+            "description": "Data em que o usuário foi deletado",
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T10:00:00Z"
+          }
+        }
+      },
+      "usuarioMesa": {
+        "title": "usuarioMesa",
+        "description": "Modelo de associação entre usuário e Mesa",
+        "type": "object",
+        "properties": {
+          "id_usuario": {
+            "description": "ID do usuário associado",
+            "type": "integer",
+            "example": 1
+          },
+          "id_mesa": {
+            "description": "ID da mesa associada",
+            "type": "integer",
+            "example": 5
+          }
+        }
+      },
+      "Mesa": {
+        "title": "Mesa",
+        "description": "Modelo de mesa",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "ID da mesa",
+            "type": "integer",
+            "example": 1
+          },
+          "numero": {
+            "description": "Número da mesa",
+            "type": "string",
+            "example": "A12"
+          },
+          "deletado": {
+            "description": "Indica se a mesa está deletada",
+            "type": "boolean",
+            "example": false
+          },
+          "data_deletado": {
+            "description": "Data em que a mesa foi deletada",
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T10:00:00Z"
+          }
+        }
+      },
+      "Pagamento": {
+        "title": "Pagamento",
+        "description": "Modelo de pagamento",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "ID do pagamento",
+            "type": "integer",
+            "example": 1
+          },
+          "metodo": {
+            "description": "Método de pagamento",
+            "type": "string",
+            "enum": [
+              "DEBITO",
+              "CREDITO",
+              "PIX"
+            ],
+            "example": "PIX"
+          },
+          "valor": {
+            "description": "Valor do pagamento",
+            "type": "number",
+            "format": "float",
+            "example": 123.45
+          },
+          "data": {
+            "description": "Data do pagamento",
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T10:00:00Z"
+          },
+          "id_mesa": {
+            "description": "ID da mesa associada ao pagamento",
+            "type": "integer",
+            "example": 2
+          },
+          "deletado": {
+            "description": "Indica se o pagamento está deletado",
+            "type": "boolean",
+            "example": false
+          },
+          "data_deletado": {
+            "description": "Data em que o pagamento foi deletado",
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T10:00:00Z"
+          }
+        }
+      },
+      "Produto": {
+        "title": "Produto",
+        "description": "Modelo de produto",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "ID do produto",
+            "type": "integer",
+            "example": 1
+          },
+          "nome": {
+            "description": "Nome do produto",
+            "type": "string",
+            "example": "Carbonara"
+          },
+          "preco": {
+            "description": "Preço do produto",
+            "type": "number",
+            "format": "float",
+            "example": 45.90
+          },
+          "deletado": {
+            "description": "Indica se o produto está deletado",
+            "type": "boolean",
+            "example": false
+          },
+          "data_deletado": {
+            "description": "Data em que o produto foi deletado",
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T10:00:00Z"
+          }
+        }
+      },
+      "ProdutosMesa": {
+        "title": "ProdutosMesa",
+        "description": "Modelo de produtos associados a uma mesa",
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "ID da associação produto-mesa",
+            "type": "integer",
+            "example": 10
+          },
+          "id_mesa": {
+            "description": "ID da mesa",
+            "type": "integer",
+            "example": 3
+          },
+          "id_prod": {
+            "description": "ID do produto",
+            "type": "integer",
+            "example": 1
+          },
+          "quantidade": {
+            "description": "Quantidade do produto",
+            "type": "integer",
+            "example": 2
+          }
+        }
+      }
+    }
+  }
 }
