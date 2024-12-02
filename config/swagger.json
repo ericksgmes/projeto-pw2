@@ -13,8 +13,8 @@
     ],
     "tags": [
         {
-            "name": "Funcionários",
-            "description": "Endpoints relacionados à gestão de funcionários"
+            "name": "Usuários",
+            "description": "Endpoints relacionados à gestão de usuários"
         },
         {
             "name": "Mesas",
@@ -34,11 +34,96 @@
         }
     ],
     "paths": {
-        "/funcionarios/{id}": {
+            "/auth": {
+              "post": {
+                "tags": ["Autenticação"],
+                "summary": "Autenticar um usuário",
+                "operationId": "autenticarUsuario",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "required": ["username", "senha"],
+                        "properties": {
+                          "username": {
+                            "type": "string",
+                            "description": "Username do usuário para autenticação",
+                            "example": "usuario.exemplo"
+                          },
+                          "senha": {
+                            "type": "string",
+                            "description": "Senha do usuário para autenticação",
+                            "example": "senha123"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "Autenticação bem-sucedida, retorna um token de acesso",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "token": {
+                              "type": "string",
+                              "description": "Token de acesso JWT gerado para o usuário",
+                              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "400": {
+                    "description": "Dados inválidos ou ausentes",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "message": {
+                              "type": "string",
+                              "description": "Mensagem de erro detalhando o problema",
+                              "example": "Username e senha são obrigatórios"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "401": {
+                    "description": "Falha na autenticação devido a credenciais inválidas",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "message": {
+                              "type": "string",
+                              "description": "Mensagem de erro indicando credenciais inválidas",
+                              "example": "Username ou senha incorretos"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ,
+          
+        "/usuarios/{id}": {
             "get": {
-                "tags": ["Funcionários"],
-                "summary": "Obter detalhes de um funcionário",
-                "operationId": "obterFuncionarioPorId",
+                "tags": ["Usuários"],
+                "summary": "Obter detalhes de um usuário",
+                "operationId": "obterusuarioPorId",
                 "parameters": [
                     {
                         "name": "id",
@@ -51,17 +136,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalhes do funcionário"
+                        "description": "Detalhes do usuário"
                     },
                     "404": {
-                        "description": "Funcionário não encontrado"
+                        "description": "usuário não encontrado"
                     }
                 }
             },
             "put": {
-                "tags": ["Funcionários"],
-                "summary": "Atualizar um funcionário",
-                "operationId": "atualizarFuncionario",
+                "tags": ["Usuários"],
+                "summary": "Atualizar um usuário",
+                "operationId": "atualizarusuario",
                 "parameters": [
                     {
                         "name": "id",
@@ -96,13 +181,13 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Funcionário atualizado com sucesso"
+                        "description": "usuário atualizado com sucesso"
                     },
                     "400": {
                         "description": "Dados inválidos"
                     },
                     "404": {
-                        "description": "Funcionário não encontrado"
+                        "description": "usuáriosário não encontrado"
                     },
                     "409": {
                         "description": "Username já existente"
@@ -110,9 +195,9 @@
                 }
             },
             "delete": {
-                "tags": ["Funcionários"],
-                "summary": "Deletar um funcionário",
-                "operationId": "deletarFuncionario",
+                "tags": ["Usuários"],
+                "summary": "Deletar um usuário",
+                "operationId": "deletarUsuário",
                 "parameters": [
                     {
                         "name": "id",
@@ -125,29 +210,29 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Funcionário deletado com sucesso"
+                        "description": "usuário deletado com sucesso"
                     },
                     "404": {
-                        "description": "Funcionário não encontrado"
+                        "description": "usuário não encontrado"
                     }
                 }
             }
         },
-        "/funcionarios": {
+        "/usuarios": {
             "get": {
-                "tags": ["Funcionários"],
-                "summary": "Listar todos os funcionários",
-                "operationId": "listarFuncionarios",
+                "tags": ["Usuários"],
+                "summary": "Listar todos os usuários",
+                "operationId": "listarusuarios",
                 "responses": {
                     "200": {
-                        "description": "Lista de funcionários"
+                        "description": "Lista de usuários"
                     }
                 }
             },
             "post": {
-                "tags": ["Funcionários"],
-                "summary": "Criar um novo funcionário",
-                "operationId": "criarFuncionario",
+                "tags": ["Usuários"],
+                "summary": "Criar um novo usuário",
+                "operationId": "criarusuario",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -176,7 +261,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Funcionário criado com sucesso"
+                        "description": "usuário criado com sucesso"
                     },
                     "400": {
                         "description": "Dados inválidos"
@@ -187,11 +272,11 @@
                 }
             }
         },
-        "/funcionarios/{id}/senha": {
+        "/usuarios/{id}/senha": {
             "put": {
-                "tags": ["Funcionários"],
-                "summary": "Atualizar a senha de um funcionário",
-                "operationId": "atualizarSenhaFuncionario",
+                "tags": ["Usuários"],
+                "summary": "Atualizar a senha de um usuário",
+                "operationId": "atualizarSenhausuario",
                 "parameters": [
                     {
                         "name": "id",
@@ -228,16 +313,16 @@
                         "description": "Dados inválidos"
                     },
                     "404": {
-                        "description": "Funcionário não encontrado"
+                        "description": "usuário não encontrado"
                     }
                 }
             }
         },
-        "/funcionarios/{id}/nome": {
+        "/usuarios/{id}/nome": {
             "put": {
-                "tags": ["Funcionários"],
-                "summary": "Atualizar o nome de um funcionário",
-                "operationId": "atualizarNomeFuncionario",
+                "tags": ["Usuários"],
+                "summary": "Atualizar o nome de um usuário",
+                "operationId": "atualizarNomeusuario",
                 "parameters": [
                     {
                         "name": "id",
@@ -272,19 +357,19 @@
                         "description": "Nome inválido"
                     },
                     "404": {
-                        "description": "Funcionário não encontrado"
+                        "description": "usuário não encontrado"
                     }
                 }
             }
         },
-        "/funcionario-mesa/{funcionarioId}": {
+        "/usuario-mesa/{usuarioId}": {
             "get": {
                 "tags": ["Associações"],
-                "summary": "Listar todas as mesas associadas a um funcionário",
+                "summary": "Listar todas as mesas associadas a um usuário",
                 "operationId": "994760dae725a720efb55faa4e758364",
                 "parameters": [
                     {
-                        "name": "funcionarioId",
+                        "name": "usuarioId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -294,28 +379,28 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Lista de mesas associadas ao funcionário"
+                        "description": "Lista de mesas associadas ao usuário"
                     },
                     "404": {
-                        "description": "Funcionário não encontrado"
+                        "description": "usuário não encontrado"
                     }
                 }
             }
         },
-        "/funcionario-mesa": {
+        "/usuario-mesa": {
             "get": {
                 "tags": ["Associações"],
-                "summary": "Listar todas as associações entre funcionários e mesas",
+                "summary": "Listar todas as associações entre usuários e mesas",
                 "operationId": "3920513539b2b72b88f41072320128c6",
                 "responses": {
                     "200": {
-                        "description": "Lista de associações entre funcionários e mesas"
+                        "description": "Lista de associações entre usuários e mesas"
                     }
                 }
             },
             "post": {
                 "tags": ["Associações"],
-                "summary": "Criar uma nova associação entre funcionário e mesa",
+                "summary": "Criar uma nova associação entre usuário e mesa",
                 "operationId": "4e56d5f032bf6bb9f3e5cfeabf9b0024",
                 "requestBody": {
                     "required": true,
@@ -323,12 +408,12 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "id_funcionario",
+                                    "id_usuario",
                                     "id_mesa"
                                 ],
                                 "properties": {
-                                    "id_funcionario": {
-                                        "description": "ID do funcionário",
+                                    "id_usuario": {
+                                        "description": "ID do usuário",
                                         "type": "integer"
                                     },
                                     "id_mesa": {
@@ -355,7 +440,7 @@
             },
             "delete": {
                 "tags": ["Associações"],
-                "summary": "Desassociar um funcionário de uma mesa",
+                "summary": "Desassociar um usuário de uma mesa",
                 "operationId": "a8e9877158f7ddb4ea46d6732f5f5ac2",
                 "responses": {
                     "200": {
@@ -367,16 +452,16 @@
                 }
             }
         },
-        "/funcionario-mesa/{funcionarioId}/{mesaId}": {
+        "/usuario-mesa/{usuarioId}/{mesaId}": {
             "delete": {
                 "tags": ["Associações"],
-                "summary": "Desassociar um funcionário de uma mesa",
+                "summary": "Desassociar um usuário de uma mesa",
                 "operationId": "a8e9877158f7ddb4ea46d6732f5f5ac22",
                 "parameters": [
                     {
-                        "name": "funcionarioId",
+                        "name": "usuarioId",
                         "in": "path",
-                        "description": "ID do funcionário a ser desassociado",
+                        "description": "ID do usuário a ser desassociado",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -1087,14 +1172,14 @@
                 }
             }
         },
-        "/funcionario-mesa/{id_funcionario}": {
+        "/usuario-mesa/{id_usuario}": {
             "get": {
                 "tags": ["Associações"],
-                "summary": "Obter todas as mesas associadas a um funcionário",
+                "summary": "Obter todas as mesas associadas a um usuário",
                 "operationId": "d6ae88a404f79e17febf0f04e0ea4e96",
                 "parameters": [
                     {
-                        "name": "id_funcionario",
+                        "name": "id_usuario",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -1104,18 +1189,18 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Lista de mesas associadas ao funcionário"
+                        "description": "Lista de mesas associadas ao usuário"
                     },
                     "404": {
-                        "description": "Nenhuma associação encontrada para o funcionário"
+                        "description": "Nenhuma associação encontrada para o usuário"
                     }
                 }
             }
         },
-        "/funcionario-mesa/exist": {
+        "/usuario-mesa/exist": {
             "get": {
                 "tags": ["Associações"],
-                "summary": "Verificar se uma associação entre funcionário e mesa existe",
+                "summary": "Verificar se uma associação entre usuário e mesa existe",
                 "operationId": "e7ba5129238a063390424755b559bbac",
                 "responses": {
                     "200": {
@@ -1182,51 +1267,51 @@
     },
     "components": {
         "schemas": {
-            "Funcionario": {
-                "title": "Funcionario",
-                "description": "Modelo de funcionário",
+            "usuario": {
+                "title": "usuario",
+                "description": "Modelo de usuário",
                 "type": "object",
                 "properties": {
                     "id": {
-                        "description": "ID do funcionário",
+                        "description": "ID do usuário",
                         "type": "integer",
                         "example": 1
                     },
                     "nome": {
-                        "description": "Nome do funcionário",
+                        "description": "Nome do usuário",
                         "type": "string",
                         "example": "Carlos Silva"
                     },
                     "username": {
-                        "description": "Username do funcionário",
+                        "description": "Username do usuário",
                         "type": "string",
                         "example": "carlos.silva"
                     },
                     "senha": {
-                        "description": "Senha do funcionário",
+                        "description": "Senha do usuário",
                         "type": "string",
                         "example": "senha123"
                     },
                     "deletado": {
-                        "description": "Indica se o funcionário está deletado",
+                        "description": "Indica se o usuário está deletado",
                         "type": "boolean",
                         "example": false
                     },
                     "data_deletado": {
-                        "description": "Data em que o funcionário foi deletado",
+                        "description": "Data em que o usuário foi deletado",
                         "type": "string",
                         "format": "date-time",
                         "example": "2024-01-01T10:00:00Z"
                     }
                 }
             },
-            "FuncionarioMesa": {
-                "title": "FuncionarioMesa",
-                "description": "Modelo de associação entre Funcionário e Mesa",
+            "usuarioMesa": {
+                "title": "usuarioMesa",
+                "description": "Modelo de associação entre usuário e Mesa",
                 "type": "object",
                 "properties": {
-                    "id_funcionario": {
-                        "description": "ID do funcionário associado",
+                    "id_usuario": {
+                        "description": "ID do usuário associado",
                         "type": "integer",
                         "example": 1
                     },
