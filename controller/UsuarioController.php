@@ -2,23 +2,34 @@
 
 require_once __DIR__ . '/../model/Usuario.php';
 require_once __DIR__ . '/../config/utils.php';
+require_once __DIR__ . '/../config/AuthService.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Firebase\JWT\ExpiredException;
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
-
 class UsuarioController {
-    private static $jwtSecret;
-    private static $jwtAlgorithm;
+    private $authService;
 
     public function __construct() {
-        self::$jwtSecret = $_ENV['JWT_SECRET'];
-        self::$jwtAlgorithm = $_ENV['JWT_ALGORITHM'];
+        $this->authService = new AuthService($_ENV['JWT_SECRET'], $_ENV['JWT_ALGORITHM']);
+    }
+
+    private function autenticarRequisicao() {
+        try {
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            return $this->authService->verificarToken($authHeader);
+        } catch (Exception $e) {
+            jsonResponse(401, ["status" => "error", "message" => $e->getMessage()]);
+            exit;
+        }
     }
 
     public function handleRequest(string $method, int $id = null, string $action = null, array $data = null): void {
         try {
+            $decodedToken = $this->autenticarRequisicao();
+
+            if ($method === 'GET' && !$decodedToken['is_admin']) {
+                throw new Exception("Acesso negado: apenas administradores podem listar usuários.", 403);
+            }
+
             switch (strtoupper($method)) {
                 case 'GET':
                     if ($id) {
@@ -157,14 +168,8 @@ class UsuarioController {
                 throw new Exception("Username ou senha incorretos.", 401);
             }
 
-            $token = JWT::encode([
-                "id" => $usuario["id"],
-                "username" => $usuario["username"],
-                "nome" => $usuario["nome"],
-                "is_admin" => $usuario["is_admin"],
-                "iat" => time(),
-                "exp" => time() + 3600
-            ], self::$jwtSecret, self::$jwtAlgorithm);
+            // Gera o token usando o AuthService
+            $token = $this->authService->gerarToken($usuario);
 
             jsonResponse(200, [
                 "status" => "success",
@@ -184,28 +189,6 @@ class UsuarioController {
         }
     }
 
-    private function autenticarRequisicao() {
-        try {
-            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-            if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
-                throw new Exception("Token não fornecido ou inválido.", 401);
-            }
-
-            $this->autenticarJWT($matches[1]);
-        } catch (Exception $e) {
-            jsonResponse(401, ["status" => "error", "message" => $e->getMessage()]);
-        }
-    }
-
-    public function autenticarJWT($token): array {
-        try {
-            return (array) JWT::decode($token, new Key(self::$jwtSecret, self::$jwtAlgorithm));
-        } catch (ExpiredException $e) {
-            throw new Exception("Token expirado. Faça login novamente.", 401);
-        } catch (Exception $e) {
-            throw new Exception("Token inválido.", 401);
-        }
-    }
 
     public function atualizacaoParcial($id, $data): void {
         $this->autenticarRequisicao();

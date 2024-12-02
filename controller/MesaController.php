@@ -1,173 +1,158 @@
 <?php
 
 require_once __DIR__ . '/../model/Mesa.php';
-require_once __DIR__ . '/../config/utils.php';
+require_once __DIR__ . '/../config/AuthService.php';
 
 class MesaController {
-    /**
-     * @OA\Get(
-     *     path="/mesas/{id}",
-     *     summary="Obter detalhes de uma mesa",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response="200", description="Detalhes da mesa"),
-     *     @OA\Response(response="404", description="Mesa não encontrada")
-     * )
-     * @OA\Get(
-     *     path="/mesas",
-     *     summary="Listar todas as mesas",
-     *     @OA\Response(response="200", description="Lista de mesas")
-     * )
-     */
+    private $authService;
+
+    public function __construct() {
+        $this->authService = new AuthService($_ENV['JWT_SECRET'], $_ENV['JWT_ALGORITHM']);
+    }
+
+    private function autenticarRequisicao(): array {
+        try {
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            return $this->authService->verificarToken($authHeader);
+        } catch (Exception $e) {
+            jsonResponse(401, ["status" => "error", "message" => $e->getMessage()]);
+            exit;
+        }
+    }
+
     public function listar($id = null): void {
-        if ($id) {
-            $mesa = Mesa::getById($id);
-            jsonResponse(200, ["status" => "success", "data" => $mesa]);
-        } else {
-            $mesas = Mesa::listar();
-            jsonResponse(200, ["status" => "success", "data" => $mesas]);
+        $decodedToken = $this->autenticarRequisicao();
+
+        try {
+            if ($id) {
+                $mesa = Mesa::getById($id);
+                if (!$mesa) {
+                    jsonResponse(404, ["status" => "error", "message" => "Mesa não encontrada"]);
+                    return;
+                }
+                jsonResponse(200, ["status" => "success", "data" => $mesa]);
+            } else {
+                $mesas = Mesa::listar();
+                jsonResponse(200, ["status" => "success", "data" => $mesas]);
+            }
+        } catch (Exception $e) {
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
 
-    /**
-     * @OA\Get(
-     *     path="/mesas/deletadas",
-     *     summary="Listar todas as mesas deletadas",
-     *     @OA\Response(response="200", description="Lista de mesas deletadas")
-     * )
-     */
     public function listarDeletadas(): void {
-        $mesas = Mesa::listarDeletadas();
-        jsonResponse(200, ["status" => "success", "data" => $mesas]);
+        $decodedToken = $this->autenticarRequisicao();
+
+        if (!$decodedToken['is_admin']) {
+            jsonResponse(403, ["status" => "error", "message" => "Acesso negado: apenas administradores podem listar mesas deletadas"]);
+            return;
+        }
+
+        try {
+            $mesas = Mesa::listarDeletadas();
+            jsonResponse(200, ["status" => "success", "data" => $mesas]);
+        } catch (Exception $e) {
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
+        }
     }
 
-    /**
-     * @OA\Post(
-     *     path="/mesas",
-     *     summary="Criar uma nova mesa",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"numero"},
-     *             @OA\Property(property="numero", type="integer", description="Número da mesa")
-     *         )
-     *     ),
-     *     @OA\Response(response="201", description="Mesa criada com sucesso"),
-     *     @OA\Response(response="400", description="Número da mesa não fornecido")
-     * )
-     */
     public function criar($data): void {
+        $decodedToken = $this->autenticarRequisicao();
+
+        if (!$decodedToken['is_admin']) {
+            jsonResponse(403, ["status" => "error", "message" => "Acesso negado: apenas administradores podem criar mesas"]);
+            return;
+        }
+
         if (!valid($data, ["numero"])) {
             jsonResponse(400, ["status" => "error", "message" => "Número da mesa não fornecido"]);
             return;
         }
 
-        // Verificar se já existe uma mesa com o mesmo número que não esteja deletada
-        $mesaExistente = Mesa::existsByNumber($data["numero"]);
-        if ($mesaExistente && $mesaExistente["deletado"] == 0) {
-            jsonResponse(409, ["status" => "error", "message" => "Uma mesa com este número já existe"]);
-            return;
-        }
+        try {
+            $mesaExistente = Mesa::existsByNumber($data["numero"]);
+            if ($mesaExistente && $mesaExistente["deletado"] == 0) {
+                jsonResponse(409, ["status" => "error", "message" => "Uma mesa com este número já existe"]);
+                return;
+            }
 
-        $insertedId = Mesa::criar($data["numero"]);
-        jsonResponse(201, ["status" => "success", "data" => ["id" => $insertedId]]);
+            $insertedId = Mesa::criar($data["numero"]);
+            jsonResponse(201, ["status" => "success", "data" => ["id" => $insertedId]]);
+        } catch (Exception $e) {
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
+        }
     }
 
-    /**
-     * @OA\Put(
-     *     path="/mesas/{id}",
-     *     summary="Atualizar uma mesa",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"numero"},
-     *             @OA\Property(property="numero", type="integer", description="Número da mesa")
-     *         )
-     *     ),
-     *     @OA\Response(response="200", description="Mesa atualizada com sucesso"),
-     *     @OA\Response(response="400", description="Número da mesa não fornecido"),
-     *     @OA\Response(response="404", description="Mesa não encontrada")
-     * )
-     */
     public function atualizar($id, $data): void {
+        $decodedToken = $this->autenticarRequisicao();
+
+        if (!$decodedToken['is_admin']) {
+            jsonResponse(403, ["status" => "error", "message" => "Acesso negado: apenas administradores podem atualizar mesas"]);
+            return;
+        }
+
         if (!valid($data, ["numero"])) {
             jsonResponse(400, ["status" => "error", "message" => "Número da mesa não fornecido"]);
             return;
         }
 
-        // Verificar se já existe uma mesa com o mesmo número que não esteja deletada e não seja a própria mesa
-        $mesaExistente = Mesa::existsByNumber($data["numero"]);
-        if ($mesaExistente && $mesaExistente["id"] != $id && $mesaExistente["deletado"] == 0) {
-            jsonResponse(409, ["status" => "error", "message" => "Uma mesa com este número já existe"]);
+        try {
+            $mesaExistente = Mesa::existsByNumber($data["numero"]);
+            if ($mesaExistente && $mesaExistente["id"] != $id && $mesaExistente["deletado"] == 0) {
+                jsonResponse(409, ["status" => "error", "message" => "Uma mesa com este número já existe"]);
+                return;
+            }
+
+            Mesa::atualizar($id, $data["numero"]);
+            jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
+        } catch (Exception $e) {
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
+        }
+    }
+
+    public function deletar($id): void {
+        $decodedToken = $this->autenticarRequisicao();
+
+        if (!$decodedToken['is_admin']) {
+            jsonResponse(403, ["status" => "error", "message" => "Acesso negado: apenas administradores podem deletar mesas"]);
             return;
         }
 
-        Mesa::atualizar($id, $data["numero"]);
-        jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
-    }
-
-    /**
-     * @OA\Delete(
-     *     path="/mesas/{id}",
-     *     summary="Deletar uma mesa",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response="200", description="Mesa deletada com sucesso"),
-     *     @OA\Response(response="404", description="Mesa não encontrada")
-     * )
-     */
-    public function deletar($id): void {
-        Mesa::deleteById($id);
-        jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
+        try {
+            Mesa::deleteById($id);
+            jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
+        } catch (Exception $e) {
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
+        }
     }
 
     public function handleRequest($method, $id = null, $action = null, $data = null): void {
         try {
-            switch ($method) {
-                case 'GET':
-                    if ($action === 'deletadas') {
-                        $this->listarDeletadas();
-                    } else {
-                        $this->listar($id);
-                    }
-                    break;
-                case 'POST':
-                    $this->criar($data);
-                    break;
-                case 'PUT':
-                    if ($id) {
-                        $this->atualizar($id, $data);
-                    } else {
-                        jsonResponse(400, ["status" => "error", "message" => "ID necessário para atualização"]);
-                    }
-                    break;
-                case 'DELETE':
-                    if ($id) {
-                        $this->deletar($id);
-                    } else {
-                        jsonResponse(400, ["status" => "error", "message" => "ID necessário para exclusão"]);
-                    }
-                    break;
-                default:
-                    jsonResponse(405, ["status" => "error", "message" => "Método não permitido"]);
+            if ($method === 'GET') {
+                if ($action === 'deletadas') {
+                    $this->listarDeletadas();
+                } else {
+                    $this->listar($id);
+                }
+            } elseif ($method === 'POST') {
+                $this->criar($data);
+            } elseif ($method === 'PUT') {
+                if ($id) {
+                    $this->atualizar($id, $data);
+                } else {
+                    jsonResponse(400, ["status" => "error", "message" => "ID necessário para atualização"]);
+                }
+            } elseif ($method === 'DELETE') {
+                if ($id) {
+                    $this->deletar($id);
+                } else {
+                    jsonResponse(400, ["status" => "error", "message" => "ID necessário para exclusão"]);
+                }
+            } else {
+                jsonResponse(405, ["status" => "error", "message" => "Método não permitido"]);
             }
         } catch (Exception $e) {
-            $code = $e->getCode() >= 100 ? $e->getCode() : 500;
-            jsonResponse($code, ["status - MesaController" => "error", "message" => $e->getMessage()]);
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
 }

@@ -1,30 +1,33 @@
 <?php
 require_once __DIR__ . '/../model/Produto.php';
-require_once __DIR__ . '/../config/utils.php';
+require_once __DIR__ . '/../config/AuthService.php';
 
 class ProdutoController {
-    /**
-     * @OA\Get(
-     *     path="/produtos/{id}",
-     *     summary="Obter detalhes de um produto",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response="200", description="Detalhes do produto"),
-     *     @OA\Response(response="404", description="Produto não encontrado")
-     * )
-     * @OA\Get(
-     *     path="/produtos",
-     *     summary="Listar todos os produtos",
-     *     @OA\Response(response="200", description="Lista de produtos")
-     * )
-     */
+    private $authService;
+
+    public function __construct() {
+        $this->authService = new AuthService($_ENV['JWT_SECRET'], $_ENV['JWT_ALGORITHM']);
+    }
+
+    private function autenticarRequisicao(): array {
+        try {
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            return $this->authService->verificarToken($authHeader);
+        } catch (Exception $e) {
+            jsonResponse(401, ["status" => "error", "message" => $e->getMessage()]);
+            exit;
+        }
+    }
+
     public function listar($id = null): void {
+        $this->autenticarRequisicao(); // Garantir que apenas usuários autenticados possam acessar
+
         if ($id) {
             $produto = Produto::getById($id);
+            if (!$produto) {
+                jsonResponse(404, ["status" => "error", "message" => "Produto não encontrado"]);
+                return;
+            }
             jsonResponse(200, ["status" => "success", "data" => $produto]);
         } else {
             $produtos = Produto::listar();
@@ -32,41 +35,29 @@ class ProdutoController {
         }
     }
 
-    /**
-     * @OA\Get(
-     *     path="/produtos/deletados",
-     *     summary="Listar todos os produtos deletados",
-     *     @OA\Response(response="200", description="Lista de produtos deletados")
-     * )
-     */
     public function listarDeletados(): void {
+        $decodedToken = $this->autenticarRequisicao();
+        if (!$decodedToken['is_admin']) {
+            jsonResponse(403, ["status" => "error", "message" => "Acesso negado"]);
+            return;
+        }
+
         $produtos = Produto::listarDeletados();
         jsonResponse(200, ["status" => "success", "data" => $produtos]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/produtos",
-     *     summary="Criar um novo produto",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"nome", "preco"},
-     *             @OA\Property(property="nome", type="string", description="Nome do produto"),
-     *             @OA\Property(property="preco", type="number", format="float", description="Preço do produto")
-     *         )
-     *     ),
-     *     @OA\Response(response="201", description="Produto criado com sucesso"),
-     *     @OA\Response(response="400", description="Dados inválidos")
-     * )
-     */
     public function criar($data): void {
+        $decodedToken = $this->autenticarRequisicao();
+        if (!$decodedToken['is_admin']) {
+            jsonResponse(403, ["status" => "error", "message" => "Acesso negado"]);
+            return;
+        }
+
         if (!valid($data, ["nome", "preco"])) {
             jsonResponse(400, ["status" => "error", "message" => "Nome ou preço não fornecido"]);
             return;
         }
 
-        // Verificar se já existe um produto com o mesmo nome que não esteja deletado
         $produtoExistente = Produto::existsByName($data["nome"]);
         if ($produtoExistente && $produtoExistente["deletado"] == 0) {
             jsonResponse(409, ["status" => "error", "message" => "Um produto com este nome já existe"]);
@@ -77,30 +68,13 @@ class ProdutoController {
         jsonResponse(201, ["status" => "success", "data" => ["id" => $insertedId]]);
     }
 
-    /**
-     * @OA\Put(
-     *     path="/produtos/{id}",
-     *     summary="Atualizar um produto",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"nome", "preco"},
-     *             @OA\Property(property="nome", type="string", description="Nome do produto"),
-     *             @OA\Property(property="preco", type="number", format="float", description="Preço do produto")
-     *         )
-     *     ),
-     *     @OA\Response(response="200", description="Produto atualizado com sucesso"),
-     *     @OA\Response(response="400", description="Dados inválidos"),
-     *     @OA\Response(response="404", description="Produto não encontrado")
-     * )
-     */
     public function atualizar($id, $data): void {
+        $decodedToken = $this->autenticarRequisicao();
+        if (!$decodedToken['is_admin']) {
+            jsonResponse(403, ["status" => "error", "message" => "Acesso negado"]);
+            return;
+        }
+
         if (!valid($data, ["nome", "preco"])) {
             jsonResponse(400, ["status" => "error", "message" => "Nome ou preço não fornecido"]);
             return;
@@ -116,23 +90,35 @@ class ProdutoController {
         jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/produtos/{id}",
-     *     summary="Deletar um produto",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response="200", description="Produto deletado com sucesso"),
-     *     @OA\Response(response="404", description="Produto não encontrado")
-     * )
-     */
     public function deletar($id): void {
+        $decodedToken = $this->autenticarRequisicao();
+        if (!$decodedToken['is_admin']) {
+            jsonResponse(403, ["status" => "error", "message" => "Acesso negado"]);
+            return;
+        }
+
         Produto::deleteById($id);
         jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
+    }
+
+    public function atualizarPreco($id, $data): void {
+        $decodedToken = $this->autenticarRequisicao();
+        if (!$decodedToken['is_admin']) {
+            jsonResponse(403, ["status" => "error", "message" => "Acesso negado"]);
+            return;
+        }
+
+        if (!isset($data['preco']) || !is_numeric($data['preco'])) {
+            jsonResponse(400, ["status" => "error", "message" => "Preço inválido ou não fornecido"]);
+            return;
+        }
+
+        try {
+            Produto::atualizarPreco($id, $data['preco']);
+            jsonResponse(200, ["status" => "success", "message" => "Preço atualizado com sucesso"]);
+        } catch (Exception $e) {
+            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
+        }
     }
 
     public function handleRequest($method, $id = null, $action = null, $data = null): void {
@@ -171,41 +157,4 @@ class ProdutoController {
             jsonResponse($code, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
-
-    /**
-     * @OA\Put(
-     *     path="/produtos/{id}/preco",
-     *     summary="Atualizar apenas o preço de um produto",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"preco"},
-     *             @OA\Property(property="preco", type="number", format="float", description="Novo preço do produto")
-     *         )
-     *     ),
-     *     @OA\Response(response="200", description="Preço do produto atualizado com sucesso"),
-     *     @OA\Response(response="400", description="Preço inválido"),
-     *     @OA\Response(response="404", description="Produto não encontrado")
-     * )
-     */
-    public function atualizarPreco($id, $data): void {
-        if (!isset($data['preco']) || !is_numeric($data['preco'])) {
-            jsonResponse(400, ["status" => "error", "message" => "Preço inválido ou não fornecido"]);
-            return;
-        }
-
-        try {
-            Produto::atualizarPreco($id, $data['preco']);
-            jsonResponse(200, ["status" => "success", "message" => "Preço atualizado com sucesso"]);
-        } catch (Exception $e) {
-            jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
-        }
-    }
-
 }

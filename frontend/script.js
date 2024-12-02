@@ -71,10 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
           await exibirUsuarioLogado();
           mostrarSecao("home");
 
-          // Exibir links restritos se necessário
-          document.querySelectorAll(".restricted").forEach((link) => {
-            link.style.display = "block";
-          });
+          hide();
         } else {
           // Exibir erro retornado pelo backend
           showPopup(result.message || "Erro no login.", "error");
@@ -1680,37 +1677,60 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  function mostrarSecao(sectionId) {
-    // Função para obter o token
+  function hide() {
     const token = localStorage.getItem("token");
 
-    // Se o token não existir ou o usuário não for admin, impede o acesso a seções restritas
     if (token) {
       try {
-        // Decodificando o token para acessar as informações do usuário
-        const decodedToken = jwt_decode(token);  // Supondo que você use a biblioteca 'jwt-decode'
+        const decodedToken = jwt_decode(token);
 
-        // Verificando se o usuário é admin
+        const isAdmin = decodedToken.is_admin;
+
+        const restrictedLinks = document.querySelectorAll("nav .restricted");
+
+        restrictedLinks.forEach(link => {
+          if (!isAdmin) {
+            // Ocultar o link ou redirecionar
+            link.style.display = "none"; // Oculta os itens da navegação
+          }
+        });
+
+        // Verifica se o ID da seção é restrito e redireciona para 403.html
+        const currentSection = window.location.hash.replace("#", "");
+        if (!isAdmin && ["usuarios", "mesas", "produtos", "pagamentos", "produtos-mesa"].includes(currentSection)) {
+          window.location.href = "403.html";
+        }
+      } catch (e) {
+        console.error("Erro ao decodificar o token:", e);
+      }
+    }
+  }
+
+  function mostrarSecao(sectionId) {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        const decodedToken = jwt_decode(token);
+
         const isAdmin = decodedToken.is_admin;
 
         // Verificando se o usuário não é admin e tentando acessar uma seção restrita
-        if (!isAdmin && (sectionId === "usuarios" || sectionId === "produtos" || sectionId === "pagamentos")) {
+        if (!isAdmin && (sectionId === "usuarios" || sectionId === "produtos" || sectionId === "pagamentos" || sectionId === "mesas" || sectionId === "produtos-mesa")) {
           // Redirecionando para a página de 403
           window.location.href = "403.html";  // Supondo que você tenha uma página de erro 403
-          return;  // Impede a exibição da seção
+          return;
         }
       } catch (e) {
         console.error("Erro ao decodificar o token:", e);
       }
     }
 
-    // Exibe a seção desejada
     document.querySelectorAll(".section").forEach((section) => {
       section.classList.remove("active");
     });
     document.getElementById(sectionId).classList.add("active");
 
-    // Chama a função de listagem correspondente
     if (sectionId === "home") {
       listarProdutosHome();
     } else if (sectionId === "usuarios") {
