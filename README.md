@@ -1,158 +1,175 @@
+
 ---
 
 # Restaurante Webservice - PW2 Discipline Project
 
-This repository contains the web application developed for the **Programação para Web 2 (PW2)** discipline. It provides a complete solution for managing a restaurant's functionality, including employee management, orders, tables, and payments, with a fully integrated frontend and backend.
+Este repositório contém a aplicação web desenvolvida para a disciplina **Programação para Web 2 (PW2)**. Ele fornece uma solução completa para gerenciar as funcionalidades de um restaurante, incluindo gerenciamento de funcionários, pedidos, mesas e pagamentos, com um frontend totalmente integrado ao backend.
 
-## 📋 Table of Contents
+## 📋 Índice
 
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [How to Run](#how-to-run)
-- [📖 Accessing Swagger Documentation](#-accessing-swagger-documentation)
-- [🚀 Available Features](#-available-features)
-- [📁 Directory Structure](#-directory-structure)
-- [📝 Notes](#-notes)
-- [🔮 Future Improvements](#-future-improvements)
-- [👥 Authors](#-authors)
-- [📄 License](#-license)
-- [🔗 Additional Resources](#-additional-resources)
+- [Início Rápido](#início-rápido)
+   - [Pré-requisitos](#pré-requisitos)
+   - [Como Rodar](#como-rodar)
+- [📖 Documentação Swagger](#-documentação-swagger)
+- [🚀 Funcionalidades Disponíveis](#-funcionalidades-disponíveis)
+- [📁 Estrutura de Diretórios](#-estrutura-de-diretórios)
+- [📝 Notas](#-notas)
+- [🔮 Melhorias Futuras](#-melhorias-futuras)
+- [👥 Autores](#-autores)
+- [📄 Licença](#-licença)
+- [🔗 Recursos Adicionais](#-recursos-adicionais)
 
 ---
 
-## Getting Started
+## Início Rápido
 
-Follow these instructions to set up and run the project using **XAMPP**.
+Siga estas instruções para configurar e rodar o projeto utilizando **XAMPP** ou outro servidor compatível com PHP.
 
-### Prerequisites
+### Pré-requisitos
 
-- **XAMPP** (for Apache and MySQL servers)
-- **Composer** (for managing PHP dependencies)
-- **Postman** *(optional, for API testing)*
+- **XAMPP** (para servidores Apache e MySQL)
+- **Composer** (para gerenciar dependências PHP)
+- **Postman** *(opcional, para testar a API)*
 
-### How to Run
+### Como Rodar
 
-1. **Clone the Repository:**
+1. **Clone o Repositório:**
 
    ```bash
    git clone https://github.com/ericksgmes/restaurante-webservice
    ```
 
-2. **Install Dependencies:**
+2. **Instale as Dependências:**
 
-   Navigate to the project directory and run:
+   Navegue até o diretório do projeto e execute:
 
    ```bash
    composer install
    ```
 
-3. **Start Servers:**
+3. **Configure o Servidor:**
 
-   - Open **XAMPP**.
-   - Start the **Apache** and **MySQL** servers.
+   - Certifique-se de que o **Apache** e o **MySQL** estão ativos no **XAMPP**.
 
-4. **Create Database:**
+4. **Configure o Banco de Dados:**
 
-   - Open **phpMyAdmin** by navigating to `http://localhost/phpmyadmin`.
-   - Create a new database called **`restaurante`**.
-   - Import the **`init.sql`** file located in the repository to set up the initial schema and data.
+   - Acesse o **phpMyAdmin** pelo navegador em `http://localhost/phpmyadmin`.
+   - Crie um banco de dados chamado **`restaurante`**.
+   - Importe o arquivo **`init.sql`** localizado no repositório para configurar o esquema inicial e os dados.
+   - Também o arquivo **`test_data.sql`** para inicializar com dados de teste. Os dois arquivos sql se encontram na pasta /config
 
-5. **Access the Application:**
+5. **Configure o Arquivo `.env`:**
 
-   - Open your web browser.
-   - Navigate to:
+   Crie um arquivo `.env` na raiz do projeto com as configurações do banco de dados. Exemplo:
+
+   ```env
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=restaurante
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+
+6. **Inicie o Servidor:**
+
+   - Navegue para o diretório do projeto e acesse o frontend:
 
      ```
      http://localhost/restaurante-webservice/frontend
      ```
 
-   - The frontend application is now integrated with the backend and ready to use.
+   - O aplicativo agora estará disponível para uso.
 
-6. **Test Endpoints (Optional):**
+7. **Teste os Endpoints (Opcional):**
 
-   - Open **Postman** or use the Swagger UI.
-   - Use the routes described in the **`swagger.html`** file to test the available endpoints of the webservice.
+   - Use **Postman** ou o Swagger UI para testar os endpoints da API.
+   - Navegue para:
+
+     ```
+     http://localhost/restaurante-webservice/swagger.html
+     ```
 
 ---
 
-## 📖 Accessing Swagger Documentation
+## 📖 Documentação Swagger
 
-The project includes Swagger UI for easy visualization and testing of the API. To access the Swagger documentation:
+O projeto inclui a interface Swagger UI para visualização e teste da API. Para acessá-la:
 
-1. Ensure that the **Apache** server is running in **XAMPP**.
-2. Navigate to:
+1. Certifique-se de que o servidor **Apache** está rodando.
+2. Acesse:
 
    ```
    http://localhost/restaurante-webservice/swagger.html
    ```
 
-3. The Swagger interface provides detailed documentation of all available endpoints and allows you to test them directly from the browser.
+3. Explore os endpoints disponíveis e faça testes diretamente pelo navegador.
 
 ---
 
-## 🚀 Available Features
+## 🚀 Funcionalidades Disponíveis
 
-The application provides functionalities for managing various aspects of the restaurant, such as:
+O aplicativo fornece funcionalidades para gerenciar vários aspectos do restaurante, como:
 
-- **Employees**: Add, update, delete, and retrieve employee information through the frontend interface.
-- **Tables**: Manage table status and assignments.
-- **Orders**: Create and update orders for customers.
-- **Payments**: Handle payment processing for completed orders.
+- **Funcionários**: Adicionar, atualizar, deletar e listar informações de funcionários.
+- **Mesas**: Gerenciar status e associações de mesas.
+- **Pedidos**: Criar e atualizar pedidos de clientes.
+- **Pagamentos**: Processar pagamentos de pedidos concluídos.
 
 ---
 
-## 📁 Directory Structure
+## 📁 Estrutura de Diretórios
 
 ```
-├── .idea/             # IDE configuration files (optional, for local dev)
-├── config/            # Configuration files (database connection, utilities)
-├── controller/        # Controllers for handling requests
-├── frontend/          # Frontend files (fully integrated with backend)
-├── model/             # Database models for different entities
-├── .gitignore         # Git ignore rules
-├── .htaccess          # Apache configuration file
-├── LICENSE            # Project license
-├── README.md          # Project documentation
-├── composer.json      # PHP dependencies file
-├── index.php          # Entry point for the webservice
-└── swagger.html       # Swagger UI to view API endpoints
+├── config/            # Arquivos de configuração (conexão ao banco de dados, utilitários)
+├── controller/        # Controladores que lidam com requisições
+├── frontend/          # Arquivos de frontend (integrados com o backend)
+├── model/             # Modelos do banco de dados para as entidades
+├── .gitignore         # Regras do Git para ignorar arquivos
+├── .htaccess          # Configuração do Apache
+├── LICENSE            # Licença do projeto
+├── README.md          # Documentação do projeto
+├── composer.json      # Arquivo de dependências PHP
+├── index.php          # Ponto de entrada do webservice
+└── swagger.html       # Interface do Swagger para visualizar os endpoints da API
 ```
 
 ---
 
-## 📝 Notes
+## 📝 Notas
 
-- **Frontend Integration**: The frontend is now fully integrated with the backend. Access it via `http://localhost/restaurante-webservice/frontend`.
-- **API Testing**: You can still use tools like **Postman** or the included Swagger UI to interact with the REST API for testing and development purposes.
-
----
-
-## 🔮 Future Improvements
-
-- **Authentication**: Implement user authentication to secure API endpoints.
+- **Integração Frontend-Backend**: O frontend está totalmente integrado ao backend. Para acessá-lo, navegue para `http://localhost/restaurante-webservice/frontend`.
+- **Testes de API**: Você ainda pode usar ferramentas como **Postman** ou a interface Swagger para interagir com a API REST.
 
 ---
 
-## 👥 Authors
+## 🔮 Melhorias Futuras
 
-Developed with ❤️ by:
+- **Autenticação**: Implementar autenticação para proteger os endpoints da API.
+- **Relatórios**: Adicionar funcionalidades para gerar relatórios sobre vendas e pedidos.
+- **Interface Responsiva**: Melhorar a responsividade do frontend.
+
+---
+
+## 👥 Autores
+
+Desenvolvido com ❤️ por:
 
 - [@ericksgmes](https://github.com/ericksgmes)
 - [@leoh3nrique](https://github.com/leoh3nrique)
 
 ---
 
-## 📄 License
+## 📄 Licença
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Este projeto é licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
 ---
 
-## 🔗 Additional Resources
+## 🔗 Recursos Adicionais
 
-- **GitHub Repository**: [restaurante-webservice](https://github.com/ericksgmes/restaurante-webservice)
-- **XAMPP**: [Download XAMPP](https://www.apachefriends.org/index.html)
-- **Composer**: [Download Composer](https://getcomposer.org/download/)
-- **Postman** *(optional)*: [Download Postman](https://www.postman.com/downloads/)
+- **Repositório no GitHub**: [restaurante-webservice](https://github.com/ericksgmes/restaurante-webservice)
+- **XAMPP**: [Baixar XAMPP](https://www.apachefriends.org/index.html)
+- **Composer**: [Baixar Composer](https://getcomposer.org/download/)
+- **Postman** *(opcional)*: [Baixar Postman](https://www.postman.com/downloads/)
 
 ---
