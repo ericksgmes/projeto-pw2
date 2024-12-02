@@ -1226,13 +1226,37 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
+        // Atualiza o carrinho renderizado e o badge
         renderizarCarrinho();
+        atualizarBadgeCarrinho();
 
-        // Exibindo o pop-up de confirmação
+        // Exibe o pop-up de confirmação
         showPopup(
             `O produto <strong>${nomeProduto}</strong> foi adicionado ao carrinho com sucesso!`,
             "success"
         );
+    }
+
+    function atualizarBadgeCarrinho() {
+        const carrinhoBadge = document.getElementById("carrinho-badge");
+
+        if (!carrinhoBadge) {
+            console.error("Elemento do badge do carrinho não encontrado!");
+            return;
+        }
+
+        // Soma as quantidades de itens no carrinho
+        const totalItens = carrinho.reduce((total, item) => total + item.quantidade, 0);
+
+        // Atualiza o texto do badge
+        carrinhoBadge.textContent = totalItens;
+
+        // Exibe ou esconde o badge dependendo do total de itens
+        if (totalItens === 0) {
+            carrinhoBadge.style.visibility = "hidden";
+        } else {
+            carrinhoBadge.style.visibility = "visible";
+        }
     }
 
     async function listarProdutosMesa(numeroMesa) {
