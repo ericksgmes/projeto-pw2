@@ -3,7 +3,8 @@
 <head>
     <title>Swagger UI</title>
     <!-- Importar o CSS do Swagger UI de um link externo -->
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.3/swagger-ui.css">
+    <link rel="stylesheet" type="text/css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.3/swagger-ui.css">
 </head>
 <body>
 <div id="swagger-ui"></div>
@@ -11,7 +12,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.3/swagger-ui-bundle.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.3/swagger-ui-standalone-preset.js"></script>
 <script>
-    window.onload = function() {
+    window.onload = function () {
         const ui = SwaggerUIBundle({
             // URL do arquivo swagger.json ou swagger.yaml no seu servidor
             url: "http://localhost/restaurante-webservice/config/swagger.json",

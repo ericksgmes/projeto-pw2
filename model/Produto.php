@@ -15,7 +15,8 @@ require_once __DIR__ . '/../config/database.php';
  *     @OA\Property(property="data_deletado", type="string", format="date-time", description="Data em que o produto foi deletado")
  * )
  */
-class Produto {
+class Produto
+{
 
     /**
      * @OA\Get(
@@ -24,7 +25,8 @@ class Produto {
      *     @OA\Response(response="200", description="Lista de produtos")
      * )
      */
-    public static function listar(): array {
+    public static function listar(): array
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT * FROM Produto WHERE deletado = 0");
         $sql->execute();
@@ -38,7 +40,8 @@ class Produto {
      *     @OA\Response(response="200", description="Lista de produtos deletados")
      * )
      */
-    public static function listarDeletados(): array {
+    public static function listarDeletados(): array
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT * FROM Produto WHERE deletado = 1");
         $sql->execute();
@@ -61,7 +64,8 @@ class Produto {
      *     @OA\Response(response="409", description="Nome do produto já está em uso")
      * )
      */
-    public static function cadastrar($nome, $preco) {
+    public static function cadastrar($nome, $preco)
+    {
         $connection = Connection::getConnection();
 
         if (self::existsByName($nome)) {
@@ -92,7 +96,8 @@ class Produto {
      *     @OA\Response(response="404", description="Produto não encontrado")
      * )
      */
-    public static function getById($id) {
+    public static function getById($id)
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT * FROM Produto WHERE id = ? AND deletado = 0");
         $sql->execute([$id]);
@@ -128,7 +133,8 @@ class Produto {
      *     @OA\Response(response="409", description="Nome do produto já está em uso por outro produto")
      * )
      */
-    public static function atualizar($id, $nome, $preco) {
+    public static function atualizar($id, $nome, $preco)
+    {
         $connection = Connection::getConnection();
 
         if (!self::exist($id)) {
@@ -165,7 +171,8 @@ class Produto {
      *     @OA\Response(response="404", description="Produto não encontrado")
      * )
      */
-    public static function deleteById($id) {
+    public static function deleteById($id)
+    {
         $connection = Connection::getConnection();
 
         if (!self::exist($id)) {
@@ -196,7 +203,8 @@ class Produto {
      *     @OA\Response(response="404", description="Produto não encontrado")
      * )
      */
-    public static function exist($id): bool {
+    public static function exist($id): bool
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT COUNT(*) FROM Produto WHERE id = ? AND deletado = 0");
         $sql->execute([$id]);
@@ -204,7 +212,8 @@ class Produto {
         return $sql->fetchColumn() > 0;
     }
 
-    public static function existsByName($nome) {
+    public static function existsByName($nome)
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT id FROM Produto WHERE nome = ? AND deletado = 0");
         $sql->execute([$nome]);
@@ -212,7 +221,8 @@ class Produto {
     }
 
 
-    public static function atualizarPreco($id, $preco): void {
+    public static function atualizarPreco($id, $preco): void
+    {
         $connection = Connection::getConnection();
 
         if (!self::exist($id)) {

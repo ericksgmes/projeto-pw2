@@ -46,17 +46,19 @@ require_once __DIR__ . '/../config/database.php';
  *     )
  * )
  */
+class Usuario
+{
 
-class Usuario {
-
-    public static function listar(): array {
+    public static function listar(): array
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT * FROM Usuario WHERE deletado = 0");
         $sql->execute();
         return $sql->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function cadastrar($nome, $username, $senha, $isAdmin = 0) {
+    public static function cadastrar($nome, $username, $senha, $isAdmin = 0)
+    {
         $connection = Connection::getConnection();
 
         if (self::existsByUsername($username)) {
@@ -70,7 +72,8 @@ class Usuario {
         return $connection->lastInsertId();
     }
 
-    public static function getById($id) {
+    public static function getById($id)
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT * FROM Usuario WHERE id = ? AND deletado = 0");
         $sql->execute([$id]);
@@ -83,7 +86,8 @@ class Usuario {
         return $usuario;
     }
 
-    public static function atualizar($id, $nome, $username, $isAdmin) {
+    public static function atualizar($id, $nome, $username, $isAdmin)
+    {
         $connection = Connection::getConnection();
 
         if (!self::exist($id)) {
@@ -100,7 +104,8 @@ class Usuario {
         return $sql->rowCount();
     }
 
-    public static function deleteById($id): int {
+    public static function deleteById($id): int
+    {
         $connection = Connection::getConnection();
 
         if (!self::exist($id)) {
@@ -115,21 +120,24 @@ class Usuario {
         return $sql->rowCount();
     }
 
-    public static function exist($id): bool {
+    public static function exist($id): bool
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT COUNT(*) FROM Usuario WHERE id = ? AND deletado = 0");
         $sql->execute([$id]);
         return $sql->fetchColumn() > 0;
     }
 
-    public static function existsByUsername($username): bool {
+    public static function existsByUsername($username): bool
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT id FROM Usuario WHERE username = ? AND deletado = 0");
         $sql->execute([$username]);
-        return (bool) $sql->fetch();
+        return (bool)$sql->fetch();
     }
 
-    public static function retornaUsuario($username) {
+    public static function retornaUsuario($username)
+    {
         try {
             $connection = Connection::getConnection();
             $sql = $connection->prepare(
@@ -161,7 +169,8 @@ class Usuario {
         }
     }
 
-    public static function atualizarParcial($id, $campos): void {
+    public static function atualizarParcial($id, $campos): void
+    {
         $connection = Connection::getConnection();
 
         // Verifica se o usuário existe

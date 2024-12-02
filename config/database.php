@@ -1,6 +1,7 @@
 <?php
 
-class Connection {
+class Connection
+{
     private static PDO $instance;
 
     private function __construct()
@@ -25,10 +26,11 @@ class Connection {
         }
     }
 
-        public static function getConnection() {
-            if  (!isset(self::$instance)) {
-                new Connection();
-            }
-            return self::$instance;
+    public static function getConnection()
+    {
+        if (!isset(self::$instance)) {
+            new Connection();
         }
+        return self::$instance;
+    }
 }

@@ -14,7 +14,8 @@ require_once __DIR__ . '/../config/database.php';
  *     @OA\Property(property="data_deletado", type="string", format="date-time", description="Data em que a mesa foi deletada")
  * )
  */
-class Mesa {
+class Mesa
+{
 
     /**
      * @OA\Get(
@@ -23,7 +24,8 @@ class Mesa {
      *     @OA\Response(response="200", description="Lista de mesas")
      * )
      */
-    public static function listar(): array {
+    public static function listar(): array
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT * FROM Mesa WHERE deletado = 0");
         $sql->execute();
@@ -37,7 +39,8 @@ class Mesa {
      *     @OA\Response(response="200", description="Lista de mesas deletadas")
      * )
      */
-    public static function listarDeletadas(): array {
+    public static function listarDeletadas(): array
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT * FROM Mesa WHERE deletado = 1");
         $sql->execute();
@@ -59,7 +62,8 @@ class Mesa {
      *     @OA\Response(response="400", description="Número da mesa inválido ou já em uso")
      * )
      */
-    public static function criar($numero) {
+    public static function criar($numero)
+    {
         try {
             error_log("Número recebido: " . json_encode($numero));
             $connection = Connection::getConnection();
@@ -104,7 +108,8 @@ class Mesa {
      *     @OA\Response(response="404", description="Mesa não encontrada")
      * )
      */
-    public static function getById($id) {
+    public static function getById($id)
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT * FROM Mesa WHERE id = ? AND deletado = 0");
         $sql->execute([$id]);
@@ -139,7 +144,8 @@ class Mesa {
      *     @OA\Response(response="404", description="Mesa não encontrada")
      * )
      */
-    public static function atualizar($id, $numero) {
+    public static function atualizar($id, $numero)
+    {
         $connection = Connection::getConnection();
 
         if (!self::exist($id)) {
@@ -178,7 +184,8 @@ class Mesa {
      *     @OA\Response(response="404", description="Mesa não encontrada")
      * )
      */
-    public static function deleteById($id): int {
+    public static function deleteById($id): int
+    {
         $connection = Connection::getConnection();
 
         if (!self::exist($id)) {
@@ -211,7 +218,8 @@ class Mesa {
      *     @OA\Response(response="404", description="Mesa não encontrada")
      * )
      */
-    public static function exist($id): bool {
+    public static function exist($id): bool
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT COUNT(*) FROM Mesa WHERE id = ? AND deletado = 0");
         $sql->execute([$id]);
@@ -219,7 +227,8 @@ class Mesa {
         return $sql->fetchColumn() > 0;
     }
 
-    public static function existsByNumber($numero) {
+    public static function existsByNumber($numero)
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT id FROM Mesa WHERE numero = ? AND deletado = 0");
         $sql->execute([$numero]);

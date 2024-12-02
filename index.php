@@ -7,6 +7,7 @@ require_once __DIR__ . '/controller/PagamentoController.php';
 require_once __DIR__ . '/controller/ProdutoController.php';
 require_once __DIR__ . '/controller/ProdutosMesaController.php';
 require_once __DIR__ . '/config/utils.php';
+require_once __DIR__ . '/config/AuthService.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Dotenv\Dotenv;
@@ -35,6 +36,9 @@ $resource = $uriSegments[0] ?? '';
 $id = $uriSegments[1] ?? null;
 $action = $uriSegments[2] ?? null;
 
+// Instanciar o AuthService
+$authService = new AuthService($jwtSecret, $jwtAlgorithm);
+
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     header("HTTP/1.1 200 OK");
     exit();
@@ -55,16 +59,21 @@ switch ($resource) {
     case 'pagamentos':
     case 'produtos':
     case 'produtos-mesa':
-        verificarToken($jwtSecret, $jwtAlgorithm);
-        $controller = match ($resource) {
-            'usuarios' => new UsuarioController(),
-            'usuario-mesa' => new UsuarioMesaController(),
-            'mesas' => new MesaController(),
-            'pagamentos' => new PagamentoController(),
-            'produtos' => new ProdutoController(),
-            'produtos-mesa' => new ProdutosMesaController(),
-        };
-        $controller->handleRequest($method, $id, $action, $data);
+        try {
+            // Verifica o token usando o AuthService
+            $decodedToken = $authService->verificarToken($_SERVER['HTTP_AUTHORIZATION'] ?? '');
+            $controller = match ($resource) {
+                'usuarios' => new UsuarioController(),
+                'usuario-mesa' => new UsuarioMesaController(),
+                'mesas' => new MesaController(),
+                'pagamentos' => new PagamentoController(),
+                'produtos' => new ProdutoController(),
+                'produtos-mesa' => new ProdutosMesaController(),
+            };
+            $controller->handleRequest($method, $id, $action, $data);
+        } catch (Exception $e) {
+            jsonResponse(401, ["status" => "error", "message" => $e->getMessage()]);
+        }
         break;
 
     default:

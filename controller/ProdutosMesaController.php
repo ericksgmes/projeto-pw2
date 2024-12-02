@@ -1,20 +1,34 @@
 <?php
 
-require_once __DIR__ . '/../model/ProdutosMesa.php';
-require_once __DIR__ . '/../config/utils.php';
+require_once(__DIR__ . '/../model/ProdutosMesa.php');
+require_once(__DIR__ . '/../config/utils.php');
+require_once(__DIR__ . '/../config/AuthService.php');
 
-class ProdutosMesaController {
-    /**
-     * Handle incoming requests for the ProdutosMesa resource.
-     *
-     * @param string $method The HTTP method (GET, POST, PUT, DELETE)
-     * @param int|null $id The ID of the ProdutosMesa (if applicable)
-     * @param string|null $action The action to perform (if applicable)
-     * @param array|null $data The request data (for POST and PUT)
-     */
-    public function handleRequest(string $method, int $id = null, string $action = null, array $data = null): void
+class ProdutosMesaController
+{
+    private $authService;
+
+    public function __construct()
+    {
+        $this->authService = new AuthService($_ENV['JWT_SECRET'], $_ENV['JWT_ALGORITHM']);
+    }
+
+    private function autenticarRequisicao()
     {
         try {
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            return $this->authService->verificarToken($authHeader);
+        } catch (Exception $e) {
+            jsonResponse(401, ["status" => "error", "message" => $e->getMessage()]);
+            exit;
+        }
+    }
+
+    public function handleRequest(string $method, $id = null, string $action = null, array $data = null): void
+    {
+        try {
+            $decodedToken = $this->autenticarRequisicao();
+
             switch (strtoupper($method)) {
                 case 'GET':
                     if ($action === 'deletados') {
@@ -26,12 +40,20 @@ class ProdutosMesaController {
                     }
                     break;
                 case 'POST':
-                    $this->adicionar($data);
+                    $this->adicionarProduto($data);
                     break;
                 case 'PUT':
+                    if (!$decodedToken['is_admin']) {
+                        jsonResponse(403, ["status" => "error", "message" => "Acesso negado"]);
+                        exit;
+                    }
                     $this->atualizar($id, $data);
                     break;
                 case 'DELETE':
+                    if (!$decodedToken['is_admin']) {
+                        jsonResponse(403, ["status" => "error", "message" => "Acesso negado"]);
+                        exit;
+                    }
                     $this->remover($id);
                     break;
                 default:
@@ -42,46 +64,20 @@ class ProdutosMesaController {
         }
     }
 
-    /**
-     * @OA\Get(
-     *     path="/produtos-mesa/{id}",
-     *     summary="Obter detalhes dos produtos de uma mesa",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response="200", description="Detalhes dos produtos da mesa"),
-     *     @OA\Response(response="404", description="Mesa não encontrada")
-     * )
-     * @OA\Get(
-     *     path="/produtos-mesa",
-     *     summary="Listar todos os produtos de todas as mesas",
-     *     @OA\Response(response="200", description="Lista de produtos de todas as mesas")
-     * )
-     */
-    public function listar($id = null): void {
+    // Listar produtos da mesa ou de todas as mesas
+    public function listar($numero_mesa = null): void
+    {
         try {
-            if ($id) {
-                $produtos = ProdutosMesa::getByMesaId($id);
-            } else {
-                $produtos = ProdutosMesa::listar();
-            }
+            $produtos = $numero_mesa ? ProdutosMesa::getByMesaNumero($numero_mesa) : ProdutosMesa::listar();
             jsonResponse(200, ["status" => "success", "data" => $produtos]);
         } catch (Exception $e) {
             jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
 
-    /**
-     * @OA\Get(
-     *     path="/produtos-mesa/deletados",
-     *     summary="Listar todos os produtos removidos das mesas",
-     *     @OA\Response(response="200", description="Lista de produtos removidos das mesas")
-     * )
-     */
-    public function listarDeletadas(): void {
+    // Listar produtos deletados
+    public function listarDeletadas(): void
+    {
         try {
             $produtos = ProdutosMesa::listarDeletadas();
             jsonResponse(200, ["status" => "success", "data" => $produtos]);
@@ -90,64 +86,28 @@ class ProdutosMesaController {
         }
     }
 
-    /**
-     * @OA\Post(
-     *     path="/produtos-mesa",
-     *     summary="Adicionar um produto a uma mesa",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"id_mesa", "id_prod", "quantidade"},
-     *             @OA\Property(property="id_mesa", type="integer", description="ID da mesa"),
-     *             @OA\Property(property="id_prod", type="integer", description="ID do produto"),
-     *             @OA\Property(property="quantidade", type="integer", description="Quantidade do produto")
-     *         )
-     *     ),
-     *     @OA\Response(response="201", description="Produto adicionado à mesa com sucesso"),
-     *     @OA\Response(response="400", description="Dados inválidos")
-     * )
-     */
-    public function adicionar($data): void {
+    // Adicionar produto a uma mesa
+    public function adicionarProduto($data): void
+    {
         try {
-            if (!valid($data, ["id_mesa", "id_prod", "quantidade"])) {
-                jsonResponse(400, ["status" => "error", "message" => "ID da mesa, ID do produto ou quantidade não fornecido"]);
+            $numero_mesa = $data["numero_mesa"];
+            $produtos = $data["produtos"];
+
+            if (empty($produtos)) {
+                jsonResponse(400, ["status" => "error", "message" => "A lista de produtos não pode estar vazia."]);
                 return;
             }
 
-            $id_mesa = $data["id_mesa"];
-            $id_prod = $data["id_prod"];
-            $quantidade = $data["quantidade"];
-
-            $insertedId = ProdutosMesa::adicionarProduto($id_mesa, $id_prod, $quantidade);
-            jsonResponse(201, ["status" => "success", "data" => ["id" => $insertedId]]);
+            ProdutosMesa::adicionar($numero_mesa, $produtos);
+            jsonResponse(201, ["status" => "success", "message" => "Produtos adicionados à mesa com sucesso"]);
         } catch (Exception $e) {
             jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
 
-    /**
-     * @OA\Put(
-     *     path="/produtos-mesa/{id}",
-     *     summary="Atualizar a quantidade de um produto em uma mesa",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"quantidade"},
-     *             @OA\Property(property="quantidade", type="integer", description="Quantidade do produto")
-     *         )
-     *     ),
-     *     @OA\Response(response="200", description="Quantidade do produto atualizada com sucesso"),
-     *     @OA\Response(response="400", description="Dados inválidos"),
-     *     @OA\Response(response="404", description="Produto não encontrado na mesa")
-     * )
-     */
-    public function atualizar($id, $data): void {
+    // Atualizar quantidade de um produto na mesa
+    public function atualizar($id, $data): void
+    {
         try {
             if (!valid($data, ["quantidade"])) {
                 jsonResponse(400, ["status" => "error", "message" => "Quantidade não fornecida"]);
@@ -155,6 +115,17 @@ class ProdutosMesaController {
             }
 
             $quantidade = $data["quantidade"];
+            $produtoMesa = ProdutosMesa::getById($id);
+
+            if (!$produtoMesa) {
+                jsonResponse(404, ["status" => "error", "message" => "Produto não encontrado na mesa"]);
+                return;
+            }
+
+            if ($quantidade <= 0) {
+                jsonResponse(400, ["status" => "error", "message" => "A quantidade deve ser maior que zero"]);
+                return;
+            }
 
             ProdutosMesa::atualizarQuantidade($id, $quantidade);
             jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
@@ -163,22 +134,16 @@ class ProdutosMesaController {
         }
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/produtos-mesa/{id}",
-     *     summary="Remover um produto de uma mesa",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response="200", description="Produto removido da mesa com sucesso"),
-     *     @OA\Response(response="404", description="Produto não encontrado na mesa")
-     * )
-     */
-    public function remover($id): void {
+    // Remover produto de uma mesa
+    public function remover($id): void
+    {
         try {
+            $produtoMesa = ProdutosMesa::getById($id);
+            if (!$produtoMesa) {
+                jsonResponse(404, ["status" => "error", "message" => "Produto não encontrado na mesa"]);
+                return;
+            }
+
             ProdutosMesa::removerProduto($id);
             jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
         } catch (Exception $e) {

@@ -18,9 +18,11 @@ require_once __DIR__ . '/../config/paymentMethodEnum.php';
  *     @OA\Property(property="data_deletado", type="string", format="date-time", description="Data em que o pagamento foi deletado")
  * )
  */
-class Pagamento {
+class Pagamento
+{
 
-    public static function listar(): array {
+    public static function listar(): array
+    {
         try {
             $connection = Connection::getConnection();
             error_log("Listando todos os pagamentos ativos.");
@@ -39,7 +41,8 @@ class Pagamento {
         }
     }
 
-    public static function listarDeletados(): array {
+    public static function listarDeletados(): array
+    {
         try {
             $connection = Connection::getConnection();
             error_log("Listando todos os pagamentos deletados.");
@@ -58,7 +61,8 @@ class Pagamento {
     }
 
 
-    public static function cadastrar(paymentMethodEnum $metodo, $valor, $numero_mesa) {
+    public static function cadastrar(paymentMethodEnum $metodo, $valor, $numero_mesa)
+    {
         try {
             $connection = Connection::getConnection();
             $data = self::dataAtual();
@@ -90,7 +94,8 @@ class Pagamento {
         }
     }
 
-    public static function getById($id) {
+    public static function getById($id)
+    {
         try {
             $connection = Connection::getConnection();
             error_log("Buscando pagamento pelo ID: $id");
@@ -117,7 +122,8 @@ class Pagamento {
         }
     }
 
-    public static function atualizar($id, paymentMethodEnum $metodo, $valor, $numero_mesa) {
+    public static function atualizar($id, paymentMethodEnum $metodo, $valor, $numero_mesa)
+    {
         try {
             $connection = Connection::getConnection();
             $data = self::dataAtual();
@@ -150,7 +156,8 @@ class Pagamento {
     }
 
 
-    public static function deleteById($id) {
+    public static function deleteById($id)
+    {
         try {
             $connection = Connection::getConnection();
             error_log("Iniciando exclusão de pagamento com ID: $id");
@@ -179,7 +186,8 @@ class Pagamento {
         }
     }
 
-    public static function exist($id): bool {
+    public static function exist($id): bool
+    {
         try {
             $connection = Connection::getConnection();
             error_log("Verificando existência do pagamento com ID: $id");
@@ -197,7 +205,8 @@ class Pagamento {
         }
     }
 
-    private static function dataAtual(): string {
+    private static function dataAtual(): string
+    {
         return date('Y-m-d H:i:s');
     }
 }

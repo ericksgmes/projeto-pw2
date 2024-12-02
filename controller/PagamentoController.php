@@ -1,43 +1,78 @@
 <?php
 
 require_once __DIR__ . '/../model/Pagamento.php';
-require_once __DIR__ . '/../config/utils.php';
+require_once __DIR__ . '/../config/AuthService.php';
 require_once __DIR__ . '/../config/paymentMethodEnum.php';
 
-class PagamentoController {
-    public function listar($id = null): void {
+class PagamentoController
+{
+    private $authService;
+
+    public function __construct()
+    {
+        $this->authService = new AuthService($_ENV['JWT_SECRET'], $_ENV['JWT_ALGORITHM']);
+    }
+
+    private function autenticarRequisicao(): array
+    {
+        try {
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            return $this->authService->verificarToken($authHeader);
+        } catch (Exception $e) {
+            jsonResponse(401, ["status" => "error", "message" => $e->getMessage()]);
+            exit;
+        }
+    }
+
+    public function listar($id = null): void
+    {
+        $decodedToken = $this->autenticarRequisicao();
+
+        // Somente usuários autenticados podem listar pagamentos
         try {
             if ($id) {
-                error_log("Listando pagamento com ID: $id");
                 $pagamento = Pagamento::getById($id);
+                if (!$pagamento) {
+                    jsonResponse(404, ["status" => "error", "message" => "Pagamento não encontrado"]);
+                    return;
+                }
                 jsonResponse(200, ["status" => "success", "data" => $pagamento]);
             } else {
-                error_log("Listando todos os pagamentos");
                 $pagamentos = Pagamento::listar();
                 jsonResponse(200, ["status" => "success", "data" => $pagamentos]);
             }
         } catch (Exception $e) {
-            error_log("Erro ao listar pagamentos: " . $e->getMessage());
             jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
 
-    public function listarDeletados(): void {
+    public function listarDeletados(): void
+    {
+        $decodedToken = $this->autenticarRequisicao();
+
+        if (!$decodedToken['is_admin']) {
+            jsonResponse(403, ["status" => "error", "message" => "Acesso negado: apenas administradores podem listar pagamentos deletados"]);
+            return;
+        }
+
         try {
-            error_log("Listando pagamentos deletados");
             $pagamentos = Pagamento::listarDeletados();
             jsonResponse(200, ["status" => "success", "data" => $pagamentos]);
         } catch (Exception $e) {
-            error_log("Erro ao listar pagamentos deletados: " . $e->getMessage());
             jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
 
-    public function criar($data): void {
-        error_log("Iniciando criação de pagamento com dados: " . json_encode($data));
+    public function criar($data): void
+    {
+        $decodedToken = $this->autenticarRequisicao();
+
+        if (!$decodedToken['is_admin']) {
+            jsonResponse(403, ["status" => "error", "message" => "Acesso negado: apenas administradores podem criar pagamentos"]);
+            return;
+        }
 
         if (!valid($data, ["metodo", "valor", "numero"])) {
-            error_log("Dados inválidos fornecidos para criação de pagamento.");
             jsonResponse(400, ["status" => "error", "message" => "Método de pagamento, valor ou número da mesa não fornecido"]);
             return;
         }
@@ -47,23 +82,23 @@ class PagamentoController {
             $metodo = paymentMethodEnum::from($data["metodo"]);
             $valor = $data["valor"];
 
-            error_log("Dados validados. Método: {$metodo->value}, Valor: $valor, Número Mesa: $numero_mesa");
-
-            // Criar pagamento diretamente
             $insertedId = Pagamento::cadastrar($metodo, $valor, $numero_mesa);
-            error_log("Pagamento criado com sucesso. ID: $insertedId");
             jsonResponse(201, ["status" => "success", "data" => ["id" => $insertedId]]);
         } catch (Exception $e) {
-            error_log("Erro ao criar pagamento: " . $e->getMessage());
             jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
 
-    public function atualizar($id, $data): void {
-        error_log("Iniciando atualização de pagamento com ID: $id e dados: " . json_encode($data));
+    public function atualizar($id, $data): void
+    {
+        $decodedToken = $this->autenticarRequisicao();
+
+        if (!$decodedToken['is_admin']) {
+            jsonResponse(403, ["status" => "error", "message" => "Acesso negado: apenas administradores podem atualizar pagamentos"]);
+            return;
+        }
 
         if (!valid($data, ["metodo", "valor", "numero"])) {
-            error_log("Dados inválidos fornecidos para atualização de pagamento.");
             jsonResponse(400, ["status" => "error", "message" => "Método de pagamento, valor ou número da mesa não fornecido"]);
             return;
         }
@@ -73,33 +108,32 @@ class PagamentoController {
             $metodo = paymentMethodEnum::from($data["metodo"]);
             $valor = $data["valor"];
 
-            // Atualizar o pagamento diretamente
             Pagamento::atualizar($id, $metodo, $valor, $numero_mesa);
-            error_log("Pagamento atualizado com sucesso. ID: $id");
-
             jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
         } catch (Exception $e) {
-            error_log("Erro ao atualizar pagamento: " . $e->getMessage());
             jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
 
-    public function deletar($id): void {
-        error_log("Iniciando exclusão de pagamento com ID: $id");
+    public function deletar($id): void
+    {
+        $decodedToken = $this->autenticarRequisicao();
+
+        if (!$decodedToken['is_admin']) {
+            jsonResponse(403, ["status" => "error", "message" => "Acesso negado: apenas administradores podem deletar pagamentos"]);
+            return;
+        }
 
         try {
             Pagamento::deleteById($id);
-            error_log("Pagamento deletado com sucesso. ID: $id");
             jsonResponse(200, ["status" => "success", "data" => ["id" => $id]]);
         } catch (Exception $e) {
-            error_log("Erro ao deletar pagamento: " . $e->getMessage());
             jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }
 
-    public function handleRequest($method, $id = null, $action = null, $data = null): void {
-        error_log("Iniciando manipulação de requisição para Pagamento. Método: $method, ID: $id, Ação: $action");
-
+    public function handleRequest($method, $id = null, $action = null, $data = null): void
+    {
         try {
             if ($method === 'GET') {
                 if ($action === 'deletados') {
@@ -122,11 +156,9 @@ class PagamentoController {
                     jsonResponse(400, ["status" => "error", "message" => "ID necessário para exclusão"]);
                 }
             } else {
-                error_log("Método não permitido: $method");
                 jsonResponse(405, ["status" => "error", "message" => "Método não permitido"]);
             }
         } catch (Exception $e) {
-            error_log("Erro ao manipular requisição: " . $e->getMessage());
             jsonResponse($e->getCode() ?: 500, ["status" => "error", "message" => $e->getMessage()]);
         }
     }

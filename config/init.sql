@@ -40,17 +40,17 @@ CREATE TABLE IF NOT EXISTS Pagamento (
 
 CREATE TABLE IF NOT EXISTS UsuarioMesa (
     id_usuario INT,
-    id_mesa INT,
-    PRIMARY KEY (id_usuario, id_mesa),
+    numero_mesa VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id_usuario, numero_mesa),
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id),
-    FOREIGN KEY (id_mesa) REFERENCES Mesa(id)
+    FOREIGN KEY (numero_mesa) REFERENCES Mesa(numero)
     );
 
 CREATE TABLE IF NOT EXISTS ProdutosMesa (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_mesa INT,
-    id_prod INT,
+    numero_mesa VARCHAR(255) NOT NULL,
+    id_prod INT NOT NULL,
     quantidade INT,
-    FOREIGN KEY (id_mesa) REFERENCES Mesa(id),
+    FOREIGN KEY (numero_mesa) REFERENCES Mesa(numero),
     FOREIGN KEY (id_prod) REFERENCES Produto(id)
     );

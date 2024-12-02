@@ -12,7 +12,8 @@ require_once(__DIR__ . "/../config/database.php");
  *     @OA\Property(property="id_mesa", type="integer", description="ID da mesa associada")
  * )
  */
-class UsuarioMesa {
+class UsuarioMesa
+{
 
     /**
      * @OA\Get(
@@ -21,7 +22,8 @@ class UsuarioMesa {
      *     @OA\Response(response="200", description="Lista de associações entre usuários e mesas")
      * )
      */
-    public static function listar(): array {
+    public static function listar(): array
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT um.* FROM UsuarioMesa um INNER JOIN Usuario u ON um.id_usuario = u.id INNER JOIN Mesa m ON um.id_mesa = m.id WHERE u.deletado = 0 AND m.deletado = 0");
         $sql->execute();
@@ -45,7 +47,8 @@ class UsuarioMesa {
      *     @OA\Response(response="404", description="Usuário ou mesa não encontrado")
      * )
      */
-    public static function associar($id_usuario, $id_mesa): int {
+    public static function associar($id_usuario, $id_mesa): int
+    {
         $connection = Connection::getConnection();
 
         $usuarioCheck = $connection->prepare("SELECT id FROM Usuario WHERE id = ? AND deletado = 0");
@@ -86,7 +89,8 @@ class UsuarioMesa {
      *     @OA\Response(response="404", description="Associação não encontrada")
      * )
      */
-    public static function desassociar($id_usuario, $id_mesa): int {
+    public static function desassociar($id_usuario, $id_mesa): int
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("DELETE FROM UsuarioMesa WHERE id_usuario = ? AND id_mesa = ?");
         $sql->execute([$id_usuario, $id_mesa]);
@@ -108,7 +112,8 @@ class UsuarioMesa {
      *     @OA\Response(response="404", description="Nenhuma associação encontrada para o usuário")
      * )
      */
-    public static function getByUsuarioId($id_usuario): array {
+    public static function getByUsuarioId($id_usuario): array
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT um.* FROM UsuarioMesa um INNER JOIN Usuario u ON um.id_usuario = u.id INNER JOIN Mesa m ON um.id_mesa = m.id WHERE um.id_usuario = ? AND u.deletado = 0 AND m.deletado = 0");
         $sql->execute([$id_usuario]);
@@ -138,7 +143,8 @@ class UsuarioMesa {
      *     @OA\Response(response="404", description="Associação não encontrada")
      * )
      */
-    public static function exist($id_usuario, $id_mesa): bool {
+    public static function exist($id_usuario, $id_mesa): bool
+    {
         $connection = Connection::getConnection();
         $sql = $connection->prepare("SELECT COUNT(*) FROM UsuarioMesa um INNER JOIN Usuario u ON um.id_usuario = u.id INNER JOIN Mesa m ON um.id_mesa = m.id WHERE um.id_usuario = ? AND um.id_mesa = ? AND u.deletado = 0 AND m.deletado = 0");
         $sql->execute([$id_usuario, $id_mesa]);
