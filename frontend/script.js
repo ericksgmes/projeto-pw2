@@ -1331,9 +1331,13 @@ document.addEventListener("DOMContentLoaded", function () {
             document.querySelectorAll(".deletar-produto").forEach((button) => {
                 button.addEventListener("click", async function () {
                     const idProduto = this.getAttribute("data-id");
-                    console.log("Deletar produto com ID:", idProduto);
+                    const numeroMesa = document
+                        .getElementById("mesa-id-produtos")
+                        .value.trim();
 
-                    await deletarProdutoMesa(idProduto);
+                    console.log("Deletar produto com ID:", idProduto, "da mesa:", numeroMesa);
+
+                    await deletarProdutoMesa(idProduto, numeroMesa);
                 });
             });
         } catch (error) {
@@ -1346,7 +1350,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    async function deletarProdutoMesa(idProduto) {
+    async function deletarProdutoMesa(idProduto, numeroMesa) {
         try {
             const token = localStorage.getItem("token");
 
@@ -1372,12 +1376,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            const data = await response.json();
-            console.log("Produto deletado com sucesso:", data);
+            console.log("Produto deletado com sucesso");
             showPopup("Produto removido da mesa com sucesso.", "success");
 
-
-            await listarProdutosMesa(data.numero_mesa);
+            await listarProdutosMesa(numeroMesa);
         } catch (error) {
             console.error("Erro ao deletar produto:", error.message);
             showPopup("Erro ao deletar produto. Tente novamente.", "error");
@@ -1613,6 +1615,14 @@ document.addEventListener("DOMContentLoaded", function () {
             const quantidadeProduto = document.getElementById(
                 "editar-quantidade-produto-id"
             ).value;
+            const numeroMesa = document
+                .getElementById("mesa-id-produtos")
+                .value.trim();
+
+            if (!numeroMesa) {
+                showPopup("Número da mesa não encontrado. Tente novamente.", "error");
+                return;
+            }
 
             if (quantidadeProduto <= 0) {
                 showPopup("A quantidade deve ser maior que zero.", "error");
@@ -1641,14 +1651,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                const data = await response.json();
                 showPopup("Quantidade do produto atualizada com sucesso.", "success");
-
-
                 fecharModalEditarProduto();
 
-
-                await listarProdutosMesa(data.numero_mesa);
+                await listarProdutosMesa(numeroMesa);
             } catch (error) {
                 console.error("Erro ao editar quantidade do produto:", error.message);
                 showPopup("Erro ao editar produto. Tente novamente.", "error");
@@ -1734,8 +1740,6 @@ document.addEventListener("DOMContentLoaded", function () {
             listarProdutos();
         } else if (sectionId === "pagamentos") {
             listarPagamentos();
-        } else if (sectionId === "produtos-mesa") {
-            listarProdutosMesa();
         } else if (sectionId === "adicionar-produto") {
             listarProdutosParaCompra();
         }
