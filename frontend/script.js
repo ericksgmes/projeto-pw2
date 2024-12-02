@@ -1210,23 +1210,14 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("modal-carrinho").style.display = "none";
         });
 
-    function adicionarAoCarrinho(
-        idProduto,
-        nomeProduto,
-        precoProduto,
-        quantidade
-    ) {
-
+    function adicionarAoCarrinho(idProduto, nomeProduto, precoProduto, quantidade) {
         const quantidadeInt = Math.max(1, parseInt(quantidade, 10));
-
 
         const produtoExistente = carrinho.find((item) => item.id === idProduto);
 
         if (produtoExistente) {
-
             produtoExistente.quantidade += quantidadeInt;
         } else {
-
             carrinho.push({
                 id: idProduto,
                 nome: nomeProduto,
@@ -1235,8 +1226,13 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
-
         renderizarCarrinho();
+
+        // Exibindo o pop-up de confirmação
+        showPopup(
+            `O produto <strong>${nomeProduto}</strong> foi adicionado ao carrinho com sucesso!`,
+            "success"
+        );
     }
 
     async function listarProdutosMesa(numeroMesa) {
